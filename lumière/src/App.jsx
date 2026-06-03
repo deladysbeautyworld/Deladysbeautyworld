@@ -1,30 +1,25 @@
-import NavBar from './components/NavBar';
-import Hero from './components/Hero';
-import Truststrip from './components/Truststrip';
-import Featuredproducts from './components/Featuredproducts';
-import Categories from './components/Categories';
-import Promobanner from './components/Promobanner';
-import Testimonials from './components/Testimonials';
-import Newsletter from './components/Newsletter';
-import Footer from './components/Footer';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import RootLayout from "./components/Rootlayout";
+import ComingSoon from "./components/ComingSoon";
+import Home from "./pages/Home";
+import Shop from "./pages/Shop.jsx";
 
-function App() {
-  return (
-    <>
-      <NavBar />
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      { index: true, element: <Home /> },
+      { path: "shop", element: <Shop /> },
+      { path: "routines", element: <ComingSoon /> },
+      { path: "ingredients", element: <ComingSoon /> },
+      { path: "journal", element: <ComingSoon /> },
+      { path: "about", element: <ComingSoon /> },
+      { path: "*", element: <ComingSoon /> },
+    ],
+  },
+]);
 
-      <main>
-        <Hero />
-        <Truststrip />
-        <Featuredproducts />
-        <Categories/>
-        <Promobanner />
-        <Testimonials />
-        <Newsletter />
-        <Footer />
-      </main>
-    </>
-  )
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App
