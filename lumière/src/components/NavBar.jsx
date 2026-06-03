@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCartStore } from "../stores/cartStore";
+import { useAuthStore } from "../stores/authStore";
 
 const NAV_LINKS = [
   { label: "Shop",        to: "/shop" },
@@ -91,6 +92,29 @@ export default function Navbar({ cartCount = 2 }) {
               {totalItems > 9 ? "9+" : totalItems}
             </span>
           </Link>
+
+          {/* Account / Auth */}
+          {(() => {
+            const user = useAuthStore((s) => s.user);
+            const signOut = useAuthStore((s) => s.signOut);
+
+            return user ? (
+              <div className="relative group">
+                <button className="w-8 h-8 rounded-full bg-(--color-cream-dark) border border-(--color-border) flex items-center justify-center text-[11px] font-medium text-(--color-ink)">
+                  {user.user_metadata?.full_name?.[0] ?? user.email[0].toUpperCase()}
+                </button>
+                {/* Dropdown */}
+                <div className="absolute right-0 top-10 w-44 bg-(--color-cream) border border-(--color-border) rounded-sm shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-150 z-50">
+                  <Link to="/orders" className="block px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors">My orders</Link>
+                  <button onClick={signOut} className="w-full text-left px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors border-t border-(--color-border)">Sign out</button>
+                </div>
+              </div>
+            ) : (
+              <Link to="/login" className="text-[11px] tracking-[0.08em] uppercase text-(--color-muted) hover:text-(--color-ink) transition-colors font-normal">
+                Sign in
+              </Link>
+            );
+          })()}
 
           {/* Mobile hamburger */}
           <button

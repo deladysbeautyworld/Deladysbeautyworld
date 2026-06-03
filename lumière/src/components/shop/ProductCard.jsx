@@ -1,14 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useFavorites } from "../../context/FavoritesContext";
+import { useCartStore } from "../../stores/cartStore";
 
 export default function ProductCard({ product }) {
   const { toggleFavorite, isFavorited } = useFavorites();
+  const addItem = useCartStore((state) => state.addItem);
   const wishlisted = isFavorited(product.id);
   const [added, setAdded] = useState(false);
 
   function handleAddToCart(e) {
     e.preventDefault();
+    addItem(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   }
