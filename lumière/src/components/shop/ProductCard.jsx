@@ -43,7 +43,7 @@ export default function ProductCard({ product }) {
             e.stopPropagation();
             toggleFavorite(product);
           }}
-          className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+          className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
           aria-label={wishlisted ? "Remove from favourites" : "Add to favourites"}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" className={wishlisted ? "text-rose-500" : "text-(--color-ink)"}>

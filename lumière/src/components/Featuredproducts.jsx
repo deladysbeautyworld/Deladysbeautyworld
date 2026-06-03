@@ -78,7 +78,7 @@ function ProductCard({ product }) {
             e.stopPropagation();
             toggleFavorite(product);
           }}
-          className="absolute top-2.5 right-2.5 z-10 w-8 h-8 bg-white/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white"
+          className="absolute top-2.5 right-2.5 z-10 w-8 h-8 bg-white/70 rounded-full flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white"
         >
           <svg
             width="14" height="14" viewBox="0 0 24 24"
