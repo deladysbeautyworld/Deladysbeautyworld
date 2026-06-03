@@ -32,27 +32,46 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Right — visual placeholder */}
-      <div className="bg-(--color-cream-mid) flex items-center justify-center min-h-80 md:min-h-auto relative overflow-hidden">
-        {/* Background circle */}
-        <div className="absolute w-70 h-70 rounded-full bg-(--color-stone) opacity-60 -translate-y-12" />
+      {/* Right — full bleed image with overlays */}
+      <div className="relative min-h-80 md:min-h-auto overflow-hidden bg-(--color-cream-mid)">
 
-        {/* Bottle silhouette */}
-        <div className="relative z-10 flex flex-col items-center">
-          <div className="w-39 h-66 bg-(--color-stone) rounded-[65px_65px_6px_6px] overflow-hidden border border-white/45 shadow-sm flex flex-col items-center pb-5">
-            <img
-              src={productImage}
-              alt="Lumière Radiance Serum"
-              className="w-full h-39 object-cover rounded-[64px_64px_5px_5px] border-b border-white/40 mb-4"
-            />
-            <span className="font-display text-[16px] italic text-[#6a6560]">Lumière</span>
-            <span className="text-[9px] tracking-[0.14em] uppercase text-[#8a8580] mt-1">Radiance Serum</span>
+        {/* Full bleed image */}
+        <img
+          src={productImage}
+          alt="Lumière Radiance Serum"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
+
+        {/* Left-edge blend */}
+        <div className="absolute inset-0 bg-linear-to-r from-[#F0EDE6]/30 via-transparent to-transparent" />
+
+        {/* Bottom gradient for legibility */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
+
+        {/* Top-right: brand badge */}
+        <div className="absolute top-6 right-6 bg-white/85 backdrop-blur-sm border border-white/60 rounded-sm px-3.5 py-2.5 text-right">
+          <p className="font-display text-[15px] italic text-(--color-ink)">Lumière</p>
+          <p className="text-[9px] tracking-[0.12em] uppercase text-(--color-faint) mt-0.5">Radiance Serum</p>
+        </div>
+
+        {/* Bottom overlays */}
+        <div className="absolute bottom-6 left-6 right-6 flex items-end justify-between">
+          {/* Price + rating chip */}
+          <div className="bg-white/85 backdrop-blur-sm border border-white/60 rounded-sm px-4 py-3">
+            <div className="flex items-center gap-1 mb-1.5">
+              {[1,2,3,4,5].map((i) => (
+                <svg key={i} width="10" height="10" viewBox="0 0 24 24" fill="#C8A96E">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              ))}
+              <span className="text-[10px] text-(--color-muted) ml-1 font-light">4.9 · 284 reviews</span>
+            </div>
+            <p className="text-[18px] font-medium text-(--color-ink) leading-none">$48.00</p>
           </div>
 
-          {/* Floating badge */}
-          <div className="absolute -right-10 top-8 bg-white/80 backdrop-blur-sm border border-(--color-border) rounded-sm px-3 py-2">
-            <p className="text-[9px] tracking-widest uppercase text-(--color-faint)">Best seller</p>
-            <p className="text-[13px] font-medium text-(--color-ink) mt-0.5">$48.00</p>
+          {/* Best seller pill */}
+          <div className="bg-(--color-ink) text-(--color-cream) text-[9px] tracking-[0.12em] uppercase font-normal px-3 py-1.5 rounded-sm">
+            Best seller
           </div>
         </div>
       </div>
