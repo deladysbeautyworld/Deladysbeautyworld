@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useFavorites } from "../context/FavoritesContext";
 
 const PRODUCTS = [
   {
@@ -44,7 +46,8 @@ const PRODUCTS = [
 ];
 
 function ProductCard({ product }) {
-  const [wished, setWished] = useState(false);
+  const { toggleFavorite, isFavorited } = useFavorites();
+  const wished = isFavorited(product.id);
 
   return (
     <div className="product-card group cursor-pointer">
@@ -53,6 +56,12 @@ function ProductCard({ product }) {
         className="product-img-wrap relative aspect-3/4 rounded-sm flex items-center justify-center mb-4 overflow-hidden"
         style={{ backgroundImage: `url(${product.bgImage})`, backgroundColor: product.bg, backgroundSize: 'cover', backgroundPosition: 'center' }}
       >
+        <Link
+          to={`/products/${product.id}`}
+          aria-label={`View ${product.name}`}
+          className="absolute inset-0 z-0"
+        />
+
         {/* Tag */}
         {product.tag && (
           <span className="absolute top-2.5 left-2.5 bg-(--color-ink) text-(--color-cream) text-[9px] tracking-widest uppercase px-2 py-1 rounded-sm font-normal z-10">
@@ -62,8 +71,13 @@ function ProductCard({ product }) {
 
         {/* Wishlist */}
         <button
-          aria-label="Add to wishlist"
-          onClick={(e) => { e.stopPropagation(); setWished(!wished); }}
+          type="button"
+          aria-label={wished ? "Remove from favourites" : "Add to favourites"}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleFavorite(product);
+          }}
           className="absolute top-2.5 right-2.5 z-10 w-8 h-8 bg-white/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white"
         >
           <svg
@@ -77,14 +91,16 @@ function ProductCard({ product }) {
         </button>
 
         {/* Quick add */}
-        <button className="quick-add absolute bottom-0 left-0 right-0 bg-(--color-ink)/90 text-(--color-cream) text-[10px] tracking-widest uppercase py-3 translate-y-full transition-transform duration-200 ease-out font-normal hover:bg-(--color-ink)">
+        <button className="quick-add absolute bottom-0 left-0 right-0 z-10 bg-(--color-ink)/90 text-(--color-cream) text-[10px] tracking-widest uppercase py-3 translate-y-full transition-transform duration-200 ease-out font-normal hover:bg-(--color-ink)">
           Quick add
         </button>
       </div>
 
       {/* Info */}
-      <p className="text-[14px] font-normal text-(--color-ink) mb-1">{product.name}</p>
-      <p className="text-[12px] text-(--color-faint) mb-2.5 font-light">{product.type}</p>
+      <Link to={`/products/${product.id}`} className="block">
+        <p className="text-[14px] font-normal text-(--color-ink) mb-1">{product.name}</p>
+        <p className="text-[12px] text-(--color-faint) mb-2.5 font-light">{product.type}</p>
+      </Link>
 
       <div className="flex items-center justify-between">
         <span className="text-[14px] font-medium text-(--color-ink)">{product.price}</span>
@@ -107,12 +123,15 @@ export default function FeaturedProducts() {
         <h2 className="font-display text-[32px] font-light text-(--color-ink)">
           Best sellers
         </h2>
-        <button className="flex items-center gap-1.5 text-[11px] tracking-widest uppercase text-(--color-faint) hover:text-(--color-ink) cursor-pointer transition-colors duration-200 font-normal">
+        <Link
+          to="/shop"
+          className="flex items-center gap-1.5 text-[11px] tracking-widest uppercase text-(--color-faint) hover:text-(--color-ink) transition-colors duration-200 font-normal"
+        >
           View all
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
-        </button>
+        </Link>
       </div>
 
       {/* Grid */}

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Hero() {
   const productImage =
     "https://images.unsplash.com/photo-1627811015433-368c148f6c3c?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
@@ -20,15 +22,21 @@ export default function Hero() {
         </p>
 
         <div className="flex items-center gap-6">
-          <button className="bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-(--color-ink-soft) cursor-pointer transition-colors duration-200">
+          <Link
+            to="/shop"
+            className="bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-(--color-ink-soft) transition-colors duration-200 flex items-center"
+          >
             Shop the collection
-          </button>
-          <button className="flex items-center gap-2 text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) transition-colors duration-200 cursor-pointer font-normal">
+          </Link>
+          <Link
+            to="/about"
+            className="flex items-center gap-2 text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) transition-colors duration-200 font-normal"
+          >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <path d="M8 5v14l11-7z"/>
             </svg>
             Our story
-          </button>
+          </Link>
         </div>
       </div>
 

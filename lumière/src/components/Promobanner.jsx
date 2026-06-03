@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function PromoBanner() {
   return (
     <div className="mx-6 md:mx-10 rounded-sm overflow-hidden grid grid-cols-1 md:grid-cols-2 bg-(--color-ink)">
@@ -13,9 +15,12 @@ export default function PromoBanner() {
         <p className="text-[13px] text-(--color-faint) leading-[1.8] font-light mb-8 max-w-xs">
           Bundle any 3 products and save 20%. Formulated to work in harmony — morning to night.
         </p>
-        <button className="self-start bg-(--color-cream-dark) text-(--color-ink) text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-white transition-colors duration-200">
+        <Link
+          to="/shop?tag=daily"
+          className="self-start bg-(--color-cream-dark) text-(--color-ink) text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-white transition-colors duration-200 flex items-center"
+        >
           Shop bundles
-        </button>
+        </Link>
       </div>
 
       {/* Right — decorative bottles */}

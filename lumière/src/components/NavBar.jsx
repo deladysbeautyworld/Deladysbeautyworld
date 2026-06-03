@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import { useFavorites } from "../context/FavoritesContext";
 
 const NAV_LINKS = [
   { label: "Shop",        to: "/shop" },
@@ -11,6 +12,7 @@ const NAV_LINKS = [
 
 export default function Navbar({ cartCount = 2 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { openFavorites, count: wishlistCount } = useFavorites();
 
   const linkClass = ({ isActive }) =>
     `text-[11px] font-normal tracking-widest uppercase transition-colors duration-200 ${
@@ -53,12 +55,19 @@ export default function Navbar({ cartCount = 2 }) {
 
           {/* Wishlist */}
           <button
-            aria-label="Wishlist"
-            className="hidden md:flex text-(--color-muted) hover:text-(--color-ink) transition-colors duration-200 cursor-pointer"
+            type="button"
+            onClick={openFavorites}
+            aria-label="Open favourites sidebar"
+            className="relative text-(--color-muted) hover:text-(--color-ink) transition-colors duration-200 cursor-pointer"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-(--color-ink) text-(--color-cream) text-[9px] font-medium w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                {wishlistCount}
+              </span>
+            )}
           </button>
 
           {/* Cart */}

@@ -1,6 +1,9 @@
+import { Link } from "react-router-dom";
+
 const CATEGORIES = [
   {
     name: "Brightening",
+    slug: "brightening",
     count: "12 products",
     bg: "#D6CFC4",
     image: "https://images.unsplash.com/photo-1729701494051-7013553fafa5?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -8,6 +11,7 @@ const CATEGORIES = [
   },
   {
     name: "Hydration",
+    slug: "hydration",
     count: "18 products",
     bg: "#C9D4C7",
     image: "https://images.unsplash.com/photo-1740097041788-171fa58b74ea?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -15,6 +19,7 @@ const CATEGORIES = [
   },
   {
     name: "Anti-aging",
+    slug: "anti-aging",
     count: "9 products",
     bg: "#C8CEDB",
     image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=900&auto=format&fit=crop",
@@ -22,6 +27,7 @@ const CATEGORIES = [
   },
   {
     name: "Sensitive skin",
+    slug: "sensitive-skin",
     count: "14 products",
     bg: "#D9C9C9",
     image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=900&auto=format&fit=crop",
@@ -29,6 +35,7 @@ const CATEGORIES = [
   },
   {
     name: "Acne control",
+    slug: "acne-control",
     count: "11 products",
     bg: "#D3CBD9",
     image: "https://images.unsplash.com/photo-1687700997210-1501e2682f02?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -36,6 +43,7 @@ const CATEGORIES = [
   },
   {
     name: "Routines",
+    slug: "routines",
     count: "6 bundles",
     bg: "#CDD6CF",
     image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=900&auto=format&fit=crop",
@@ -50,18 +58,22 @@ export default function Categories() {
         <h2 className="font-display text-[32px] font-light text-(--color-ink)">
           Shop by concern
         </h2>
-        <button className="flex items-center gap-1.5 text-[11px] tracking-widest uppercase text-(--color-faint) hover:text-(--color-ink) transition-colors duration-200 font-normal">
+        <Link
+          to="/shop"
+          className="flex items-center gap-1.5 text-[11px] tracking-widest uppercase text-(--color-faint) hover:text-(--color-ink) transition-colors duration-200 font-normal"
+        >
           All categories
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
             <path d="M5 12h14M12 5l7 7-7 7"/>
           </svg>
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {CATEGORIES.map((cat) => (
-          <button
+          <Link
             key={cat.name}
+            to={`/shop?category=${cat.slug}`}
             style={{ backgroundColor: cat.bg }}
             className="relative h-45 md:h-50 rounded-sm text-left px-6 py-5 flex flex-col justify-end overflow-hidden group"
           >
@@ -80,7 +92,7 @@ export default function Categories() {
             <p className="relative z-10 text-[11px] tracking-[0.08em] uppercase text-white/80 mt-1 font-normal">
               {cat.count}
             </p>
-          </button>
+          </Link>
         ))}
       </div>
     </section>
