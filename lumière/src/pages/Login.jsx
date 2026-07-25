@@ -50,7 +50,7 @@ export default function Login() {
         {/* Header */}
         <div className="text-center mb-10">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-6">
-            Lumière
+            De Lady's Beauty World
           </Link>
           <h1 className="font-display text-[28px] font-light text-(--color-ink) mb-2">
             Welcome back
@@ -121,14 +121,14 @@ export default function Login() {
               value={form.password}
               onChange={handleChange}
               required
-              placeholder="••••••••"
+              placeholder="Password"
               className="w-full h-11 border border-(--color-border) rounded-sm px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) bg-(--color-cream) outline-none focus:border-(--color-ink) transition-colors font-light"
             />
           </div>
 
           {/* Error */}
           {error && (
-            <p className="text-[12px] text-red-600 font-light">{error}</p>
+            <p className="text-[12px] text-(--color-error) font-light">{error}</p>
           )}
 
           <button

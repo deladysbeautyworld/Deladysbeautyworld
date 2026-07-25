@@ -9,8 +9,8 @@ function StarRating({ rating, count }) {
       <div className="flex gap-0.5">
         {Array.from({ length: 5 }).map((_, i) => (
           <svg key={i} width="13" height="13" viewBox="0 0 24 24"
-            fill={i < Math.round(rating) ? "#C8A96E" : "none"}
-            stroke={i < Math.round(rating) ? "#C8A96E" : "#D4CFC5"}
+            fill={i < Math.round(rating) ? "var(--color-gold)" : "none"}
+            stroke={i < Math.round(rating) ? "var(--color-gold)" : "var(--color-border)"}
             strokeWidth="1.5"
           >
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -18,7 +18,7 @@ function StarRating({ rating, count }) {
         ))}
       </div>
       <span className="text-[12px] text-(--color-muted) font-light">
-        {rating} · {count} reviews
+        {rating} / {count} reviews
       </span>
     </div>
   );
@@ -199,19 +199,19 @@ export default function ProductDetail() {
                 disabled={!inStock}
                 className={`flex-1 h-11 text-[11px] tracking-widest uppercase font-normal rounded-sm transition-all duration-200 ${
                   added
-                    ? "bg-green-700 text-white"
+                    ? "bg-(--color-success) text-white"
                     : inStock
                     ? "bg-(--color-ink) text-(--color-cream) hover:bg-(--color-ink-soft)"
                     : "bg-(--color-border) text-(--color-faint) cursor-not-allowed"
                 }`}
               >
-                {added ? "✓ Added to cart" : inStock ? "Add to cart" : "Out of stock"}
+                {added ? "Added to cart" : inStock ? "Add to cart" : "Out of stock"}
               </button>
             </div>
 
             {/* Stock indicator */}
             {inStock && product.stock <= 10 && (
-              <p className="text-[11px] text-amber-600 tracking-widest font-light">
+              <p className="text-[11px] text-(--color-warning) tracking-widest font-light">
                 Only {product.stock} left in stock
               </p>
             )}
@@ -224,7 +224,7 @@ export default function ProductDetail() {
                 "Dermatologist tested formula",
               ].map((line) => (
                 <div key={line} className="flex items-center gap-2.5">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C8A96E" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                   <span className="text-[12px] text-(--color-muted) font-light">{line}</span>

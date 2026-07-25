@@ -1,9 +1,9 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { useEffect } from "react";
 
-import RootLayout from "./components/Rootlayout";
-import ComingSoon from "./components/ComingSoon";
-import ProtectedRoute from "./components/ProtectedRoute";
+import RootLayout from "./components/layout/RootLayout";
+import ComingSoon from "./components/common/ComingSoon";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";

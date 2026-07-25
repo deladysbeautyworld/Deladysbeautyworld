@@ -86,9 +86,9 @@ export default function Shop() {
   return (
     <div className="min-h-screen bg-(--color-cream)">
       {/* Page header */}
-      <div className="border-b border-(--color-border) bg-white">
+      <div className="border-b border-(--color-border) bg-(--color-surface)">
         <div className="max-w-7xl mx-auto px-6 py-10">
-          <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">Lumière</p>
+          <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">De Lady's Beauty World</p>
           <h1 className="font-display text-[36px] font-light text-(--color-ink)">Shop all</h1>
         </div>
       </div>
@@ -135,7 +135,7 @@ export default function Shop() {
                 onClick={() => updateParams({ page: page - 1 })}
                 className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer px-2"
               >
-                ← Prev
+                Prev
               </button>
 
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
@@ -157,7 +157,7 @@ export default function Shop() {
                 onClick={() => updateParams({ page: page + 1 })}
                 className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer px-2"
               >
-                Next →
+                Next
               </button>
             </div>
           )}

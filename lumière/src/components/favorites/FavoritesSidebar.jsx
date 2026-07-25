@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useFavorites } from "../context/FavoritesContext";
+import { useFavorites } from "../../context/FavoritesContext";
 
 export default function FavoritesSidebar() {
   const { isOpen, closeFavorites, favorites, removeFavorite } = useFavorites();

@@ -1,8 +1,8 @@
 import { Outlet, ScrollRestoration } from "react-router-dom";
 import NavBar from "./NavBar";
 import Footer from "./Footer";
-import FavoritesSidebar from "./FavoritesSidebar";
-import { FavoritesProvider } from "../context/FavoritesContext";
+import FavoritesSidebar from "../favorites/FavoritesSidebar";
+import { FavoritesProvider } from "../../context/FavoritesContext";
 
 export default function RootLayout() {
   return (

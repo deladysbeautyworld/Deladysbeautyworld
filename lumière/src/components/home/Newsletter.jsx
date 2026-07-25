@@ -22,7 +22,7 @@ export default function Newsletter() {
 
       {submitted ? (
         <div className="text-[13px] text-(--color-ink) font-normal tracking-wide">
-          ✓ You're on the list. Welcome to Lumière.
+          You're on the list. Welcome to De Lady's Beauty World.
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex w-full max-w-md">
@@ -32,7 +32,7 @@ export default function Newsletter() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email address"
             required
-            className="flex-1 h-11 border border-[#C8C5BE] border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-l-sm focus:border-(--color-ink) transition-colors font-light"
+            className="flex-1 h-11 border border-(--color-border) border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-l-sm focus:border-(--color-ink) transition-colors font-light"
           />
           <button
             type="submit"

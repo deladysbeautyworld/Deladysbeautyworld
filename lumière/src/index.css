@@ -1,29 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
-
 :root {
-  --color-cream: #FAFAF8;
-  --color-cream-dark: #F0EDE6;
-  --color-cream-mid: #E8E2D8;
-  --color-stone: #D4CFC5;
-  --color-border: #E0DDD6;
-  --color-ink: #1a1a18;
-  --color-ink-soft: #2a2a26;
-  --color-muted: #6a6a62;
-  --color-faint: #8a8a82;
+  /* === De Lady's Beauty World — Brand Tokens === */
 
-  --font-display: 'Cormorant Garamond', serif;
-  --font-body: 'DM Sans', sans-serif;
+  /* Primary palette — pulled from logo */
+  --color-pink:         #E5007D;
+  --color-pink-light:   #F2A7CC;
+  --color-pink-pale:    #FDF0F7;
+  --color-navy:         #1E1756;
+  --color-navy-soft:    #2D2575;
+
+  /* Neutrals */
+  --color-white:        #FFFFFF;
+  --color-off-white:    #FEF8FC;
+  --color-border:       #F0C8E0;
+  --color-muted:        #6B5B7B;
+  --color-faint:        #A08CB0;
+  --color-surface:      #FDF4FA;
+  --color-gold:         #C8A96E;
+  --color-success:      #16834A;
+  --color-success-soft: #EAF8F0;
+  --color-warning:      #B56A10;
+  --color-error:        #C7345A;
+
+  /* Semantic aliases — same variable names as Lumière so components need minimal changes */
+  --color-ink:          #1E1756;
+  --color-ink-soft:     #2D2575;
+  --color-cream:        #FEF8FC;
+  --color-cream-dark:   #FAE8F4;
+  --color-cream-mid:    #F5D5EB;
+  --color-stone:        #E8B8D8;
+
+  /* Typography */
+  --font-display: 'Playfair Display', serif;
+  --font-body:    'DM Sans', sans-serif;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   font-family: var(--font-body);
@@ -33,16 +48,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.font-display {
-  font-family: var(--font-display);
+.font-display { font-family: var(--font-display); }
+
+.product-card:hover .quick-add { transform: translateY(0); }
+.product-img-wrap { transition: background-color 0.3s ease; }
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-pink) !important;
 }
 
-/* Product card quick-add reveal */
-.product-card:hover .quick-add {
-  transform: translateY(0);
-}
-
-/* Smooth transitions */
-.product-img-wrap {
-  transition: background-color 0.3s ease;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-off-white); }
+::-webkit-scrollbar-thumb { background: var(--color-pink-light); border-radius: 3px; }

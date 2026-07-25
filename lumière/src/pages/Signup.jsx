@@ -51,8 +51,8 @@ export default function Signup() {
     return (
       <div className="min-h-[80vh] flex items-center justify-center px-6">
         <div className="text-center max-w-sm">
-          <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-12 h-12 bg-(--color-success-soft) rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </div>
@@ -80,13 +80,13 @@ export default function Signup() {
         {/* Header */}
         <div className="text-center mb-10">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-6">
-            Lumière
+            De Lady's Beauty World
           </Link>
           <h1 className="font-display text-[28px] font-light text-(--color-ink) mb-2">
             Create an account
           </h1>
           <p className="text-[13px] text-(--color-muted) font-light">
-            Join Lumière and start your skincare journey
+            Join De Lady's Beauty World and start your skincare journey
           </p>
         </div>
 
@@ -180,7 +180,7 @@ export default function Signup() {
           </div>
 
           {error && (
-            <p className="text-[12px] text-red-600 font-light">{error}</p>
+            <p className="text-[12px] text-(--color-error) font-light">{error}</p>
           )}
 
           <button

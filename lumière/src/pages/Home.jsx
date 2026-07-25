@@ -1,19 +1,19 @@
-import Hero from "../components/Hero";
-import Truststrip from "../components/Truststrip";
-import Featuredproducts from "../components/Featuredproducts";
-import Categories from "../components/Categories";
-import Promobanner from "../components/Promobanner";
-import Testimonials from "../components/Testimonials";
-import Newsletter from "../components/Newsletter";
+import Hero from "../components/home/Hero";
+import TrustStrip from "../components/home/TrustStrip";
+import FeaturedProducts from "../components/home/FeaturedProducts";
+import Categories from "../components/home/Categories";
+import PromoBanner from "../components/home/PromoBanner";
+import Testimonials from "../components/home/Testimonials";
+import Newsletter from "../components/home/Newsletter";
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Truststrip />
-      <Featuredproducts />
+      <TrustStrip />
+      <FeaturedProducts />
       <Categories />
-      <Promobanner />
+      <PromoBanner />
       <Testimonials />
       <Newsletter />
     </>

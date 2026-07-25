@@ -54,8 +54,8 @@ function StarRating({ count }) {
         <svg
           key={i}
           width="12" height="12" viewBox="0 0 24 24"
-          fill={i < count ? "#C8A96E" : "none"}
-          stroke={i < count ? "#C8A96E" : "#D4CFC5"}
+          fill={i < count ? "var(--color-gold)" : "none"}
+          stroke={i < count ? "var(--color-gold)" : "var(--color-border)"}
           strokeWidth="1.5"
         >
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -69,7 +69,7 @@ function ReviewCard({ review }) {
   return (
     <div className="border border-(--color-border) rounded-sm p-7 bg-(--color-cream)">
       <StarRating count={review.rating} />
-      <p className="font-display text-[15px] italic font-light text-[#4a4a44] leading-[1.8] mb-5">
+      <p className="font-display text-[15px] italic font-light text-(--color-ink-soft) leading-[1.8] mb-5">
         "{review.text}"
       </p>
       <div className="flex items-center gap-3">
