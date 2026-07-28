@@ -22,7 +22,9 @@ function loadFavorites() {
 }
 
 function getFavoriteImage(product) {
-  return product.image_url || product.bgImage || product.image || "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=320&q=80";
+  // Returns null when no image is available — the favorites sidebar
+  // renders a branded placeholder in that case.
+  return product.image_url || product.bgImage || product.image || null;
 }
 
 function createFavoriteItem(product) {

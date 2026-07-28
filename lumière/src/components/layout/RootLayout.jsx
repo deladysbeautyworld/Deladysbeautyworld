@@ -3,6 +3,7 @@ import NavBar from "./NavBar";
 import Footer from "./Footer";
 import FavoritesSidebar from "../favorites/FavoritesSidebar";
 import { FavoritesProvider } from "../../context/FavoritesContext";
+import WhatsAppButton from "./../WhatsAppButton";
 
 export default function RootLayout() {
   return (
@@ -14,6 +15,7 @@ export default function RootLayout() {
       </main>
       <Footer />
       <FavoritesSidebar />
+      <WhatsAppButton />
     </FavoritesProvider>
   );
 }

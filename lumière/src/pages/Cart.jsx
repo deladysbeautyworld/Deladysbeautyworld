@@ -1,12 +1,15 @@
 import { Link } from "react-router-dom";
 import { useCartStore } from "../stores/cartStore";
 
+const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
+
 function CartItem({ item }) {
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const removeItem = useCartStore((s) => s.removeItem);
 
   return (
     <div className="flex items-start gap-5 py-6 border-b border-(--color-border)">
+
       {/* Image */}
       <Link to={`/product/${item.id}`} className="shrink-0">
         <div className="w-20 h-24 bg-(--color-cream-mid) rounded-sm overflow-hidden flex items-center justify-center">
@@ -25,15 +28,19 @@ function CartItem({ item }) {
         </p>
         <Link
           to={`/product/${item.id}`}
-          className="text-[15px] font-normal text-(--color-ink) hover:underline underline-offset-2 block mb-3"
+          className="text-[15px] font-normal text-(--color-ink) hover:underline underline-offset-2 block mb-1"
         >
           {item.name}
         </Link>
 
+        {item.variantName && (
+          <p className="text-[11px] text-(--color-faint) font-light mb-3">{item.variantName}</p>
+        )}
+
         {/* Quantity */}
-        <div className="flex items-center border border-(--color-border) rounded-sm h-9 w-fit">
+        <div className="flex items-center border border-(--color-border) rounded-sm h-9 w-fit mt-3">
           <button
-            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+            onClick={() => updateQuantity(item.id, item.variantId ?? null, item.quantity - 1)}
             className="w-9 h-full flex items-center justify-center text-(--color-muted) hover:text-(--color-ink) transition-colors"
             aria-label="Decrease"
           >
@@ -43,7 +50,7 @@ function CartItem({ item }) {
           </button>
           <span className="w-9 text-center text-[13px] text-(--color-ink)">{item.quantity}</span>
           <button
-            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+            onClick={() => updateQuantity(item.id, item.variantId ?? null, item.quantity + 1)}
             className="w-9 h-full flex items-center justify-center text-(--color-muted) hover:text-(--color-ink) transition-colors"
             aria-label="Increase"
           >
@@ -57,11 +64,11 @@ function CartItem({ item }) {
       {/* Price + remove */}
       <div className="flex flex-col items-end gap-3 shrink-0">
         <p className="text-[15px] font-medium text-(--color-ink)">
-          ${(item.price * item.quantity).toFixed(2)}
+          {fmt(item.price * item.quantity)}
         </p>
         <button
-          onClick={() => removeItem(item.id)}
-          className="text-[11px] tracking-wide text-(--color-faint) hover:text-(--color-ink) transition-colors underline underline-offset-2"
+          onClick={() => removeItem(item.id, item.variantId ?? null)}
+          className="text-[11px] tracking-wide text-(--color-faint) hover:text-(--color-pink) transition-colors underline underline-offset-2"
         >
           Remove
         </button>
@@ -71,19 +78,20 @@ function CartItem({ item }) {
 }
 
 export default function Cart() {
-  const items = useCartStore((s) => s.items);
+  const items     = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
-  const subtotal = useCartStore((s) => s.subtotal);
+  const subtotal  = useCartStore((s) => s.subtotal()); // called as function
 
-  const shipping = subtotal >= 60 ? 0 : 8;
-  const total = subtotal + shipping;
+  const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
   if (items.length === 0) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-6">
         <div className="w-16 h-16 bg-(--color-cream-mid) rounded-full flex items-center justify-center mb-6">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-(--color-faint)">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
         </div>
         <h2 className="font-display text-[28px] font-light text-(--color-ink) mb-3">
@@ -94,7 +102,7 @@ export default function Cart() {
         </p>
         <Link
           to="/shop"
-          className="bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase px-8 h-11 flex items-center rounded-sm hover:bg-(--color-ink-soft) transition-colors"
+          className="bg-(--color-pink) text-white text-[11px] tracking-widest uppercase px-8 h-11 flex items-center rounded-sm hover:bg-(--color-navy) transition-colors"
         >
           Browse products
         </Link>
@@ -104,6 +112,7 @@ export default function Cart() {
 
   return (
     <div className="px-6 md:px-10 py-12 max-w-5xl mx-auto">
+
       {/* Header */}
       <div className="flex items-baseline justify-between mb-10">
         <h1 className="font-display text-[36px] font-light text-(--color-ink)">
@@ -111,7 +120,7 @@ export default function Cart() {
         </h1>
         <button
           onClick={clearCart}
-          className="text-[11px] text-(--color-faint) hover:text-(--color-ink) transition-colors underline underline-offset-2"
+          className="text-[11px] text-(--color-faint) hover:text-(--color-pink) transition-colors underline underline-offset-2"
         >
           Clear all
         </button>
@@ -122,7 +131,7 @@ export default function Cart() {
         {/* Items */}
         <div>
           {items.map((item) => (
-            <CartItem key={item.id} item={item} />
+            <CartItem key={`${item.id}-${item.variantId ?? "base"}`} item={item} />
           ))}
         </div>
 
@@ -133,42 +142,60 @@ export default function Cart() {
               Order summary
             </h2>
 
+            {/* Line items */}
             <div className="flex flex-col gap-3 mb-6">
-              <div className="flex justify-between text-[13px] text-(--color-muted) font-light">
-                <span>Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} items)</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[13px] text-(--color-muted) font-light">
-                <span>Shipping</span>
-                <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
-              </div>
-              {shipping > 0 && (
-                <p className="text-[11px] text-(--color-faint) font-light">
-                  Add ${(60 - subtotal).toFixed(2)} more for free shipping
-                </p>
-              )}
+              {items.map((item) => (
+                <div key={`${item.id}-${item.variantId ?? "base"}`} className="flex justify-between text-[12px] text-(--color-muted) font-light">
+                  <span className="truncate max-w-[160px]">
+                    {item.name}{item.variantName ? ` · ${item.variantName}` : ""} × {item.quantity}
+                  </span>
+                  <span className="shrink-0 ml-2">{fmt(item.price * item.quantity)}</span>
+                </div>
+              ))}
             </div>
 
-            <div className="border-t border-(--color-border) pt-4 mb-6">
+            {/* Subtotal */}
+            <div className="border-t border-(--color-border) pt-4 mb-2">
               <div className="flex justify-between text-[15px] font-medium text-(--color-ink)">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})</span>
+                <span>{fmt(subtotal)}</span>
               </div>
             </div>
 
+            <p className="text-[11px] text-(--color-faint) font-light mb-6">
+              Delivery fee and discounts are calculated at checkout.
+            </p>
+
+            {/* CTAs */}
             <Link
               to="/checkout"
-              className="w-full h-11 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors flex items-center justify-center"
+              className="w-full h-11 bg-(--color-pink) text-white text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-navy) transition-colors flex items-center justify-center mb-3"
             >
               Proceed to checkout
             </Link>
 
             <Link
               to="/shop"
-              className="w-full h-11 mt-3 border border-(--color-border) text-(--color-muted) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:border-(--color-ink) hover:text-(--color-ink) transition-colors flex items-center justify-center"
+              className="w-full h-11 border border-(--color-border) text-(--color-muted) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:border-(--color-pink) hover:text-(--color-pink) transition-colors flex items-center justify-center"
             >
               Continue shopping
             </Link>
+
+            {/* Trust signals */}
+            <div className="mt-6 pt-5 border-t border-(--color-border) flex flex-col gap-2.5">
+              {[
+                "Secure payment via Paystack",
+                "Nationwide delivery across Nigeria",
+                "WhatsApp support available",
+              ].map((line) => (
+                <div key={line} className="flex items-center gap-2">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  <span className="text-[11px] text-(--color-muted) font-light">{line}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

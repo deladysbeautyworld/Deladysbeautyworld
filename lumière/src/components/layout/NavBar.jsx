@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCartStore } from "../../stores/cartStore";
-import { useAuthStore } from "../../stores/authStore";
+import { useAuthStore, ADMIN_ROLES } from "../../stores/authStore";
 
 const NAV_LINKS = [
   { label: "Shop",        to: "/shop" },
@@ -14,10 +14,34 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef(null);
   const { openFavorites, count: wishlistCount } = useFavorites();
   const totalItems = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
   const user = useAuthStore((s) => s.user);
+  const role = useAuthStore((s) => s.role);
   const signOut = useAuthStore((s) => s.signOut);
+
+  // Close the account dropdown on outside click or Escape.
+  useEffect(() => {
+    if (!accountOpen) return;
+    function onClick(e) {
+      if (accountRef.current && !accountRef.current.contains(e.target)) {
+        setAccountOpen(false);
+      }
+    }
+    function onKey(e) {
+      if (e.key === "Escape") setAccountOpen(false);
+    }
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [accountOpen]);
+
+  const isAdmin = ADMIN_ROLES.includes(role);
 
   const linkClass = ({ isActive }) =>
     `text-[11px] font-normal tracking-widest uppercase transition-colors duration-200 ${
@@ -97,14 +121,71 @@ export default function Navbar() {
 
           {/* Account / Auth */}
           {user ? (
-              <div className="relative group">
-                <button className="w-8 h-8 rounded-full bg-(--color-cream-dark) border border-(--color-border) flex items-center justify-center text-[11px] font-medium text-(--color-ink)">
+              <div className="relative" ref={accountRef}>
+                <button
+                  type="button"
+                  onClick={() => setAccountOpen((o) => !o)}
+                  aria-haspopup="menu"
+                  aria-expanded={accountOpen}
+                  aria-label="Open account menu"
+                  className={[
+                    "w-8 h-8 rounded-full border flex items-center justify-center text-[11px] font-medium transition-colors",
+                    accountOpen
+                      ? "bg-(--color-ink) text-(--color-cream) border-(--color-ink)"
+                      : "bg-(--color-cream-dark) text-(--color-ink) border-(--color-border) hover:border-(--color-ink)",
+                  ].join(" ")}
+                >
                   {user.user_metadata?.full_name?.[0] ?? user.email[0].toUpperCase()}
                 </button>
-                {/* Dropdown */}
-                <div className="absolute right-0 top-10 w-44 bg-(--color-cream) border border-(--color-border) rounded-sm shadow-sm opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-150 z-50">
-                  <Link to="/orders" className="block px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors">My orders</Link>
-                  <button onClick={signOut} className="w-full text-left px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors border-t border-(--color-border)">Sign out</button>
+
+                {/* Dropdown — always rendered, shown via opacity/pointer-events */}
+                <div
+                  role="menu"
+                  className={[
+                    "absolute right-0 top-10 w-56 bg-(--color-cream) border border-(--color-border) rounded-sm shadow-lg z-50 transition-opacity duration-150",
+                    accountOpen
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none",
+                  ].join(" ")}
+                >
+                  {/* User identity header */}
+                  <div className="px-4 py-3 border-b border-(--color-border)">
+                    <p className="text-[12px] text-(--color-ink) font-medium truncate">
+                      {user.user_metadata?.full_name || "Account"}
+                    </p>
+                    <p className="text-[11px] text-(--color-faint) font-light truncate">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  <Link
+                    to="/orders"
+                    role="menuitem"
+                    onClick={() => setAccountOpen(false)}
+                    className="block px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors"
+                  >
+                    My orders
+                  </Link>
+
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      role="menuitem"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-4 py-3 text-[12px] text-(--color-pink) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors border-t border-(--color-border)"
+                    >
+                      Admin dashboard
+                    </Link>
+                  )}
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => { setAccountOpen(false); signOut(); }}
+                    className="w-full text-left px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors border-t border-(--color-border)"
+                  >
+                    Sign out
+                  </button>
                 </div>
               </div>
             ) : (

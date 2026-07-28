@@ -11,41 +11,43 @@ const PAGE_SIZE = 12;
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Derive state from URL
+  const urlPage = Number(searchParams.get("page") || 1);
+
   const filters = {
     category: searchParams.get("category") || null,
-    price: searchParams.get("price") ? JSON.parse(searchParams.get("price")) : null,
-    tag: searchParams.get("tag") || null,
+    price:    searchParams.get("price") ? JSON.parse(searchParams.get("price")) : null,
+    tag:      searchParams.get("tag") || null,
   };
   const sort = searchParams.get("sort") || "newest";
-  const page = Number(searchParams.get("page") || 1);
 
-  const [products, setProducts] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [products, setProducts]                 = useState([]);
+  const [total, setTotal]                       = useState(0);
+  const [categories, setCategories]             = useState([]);
+  const [loading, setLoading]                   = useState(true);
+  const [error, setError]                       = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  // Load categories once
   useEffect(() => {
-    supabase.from("categories").select("*").order("name").then(({ data }) => {
-      if (data) setCategories(data);
-    });
+    supabase
+      .from("categories")
+      .select("*")
+      .order("name")
+      .then(({ data }) => { if (data) setCategories(data); });
   }, []);
 
-  // Load products when filters/sort/page change
   const loadProducts = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
+      const priceRange = filters.price;
       const { products: data, total: count } = await getProducts({
         category: filters.category,
-        priceRange: filters.price,
-        tag: filters.tag,
+        minPrice: priceRange ? priceRange[0] : null,
+        maxPrice: priceRange ? priceRange[1] : null,
+        tag:      filters.tag,
         sort,
-        page,
-        limit: PAGE_SIZE,
+        page:     urlPage - 1,
+        pageSize: PAGE_SIZE,
       });
       setProducts(data);
       setTotal(count);
@@ -54,7 +56,7 @@ export default function Shop() {
     } finally {
       setLoading(false);
     }
-  }, [filters.category, filters.tag, JSON.stringify(filters.price), sort, page]);
+  }, [filters.category, filters.tag, JSON.stringify(filters.price), sort, urlPage]);
 
   useEffect(() => { loadProducts(); }, [loadProducts]);
 
@@ -62,19 +64,21 @@ export default function Shop() {
     const next = new URLSearchParams(searchParams);
     Object.entries(updates).forEach(([k, v]) => {
       if (v === null || v === undefined) next.delete(k);
-      else next.set(k, typeof v === "object" ? JSON.stringify(v) : v);
+      else next.set(k, typeof v === "object" ? JSON.stringify(v) : String(v));
     });
-    // Reset page on filter change
-    next.delete("page");
     setSearchParams(next);
   }
 
   function handleFiltersChange(newFilters) {
-    updateParams({
-      category: newFilters.category,
-      price: newFilters.price,
-      tag: newFilters.tag,
-    });
+    const next = new URLSearchParams(searchParams);
+    next.delete("page");
+    if (newFilters.category) next.set("category", newFilters.category);
+    else next.delete("category");
+    if (newFilters.price) next.set("price", JSON.stringify(newFilters.price));
+    else next.delete("price");
+    if (newFilters.tag) next.set("tag", newFilters.tag);
+    else next.delete("tag");
+    setSearchParams(next);
   }
 
   function clearFilters() {
@@ -85,16 +89,16 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-(--color-cream)">
-      {/* Page header */}
       <div className="border-b border-(--color-border) bg-(--color-surface)">
         <div className="max-w-7xl mx-auto px-6 py-10">
-          <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">De Lady's Beauty World</p>
+          <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">
+            De Lady's Beauty World
+          </p>
           <h1 className="font-display text-[36px] font-light text-(--color-ink)">Shop all</h1>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-10 flex gap-10">
-        {/* Sidebar — desktop */}
         <div className="hidden md:block">
           <FilterSidebar
             categories={categories}
@@ -104,7 +108,6 @@ export default function Shop() {
           />
         </div>
 
-        {/* Mobile sidebar */}
         {mobileFilterOpen && (
           <FilterSidebar
             categories={categories}
@@ -116,34 +119,32 @@ export default function Shop() {
           />
         )}
 
-        {/* Main */}
         <div className="flex-1 min-w-0">
           <SortBar
             total={total}
             sort={sort}
-            onSort={val => updateParams({ sort: val })}
+            onSort={(val) => updateParams({ sort: val })}
             onFilterToggle={() => setMobileFilterOpen(true)}
           />
 
           <ProductGrid products={products} loading={loading} error={error} />
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-12">
               <button
-                disabled={page <= 1}
-                onClick={() => updateParams({ page: page - 1 })}
-                className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer px-2"
+                disabled={urlPage <= 1}
+                onClick={() => updateParams({ page: urlPage - 1 })}
+                className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-2"
               >
                 Prev
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
                   onClick={() => updateParams({ page: p })}
-                  className={`w-8 h-8 text-[12px] border rounded-sm transition-colors cursor-pointer ${
-                    p === page
+                  className={`w-8 h-8 text-[12px] border rounded-sm transition-colors ${
+                    p === urlPage
                       ? "bg-(--color-ink) text-(--color-cream) border-(--color-ink)"
                       : "border-(--color-border) text-(--color-muted) hover:border-(--color-ink) hover:text-(--color-ink)"
                   }`}
@@ -153,9 +154,9 @@ export default function Shop() {
               ))}
 
               <button
-                disabled={page >= totalPages}
-                onClick={() => updateParams({ page: page + 1 })}
-                className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer px-2"
+                disabled={urlPage >= totalPages}
+                onClick={() => updateParams({ page: urlPage + 1 })}
+                className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) disabled:opacity-30 disabled:cursor-not-allowed transition-colors px-2"
               >
                 Next
               </button>

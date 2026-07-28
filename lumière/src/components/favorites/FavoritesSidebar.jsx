@@ -62,13 +62,23 @@ export default function FavoritesSidebar() {
           ) : (
             <div className="space-y-4">
               {favorites.map((product) => {
-                const image = product.image || "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=320&q=80";
+                const image = product.image || product.image_url || null;
                 const rawPrice = String(product.price ?? product.price_display ?? "0").replace(/[^0-9.]/g, "");
                 const displayPrice = Number(rawPrice) ? `$${Number(rawPrice).toFixed(2)}` : product.price || product.price_display || "$0.00";
                 return (
                   <div key={product.id} className="flex items-center gap-4 rounded-sm border border-(--color-border) bg-white p-4">
-                    <div className="h-16 w-16 rounded-sm overflow-hidden bg-(--color-cream-mid)">
-                      <img src={image} alt={product.name} className="h-full w-full object-cover" />
+                    <div className="h-16 w-16 rounded-sm overflow-hidden bg-(--color-cream-mid) shrink-0">
+                      {image ? (
+                        <img src={image} alt={product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-(--color-pink)">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                          </svg>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-medium text-(--color-ink) truncate">{product.name}</p>

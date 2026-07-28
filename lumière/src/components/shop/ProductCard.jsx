@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCartStore } from "../../stores/cartStore";
+import ProductImage from "./ProductImage";
 
 export default function ProductCard({ product }) {
   const { toggleFavorite, isFavorited } = useFavorites();
@@ -23,13 +24,15 @@ export default function ProductCard({ product }) {
       to={`/product/${product.id}`}
       className="group relative flex flex-col bg-white border border-(--color-border) rounded-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
     >
-      {/* Image */}
+      {/* Image — branded placeholder shows when no image_url is set */}
       <div className="relative overflow-hidden bg-(--color-cream-mid) aspect-3/4">
-        <img
-          src={product.image_url || `https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&q=80`}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <div className="absolute inset-0 transition-transform duration-500 group-hover:scale-105">
+          <ProductImage
+            src={product.image_url}
+            alt={product.name}
+            name={product.name}
+          />
+        </div>
 
         {/* Tags */}
         {product.tags?.includes("bestseller") && (
@@ -37,6 +40,12 @@ export default function ProductCard({ product }) {
             Bestseller
           </span>
         )}
+
+        {product.stock === 0 && (
+  <span className="absolute top-3 left-3 bg-(--color-border) text-(--color-muted) text-[9px] tracking-widest uppercase px-2 py-1">
+    Out of stock
+  </span>
+)}
 
         {/* Wishlist */}
         <button
@@ -55,14 +64,20 @@ export default function ProductCard({ product }) {
         </button>
 
         {/* Quick add */}
-        <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-          <button
-            onClick={handleAddToCart}
-            className="w-full bg-(--color-ink) text-(--color-cream) text-[10px] tracking-widest uppercase py-3 hover:bg-(--color-ink-soft) transition-colors cursor-pointer"
-          >
-            {added ? "✓ Added" : "Quick Add"}
-          </button>
-        </div>
+        {/* Quick add */}
+<div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+  <button
+    onClick={handleAddToCart}
+    disabled={product.stock === 0}
+    className={`w-full text-[10px] tracking-widest uppercase py-3 transition-colors cursor-pointer ${
+      product.stock === 0
+        ? "bg-(--color-border) text-(--color-faint) cursor-not-allowed"
+        : "bg-(--color-ink) text-(--color-cream) hover:bg-(--color-ink-soft)"
+    }`}
+  >
+    {product.stock === 0 ? "Out of stock" : added ? "✓ Added" : "Quick Add"}
+  </button>
+</div>
       </div>
 
       {/* Info */}
@@ -83,7 +98,7 @@ export default function ProductCard({ product }) {
           <span className="text-[10px] text-(--color-faint)">({product.review_count})</span>
         </div>
 
-        <p className="text-[14px] font-medium text-(--color-ink) mt-auto pt-2">${Number(product.price).toFixed(2)}</p>
+        <p className="text-[14px] font-medium text-(--color-ink) mt-auto pt-2">₦{Number(product.price).toLocaleString("en-NG")}</p>
       </div>
     </Link>
   );

@@ -4,18 +4,24 @@ import { persist } from "zustand/middleware";
 export const useCartStore = create(
   persist(
     (set, get) => ({
-      items: [], // [{ id, name, price, image_url, category, quantity }]
+      items: [],
 
-      // Add product — increments qty if already in cart
-      addItem: (product, quantity = 1) => {
+      // Add product to cart — respects stock limit
+      addItem: (product, quantity = 1, variant = null) => {
+        const effectiveStock = variant ? variant.stock : product.stock;
+        if (effectiveStock <= 0) return;
+
         const items = get().items;
-        const existing = items.find((i) => i.id === product.id);
+        const variantId = variant?.id ?? null;
+        const existing = items.find(
+          (i) => i.id === product.id && i.variantId === variantId
+        );
 
         if (existing) {
           set({
             items: items.map((i) =>
-              i.id === product.id
-                ? { ...i, quantity: i.quantity + quantity }
+              i.id === product.id && i.variantId === variantId
+                ? { ...i, quantity: Math.min(i.quantity + quantity, effectiveStock) }
                 : i
             ),
           });
@@ -24,49 +30,62 @@ export const useCartStore = create(
             items: [
               ...items,
               {
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image_url: product.image_url,
-                category: product.categories?.name ?? null,
-                quantity,
+                id:          product.id,
+                name:        product.name,
+                price:       variant?.price ?? product.price,
+                image_url:   product.image_url ?? null,
+                category:    product.categories?.name ?? null,
+                variantId,
+                variantName: variant?.name ?? null,
+                quantity:    Math.min(quantity, effectiveStock),
               },
             ],
           });
         }
       },
 
-      // Remove a product entirely
-      removeItem: (id) => {
-        set({ items: get().items.filter((i) => i.id !== id) });
+      // Remove item by product id + variantId
+      removeItem: (id, variantId = null) => {
+        set({
+          items: get().items.filter(
+            (i) => !(i.id === id && i.variantId === variantId)
+          ),
+        });
       },
 
-      // Set exact quantity — removes if 0
-      updateQuantity: (id, quantity) => {
+      // Update quantity — signature: (id, variantId, quantity)
+      // Removes item if quantity reaches 0
+      updateQuantity: (id, variantId = null, quantity) => {
         if (quantity <= 0) {
-          set({ items: get().items.filter((i) => i.id !== id) });
+          set({
+            items: get().items.filter(
+              (i) => !(i.id === id && i.variantId === variantId)
+            ),
+          });
         } else {
           set({
             items: get().items.map((i) =>
-              i.id === id ? { ...i, quantity } : i
+              i.id === id && i.variantId === variantId
+                ? { ...i, quantity }
+                : i
             ),
           });
         }
       },
 
-      // Wipe the cart (after successful checkout)
+      // Wipe cart after successful checkout
       clearCart: () => set({ items: [] }),
 
-      // Derived values
-      get totalItems() {
-        return get().items.reduce((sum, i) => sum + i.quantity, 0);
-      },
-      get subtotal() {
-        return get().items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-      },
+      // Total item count — call as s.totalItems()
+      totalItems: () =>
+        get().items.reduce((sum, i) => sum + i.quantity, 0),
+
+      // Subtotal in NGN — call as s.subtotal()
+      subtotal: () =>
+        get().items.reduce((sum, i) => sum + i.price * i.quantity, 0),
     }),
     {
-      name: "lumiere-cart", // localStorage key
+      name: "deladys-cart",
     }
   )
 );
