@@ -14,10 +14,13 @@ import logo from "../../assets/logo.jpg";
  * know the user is authenticated and has role in ADMIN_ROLES.
  */
 const NAV = [
-  { to: "/admin",             label: "Overview",  end: true  },
-  { to: "/admin/orders",      label: "Orders",    end: false },
-  { to: "/admin/products",    label: "Products",  end: false },
-  { to: "/admin/customers",   label: "Customers", end: false },
+  { to: "/admin",               label: "Overview",       end: true  },
+  { to: "/admin/orders",        label: "Orders",         end: false },
+  { to: "/admin/products",      label: "Products",       end: false },
+  { to: "/admin/categories",    label: "Categories",     end: false },
+  { to: "/admin/promo-codes",   label: "Promo codes",    end: false },
+  { to: "/admin/delivery-zones", label: "Delivery zones", end: false },
+  { to: "/admin/customers",     label: "Customers",      end: false },
 ];
 
 export default function AdminLayout() {

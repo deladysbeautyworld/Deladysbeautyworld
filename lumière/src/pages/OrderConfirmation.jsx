@@ -17,7 +17,7 @@ export default function OrderConfirmation() {
   const order = state?.order;
 
   // Direct access without order data — redirect to orders history
-  if (!order) return <Navigate to="/orders" replace />;
+  if (!order) return <Navigate to="/profile" replace />;
 
   const deliveryEstimate = DELIVERY_ESTIMATES[order.zone_name] ?? "3–7 business days";
   const whatsappContact = "https://wa.me/2348000000000"; // replace with client's number
@@ -126,7 +126,7 @@ export default function OrderConfirmation() {
         {/* Navigation */}
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
-            to="/orders"
+            to="/profile"
             className="flex-1 h-11 border border-(--color-border) text-(--color-muted) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:border-(--color-pink) hover:text-(--color-pink) transition-colors flex items-center justify-center"
           >
             View my orders

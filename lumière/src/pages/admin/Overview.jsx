@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getOverviewStats, getRecentOrders } from "../../lib/admin.js";
+import { getOverviewStats, getRecentOrders, getOverviewTrendsSafe } from "../../lib/admin.js";
 import AdminPageHeader from "./components/AdminPageHeader.jsx";
 import AdminMetricCard from "./components/AdminMetricCard.jsx";
 import AdminStatusPill from "./components/AdminStatusPill.jsx";
@@ -17,11 +17,14 @@ const formatDate = (iso) =>
 
 /**
  * Admin dashboard — top-level metrics + recent orders.
- * Pulls from getOverviewStats and getRecentOrders in parallel.
+ * Pulls from getOverviewStats, getOverviewTrendsSafe, and getRecentOrders
+ * in parallel. The trends helper never throws, so a missing RLS permission
+ * on the trend query simply renders the dashboard without delta badges.
  */
 export default function Overview() {
   const [stats, setStats]         = useState(null);
   const [recent, setRecent]       = useState([]);
+  const [trends, setTrends]       = useState(null);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState(null);
 
@@ -32,10 +35,15 @@ export default function Overview() {
       setLoading(true);
       setError(null);
       try {
-        const [s, r] = await Promise.all([getOverviewStats(), getRecentOrders(5)]);
+        const [s, r, t] = await Promise.all([
+          getOverviewStats(),
+          getRecentOrders(5),
+          getOverviewTrendsSafe(),
+        ]);
         if (cancelled) return;
         setStats(s);
         setRecent(r);
+        setTrends(t);
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -74,16 +82,18 @@ export default function Overview() {
         {/* Metric cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <AdminMetricCard
-            label="Revenue"
-            value={stats ? fmt(stats.revenue) : "—"}
+            label="Revenue (30d)"
+            value={stats ? fmt(trends?.sales?.current ?? 0) : "—"}
             loading={loading}
             icon={<RevenueIcon />}
+            trend={trends?.sales}
           />
           <AdminMetricCard
-            label="Orders today"
-            value={stats ? stats.ordersToday : "—"}
+            label="Orders (30d)"
+            value={stats ? trends?.orders?.current ?? 0 : "—"}
             loading={loading}
             icon={<OrdersIcon />}
+            trend={trends?.orders}
           />
           <AdminMetricCard
             label="Pending orders"
@@ -93,10 +103,11 @@ export default function Overview() {
             icon={<PendingIcon />}
           />
           <AdminMetricCard
-            label="Total customers"
-            value={stats ? stats.totalCustomers : "—"}
+            label="New customers (30d)"
+            value={stats ? trends?.customers?.current ?? 0 : "—"}
             loading={loading}
             icon={<CustomersIcon />}
+            trend={trends?.customers}
           />
         </div>
 

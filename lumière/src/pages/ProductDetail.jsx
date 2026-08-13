@@ -62,13 +62,17 @@ export default function ProductDetail() {
   const [selectedVariant, setSelectedVariant] = useState(null);
 
   useEffect(() => {
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     setAdded(false);
     setQuantity(1);
     setSelectedVariant(null);
 
-    getProductById(id)
-      .then((p) => {
+    async function load() {
+      try {
+        const p = await getProductById(id);
+        if (cancelled) return;
         setProduct(p);
 
         // Auto-select first variant if product has variants
@@ -76,15 +80,22 @@ export default function ProductDetail() {
           setSelectedVariant(p.product_variants[0]);
         }
 
-        if (p.category_id) {
-  return getRelatedProducts(p.category_id, p.id, 4);
-}
-return [];
-      })
-      .then((relatedProducts) => setRelated(relatedProducts))
-      .catch(() => navigate("/shop"))
-      .finally(() => setLoading(false));
-  }, [id]);
+        // Fetch related products in parallel — empty array if no category
+        const related = p.category_id
+          ? await getRelatedProducts(p.category_id, p.id, 4)
+          : [];
+        if (cancelled) return;
+        setRelated(related ?? []);
+      } catch {
+        if (!cancelled) navigate("/shop");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, [id, navigate]);
 
   const hasVariants = product?.product_variants?.length > 0;
 

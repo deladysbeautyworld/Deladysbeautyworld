@@ -204,6 +204,16 @@ export const useAuthStore = create(
         });
         if (error) throw error;
       },
+
+      // Send a password-reset email. The user gets a link that redirects to
+      // /reset-password, where Supabase establishes a recovery session and
+      // we let them choose a new password.
+      resetPasswordForEmail: async ({ email }) => {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+      },
     }),
     {
       name: "deladys-auth",

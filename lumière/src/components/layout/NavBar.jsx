@@ -159,12 +159,12 @@ export default function Navbar() {
                   </div>
 
                   <Link
-                    to="/orders"
+                    to="/profile"
                     role="menuitem"
                     onClick={() => setAccountOpen(false)}
                     className="block px-4 py-3 text-[12px] text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors"
                   >
-                    My orders
+                    My account
                   </Link>
 
                   {isAdmin && (

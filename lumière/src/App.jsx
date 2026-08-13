@@ -13,12 +13,21 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import OrderConfirmation from "./pages/OrderConfirmation";
 
 import AdminLayout from "./pages/admin/AdminLayout";
 import Overview from "./pages/admin/Overview";
 import ProfileSettings from "./pages/admin/ProfileSettings";
+import Orders, { OrderDetail } from "./pages/admin/Orders.jsx";
+import Products from "./pages/admin/Products.jsx";
+import Customers, { CustomerDetail } from "./pages/admin/Customers.jsx";
+import PromoCodes from "./pages/admin/PromoCodes.jsx";
+import Categories from "./pages/admin/Categories.jsx";
+import DeliveryZones from "./pages/admin/DeliveryZones.jsx";
 import AdminNotFound from "./pages/admin/AdminNotFound";
+import Profile from "./pages/Profiles/profile";
 
 import { useAuthStore } from "./stores/authStore";
 
@@ -36,6 +45,8 @@ const router = createBrowserRouter([
       // Auth routes
       { path: "login", element: <Login /> },
       { path: "signup", element: <Signup /> },
+      { path: "forgot-password", element: <ForgotPassword /> },
+      { path: "reset-password", element: <ResetPassword /> },
 
       // Protected route
       {
@@ -43,6 +54,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Checkout />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         ),
       },
@@ -68,10 +87,14 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Overview /> },
       { path: "profile", element: <ProfileSettings /> },
-      // Future children:
-      // { path: "orders",    element: <Orders /> },
-      // { path: "products",  element: <AdminProducts /> },
-      // { path: "customers", element: <AdminCustomers /> },
+      { path: "orders", element: <Orders /> },
+      { path: "orders/:id", element: <OrderDetail /> },
+      { path: "products", element: <Products /> },
+      { path: "categories", element: <Categories /> },
+      { path: "promo-codes", element: <PromoCodes /> },
+      { path: "delivery-zones", element: <DeliveryZones /> },
+      { path: "customers", element: <Customers /> },
+      { path: "customers/:id", element: <CustomerDetail /> },
       { path: "*", element: <AdminNotFound /> },
     ],
   },
