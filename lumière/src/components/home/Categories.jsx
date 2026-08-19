@@ -56,7 +56,7 @@ export default function Categories() {
     <section className="px-6 md:px-10 pb-16">
       <div className="flex items-baseline justify-between mb-10">
         <h2 className="font-display text-[32px] font-light text-(--color-ink)">
-          Shop by concern
+          Shop by Concern
         </h2>
         <Link
           to="/shop"
@@ -84,7 +84,6 @@ export default function Categories() {
               style={{ objectPosition: cat.position }}
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/55 via-black/18 to-white/5" />
-            <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/20 backdrop-blur-[2px] group-hover:scale-110 transition-transform duration-300" />
 
             <p className="relative z-10 font-display text-[22px] font-light text-white leading-tight drop-shadow-sm">
               {cat.name}

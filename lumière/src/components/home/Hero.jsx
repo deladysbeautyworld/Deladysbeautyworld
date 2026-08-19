@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/logo_1.png";
 
 export default function Hero() {
   const [visible, setVisible] = useState(false);
@@ -68,7 +68,7 @@ export default function Hero() {
       <div className="bg-(--color-cream-mid) flex items-center justify-center min-h-80 md:min-h-auto relative overflow-hidden">
 
         {/* Outer ring — slow pulse */}
-        <div className="absolute w-[420px] h-[420px] rounded-full bg-(--color-pink)/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_4s_ease-in-out_infinite]" />
+        <div className="absolute w-105 h-105 rounded-full bg-(--color-pink)/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_4s_ease-in-out_infinite]" />
 
         {/* Logo + tagline */}
         <div

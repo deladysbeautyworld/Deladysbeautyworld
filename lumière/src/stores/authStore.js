@@ -19,21 +19,26 @@ const _inflight = new Map();
 /**
  * Look up the role for a user id and write it to the store.
  *
- * If we've already started fetching this user's role, the second caller
- * just awaits the existing promise instead of issuing another query.
+ * Roles live on auth.users.app_metadata.role (set via the Supabase dashboard
+ * or admin API — never on user_metadata, which the end user can edit).
+ *
+ * If we've already started resolving this user's role, the second caller
+ * just awaits the existing promise instead of recomputing.
  */
 function fetchRole(userId) {
   if (_inflight.has(userId)) return _inflight.get(userId);
 
   const promise = (async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
+    // Refresh the session so we read app_metadata from a verified source
+    // rather than a possibly-stale cached user object.
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-    // Fail closed — unknown / missing profile = no admin powers.
-    const role = error || !data ? null : data.role;
+    // Fail closed — unknown / unauthenticated = no admin powers.
+    const role =
+      error || !user || user.id !== userId
+        ? null
+        : (user.app_metadata?.role ?? null);
+
     useAuthStore.setState({ role });
     return role;
   })().finally(() => {

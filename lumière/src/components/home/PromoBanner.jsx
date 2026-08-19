@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import cosBundle from "./../../assets/cos_bundle.jpg";
 
 export default function PromoBanner() {
   return (
@@ -13,10 +14,10 @@ export default function PromoBanner() {
           Build your<br />perfect routine
         </h2>
         <p className="text-[13px] text-(--color-faint) leading-[1.8] font-light mb-8 max-w-xs">
-          Bundle any 3 products and save 20%. Formulated to work in harmony, morning to night.
+          With our inbuilt AI, you can now create a skincare routine by just selecting the products and clicking generate to get a routine for you
         </p>
         <Link
-          to="/shop?tag=daily"
+          to="/routines"
           className="self-start bg-(--color-cream-dark) text-(--color-ink) text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-white transition-colors duration-200 flex items-center"
         >
           Shop bundles
@@ -24,22 +25,8 @@ export default function PromoBanner() {
       </div>
 
       {/* Right — decorative bottles */}
-      <div className="hidden md:flex items-center justify-center bg-(--color-navy-soft) px-10 py-10">
-        <div className="flex items-end gap-4">
-          {[
-            { w: 52, h: 110, label: "C" },
-            { w: 64, h: 148, label: "M" },
-            { w: 46, h: 88,  label: "S" },
-          ].map(({ w, h, label }) => (
-            <div
-              key={label}
-              style={{ width: w, height: h }}
-              className="bg-(--color-pink-pale) rounded-[50%_50%_4px_4px] flex items-end justify-center pb-2"
-            >
-              <span className="font-display text-[11px] italic text-(--color-pink)">{label}</span>
-            </div>
-          ))}
-        </div>
+      <div className="hidden md:flex items-center justify-center bg-(--color-navy-soft)">
+          <img src={cosBundle} alt="Cosmetic Bundle" className="w-full h-full object-contain" />
       </div>
     </div>
   );

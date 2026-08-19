@@ -1,4 +1,5 @@
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/logo_1.png";
+import { Link } from "react-router-dom";
 
 const FOOTER_LINKS = {
   Shop: ["All products", "Best sellers", "New arrivals", "Bundles", "Sale"],
@@ -40,7 +41,7 @@ export default function Footer() {
               alt="De Lady's Beauty World"
               className="w-20 h-20 object-contain rounded-full mb-4"
             />
-            <p className="text-[13px] text-(--color-faint) leading-[1.7] font-light mb-5 max-w-[200px]">
+            <p className="text-[13px] text-(--color-faint) leading-[1.7] font-light mb-5 max-w-50">
               Premium makeup, skincare and fragrance — delivered nationwide across Nigeria.
             </p>
             <div className="flex gap-3">
@@ -69,18 +70,47 @@ export default function Footer() {
               <p className="text-[11px] tracking-[0.12em] uppercase font-medium text-(--color-ink) mb-5">
                 {title}
               </p>
-              <ul className="flex flex-col gap-3">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-[13px] text-(--color-muted) hover:text-(--color-pink) transition-colors duration-200 font-light"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+                <ul className="flex flex-col gap-3">
+                  {links.map((link) => {
+                    // map some well-known link labels to internal routes
+                    const PATH_MAP = {
+                      "All products": "/shop",
+                      "Best sellers": "/shop?sort=bestsellers",
+                      "New arrivals": "/shop?sort=new",
+                      "Bundles": "/shop?category=routines",
+                      "Sale": "/shop?filter=sale",
+
+                      "Track my order": "/order-confirmation",
+                      "Returns & exchanges": "/returns",
+                      "Shipping info": "/shipping",
+                      "FAQ": "/faq",
+                      "Contact us": "/contact",
+
+                      "About De Lady's": "/about",
+                      "Our products": "/shop",
+                      "Sustainability": "/about",
+                      "Journal": "/journal",
+                      "Careers": "/careers",
+                    };
+
+                    const to = PATH_MAP[link];
+
+                    return (
+                      <li key={link}>
+                        {to ? (
+                          <Link
+                            to={to}
+                            className="text-[13px] text-(--color-muted) hover:text-(--color-pink) transition-colors duration-200 font-light"
+                          >
+                            {link}
+                          </Link>
+                        ) : (
+                          <span className="text-[13px] text-(--color-muted) font-light">{link}</span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
             </div>
           ))}
         </div>
@@ -90,17 +120,21 @@ export default function Footer() {
           <p className="text-[12px] text-(--color-faint) font-light">
             © 2025 De Lady's Beauty World. All rights reserved.
           </p>
-          <div className="flex items-center gap-5">
-            {["Privacy policy", "Terms of service", "Cookie settings"].map((item) => (
-              <a
-                key={item}
-                href="#"
-                className="text-[12px] text-(--color-faint) hover:text-(--color-pink) transition-colors duration-200 font-light"
-              >
-                {item}
-              </a>
-            ))}
-          </div>
+            <div className="flex items-center gap-5">
+              {[
+                { label: 'Privacy policy', to: '/privacy' },
+                { label: 'Terms of service', to: '/terms' },
+                { label: 'Cookie settings', to: '/cookies' },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  className="text-[12px] text-(--color-faint) hover:text-(--color-pink) transition-colors duration-200 font-light"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
         </div>
 
       </div>

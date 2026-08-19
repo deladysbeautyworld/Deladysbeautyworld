@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuthStore } from "./../../stores/authStore";
 import { supabase } from "./../../utils/supabase";
@@ -10,7 +10,7 @@ const fmtDate = (iso) =>
     day: "numeric", month: "short", year: "numeric",
   });
 
-const TABS = ["Details", "Orders", "Security"];
+const TABS = ["Details", "Orders", "Routines", "Security"];
 
 const NIGERIAN_STATES = [
   "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
@@ -414,6 +414,174 @@ function SecurityTab({ user }) {
   );
 }
 
+/* ── Saved routines tab ── */
+function RoutinesTab({ userId }) {
+  const [routines, setRoutines]   = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [openId, setOpenId]       = useState(null);
+  const [error, setError]         = useState(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const { data, error: err } = await supabase
+      .from("routines")
+      .select("id, title, products, routine, created_at")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    if (err) {
+      console.error("Failed to load routines:", err);
+      setError(err.message);
+    } else {
+      // Defensive: drop nulls / rows without an id so we never crash on render.
+      setRoutines((data ?? []).filter((r) => r && r.id != null));
+    }
+    setLoading(false);
+  }, [userId]);
+
+  useEffect(() => { if (userId) load(); }, [userId, load]);
+
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this routine?")) return;
+    const { error: err } = await supabase.from("routines").delete().eq("id", id);
+    if (err) {
+      console.error("Failed to delete routine:", err);
+      setError(err.message);
+      return;
+    }
+    setRoutines((prev) => prev.filter((r) => r.id !== id));
+    if (openId === id) setOpenId(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="w-6 h-6 border-2 border-(--color-border) border-t-(--color-pink) rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="text-[12px] text-red-500 font-light">Could not load routines: {error}</p>
+    );
+  }
+
+  if (routines.length === 0) {
+    return (
+      <div className="text-center py-12 border border-dashed border-(--color-border) rounded-sm">
+        <p className="text-[13px] text-(--color-muted) font-light mb-3">
+          You haven't saved any routines yet.
+        </p>
+        <a
+          href="/routines"
+          className="inline-block h-9 px-5 leading-9 bg-(--color-pink) text-white text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-navy) transition-colors"
+        >
+          Generate a routine
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {routines.map((r) => (
+        <RoutineCard
+          key={r.id}
+          routine={r}
+          isOpen={openId === r.id}
+          onToggle={() => setOpenId(openId === r.id ? null : r.id)}
+          onDelete={() => handleDelete(r.id)}
+        />
+      ))}
+    </div>
+  );
+}
+
+function RoutineCard({ routine, isOpen, onToggle, onDelete }) {
+  const sections = [
+    { key: "morning", label: "☀️ Morning", steps: routine.routine?.morning ?? [] },
+    { key: "evening", label: "🌙 Evening", steps: routine.routine?.evening ?? [] },
+    { key: "weekly",  label: "📅 Weekly",  steps: routine.routine?.weekly  ?? [] },
+  ].filter((s) => s.steps.length > 0);
+
+  return (
+    <div className="border border-(--color-border) rounded-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3 p-4 bg-white">
+        <button
+          onClick={onToggle}
+          className="flex-1 min-w-0 text-left"
+        >
+          <p className="text-[14px] font-normal text-(--color-ink) truncate">
+            {routine.title || "Untitled routine"}
+          </p>
+          <p className="text-[11px] text-(--color-faint) font-light mt-0.5">
+            {fmtDate(routine.created_at)} · {routine.products?.length ?? 0} products
+          </p>
+        </button>
+        <button
+          onClick={onDelete}
+          className="shrink-0 h-8 px-3 text-[10px] tracking-widest uppercase border border-(--color-border) text-(--color-muted) rounded-sm hover:border-red-300 hover:text-red-500 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+
+      {/* Body */}
+      {isOpen && (
+        <div className="border-t border-(--color-border) px-4 py-4 bg-(--color-cream-dark) flex flex-col gap-5">
+          {routine.routine?.skin_tip && (
+            <p className="text-[12px] text-(--color-muted) font-light italic leading-[1.7]">
+              {routine.routine.skin_tip}
+            </p>
+          )}
+
+          {sections.map((s) => (
+            <div key={s.key}>
+              <h4 className="text-[11px] tracking-[0.12em] uppercase font-medium text-(--color-ink) mb-3">
+                {s.label}
+              </h4>
+              <div className="flex flex-col">
+                {s.steps.map((step, i) => (
+                  <div key={i} className="flex gap-3 pb-3 border-b border-(--color-border) last:border-b-0 last:pb-0">
+                    <div className="w-6 h-6 rounded-full bg-(--color-pink) text-white text-[10px] font-medium flex items-center justify-center shrink-0 mt-0.5">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-medium text-(--color-ink)">{step.action}</p>
+                      {step.product && (
+                        <p className="text-[11px] text-(--color-pink) font-light mt-0.5">{step.product}</p>
+                      )}
+                      <p className="text-[12px] text-(--color-muted) font-light mt-1 leading-[1.6]">{step.tip}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          {/* Products used */}
+          {routine.products?.length > 0 && (
+            <div>
+              <h4 className="text-[11px] tracking-[0.12em] uppercase font-medium text-(--color-ink) mb-2">
+                Products used
+              </h4>
+              <ul className="flex flex-col gap-1">
+                {routine.products.map((p, i) => (
+                  <li key={i} className="text-[12px] text-(--color-muted) font-light">
+                    · {p.name}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Main Profile page ── */
 export default function Profile() {
   const user    = useAuthStore((s) => s.user);
@@ -424,13 +592,44 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single()
-      .then(({ data }) => setProfile(data))
-      .catch(() => setProfile(null));
+
+    async function loadProfile() {
+      // Read the row if it exists. PGRST116 = no rows, which is fine —
+      // the signup flow may not have mirrored the user yet.
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Failed to load profile:", error);
+        setProfile(null);
+        return;
+      }
+
+      if (!data) {
+        // Auto-create a profile row for users who signed up before this
+        // existed (or whose signup mirror failed). This satisfies the
+        // routines.user_id foreign key too.
+        const { data: created, error: createErr } = await supabase
+          .from("profiles")
+          .insert({
+            id:        user.id,
+            email:     user.email,
+            full_name: user.user_metadata?.full_name ?? null,
+          })
+          .select()
+          .maybeSingle();
+        if (createErr) console.error("Failed to create profile row:", createErr);
+        setProfile(created ?? null);
+        return;
+      }
+
+      setProfile(data);
+    }
+
+    loadProfile();
   }, [user]);
 
   if (loading) {
@@ -482,6 +681,7 @@ export default function Profile() {
         />
       )}
       {activeTab === "Orders" && <OrdersTab userId={user.id} />}
+      {activeTab === "Routines" && <RoutinesTab userId={user.id} />}
       {activeTab === "Security" && <SecurityTab user={user} />}
     </div>
   );

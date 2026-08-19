@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { useAuthStore } from "../../stores/authStore";
 import { ADMIN_ROLES } from "../../stores/authStore";
-import logo from "../../assets/logo.jpg";
+import logo from "../../assets/logo_1.png";
 
 /**
  * Shell for all /admin/* pages. Branded sidebar + main content area.

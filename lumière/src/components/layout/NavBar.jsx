@@ -7,7 +7,6 @@ import { useAuthStore, ADMIN_ROLES } from "../../stores/authStore";
 const NAV_LINKS = [
   { label: "Shop",        to: "/shop" },
   { label: "Routines",    to: "/routines" },
-  { label: "Ingredients", to: "/ingredients" },
   { label: "Journal",     to: "/journal" },
   { label: "About",       to: "/about" },
 ];
