@@ -60,19 +60,7 @@ export const useAuthStore = create(
 
       // Call once at app root — listens for auth state changes
       init: async () => {
-        const callbackCode = new URLSearchParams(window.location.search).get("code");
-        if (callbackCode) {
-          const { error } = await supabase.auth.exchangeCodeForSession(callbackCode);
-          if (error) {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            throw error;
-          }
-        }
-
         const { data: { session } } = await supabase.auth.getSession();
-        if (window.location.search || window.location.hash) {
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
         const user = session?.user ?? null;
         set({ session, user, loading: false });
 
