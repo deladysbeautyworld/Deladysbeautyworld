@@ -1,8 +1,0 @@
-{
-  "installCommand": "npm install --prefix lumière",
-  "buildCommand": "npm run build --prefix lumière",
-  "outputDirectory": "lumière/dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
