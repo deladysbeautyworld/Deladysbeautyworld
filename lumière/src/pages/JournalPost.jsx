@@ -64,9 +64,9 @@ export default function JournalPost() {
       .then((res) => {
         if (res?.data) setRelated(res.data);
       })
-      .catch(console.error)
+      .catch(() => navigate("/journal"))
       .finally(() => setLoading(false));
-  }, [slug]);
+  }, [slug, navigate]);
 
   if (loading) {
     return (

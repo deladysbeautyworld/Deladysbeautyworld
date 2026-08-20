@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 import { getProductById, getRelatedProducts } from "../lib/products";
 import { useCartStore } from "../stores/cartStore";
 import ProductImage from "../components/shop/ProductImage";
@@ -130,6 +131,13 @@ export default function ProductDetail() {
 
   return (
     <div className="px-6 md:px-10 py-12 max-w-6xl mx-auto">
+      <SEOMeta
+        title={product?.name || "Product"}
+        description={product?.description || "View this product from De Lady's Beauty World"}
+        canonical={`${window.location.origin}/product/${id}`}
+        ogImage={product?.image_url}
+        ogType="product"
+      />
 
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-[11px] tracking-[0.08em] uppercase text-(--color-faint) mb-10">

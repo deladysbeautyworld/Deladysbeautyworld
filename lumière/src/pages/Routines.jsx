@@ -5,59 +5,18 @@ import { getProducts } from "../lib/products";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 
-// ── Prompt builder ────────────────────────────────────────────────────
-function buildPrompt(products) {
-  const list = products
-    .map((p) => `- ${p.name} (${p.categories?.name ?? "General"})${p.description ? `: ${p.description}` : ""}`)
-    .join("\n");
-
-  return `You are a professional skincare and beauty consultant for De Lady's Beauty World, a Nigerian beauty brand.
-
-The customer has selected the following products:
-${list}
-
-Generate a personalised daily beauty routine using ONLY these products. Structure it as JSON with this exact format:
-{
-  "title": "Your Personalised Routine",
-  "skin_tip": "One short personalised tip based on the products selected (max 2 sentences)",
-  "morning": [
-    { "step": 1, "action": "Step name", "product": "Exact product name from the list", "tip": "Short application tip" }
-  ],
-  "evening": [
-    { "step": 1, "action": "Step name", "product": "Exact product name from the list or null if not applicable", "tip": "Short application tip" }
-  ],
-  "weekly": [
-    { "step": 1, "action": "Step name", "product": "Exact product name or null", "tip": "Short tip" }
-  ]
-}
-
-Rules:
-- Only use products from the list provided. Do not invent products.
-- If a product is only relevant to morning or evening, only include it there.
-- Weekly steps are for treatments like masks, scrubs, or deep conditioning — only include if relevant products were selected.
-- Keep tips practical and Nigeria-appropriate (consider humidity and climate).
-- Return ONLY the JSON object, no markdown, no extra text.`;
-}
-
-// ── Groq API call ─────────────────────────────────────────────────────
 async function generateRoutine(selectedProducts) {
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-  },
-  body: JSON.stringify({
-    model: "groq/compound-mini",
-    messages: [{ role: "user", content: buildPrompt(selectedProducts) }],
-    temperature: 0.7,
-  }),
-});
+  const response = await fetch("/api/generate-routine", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ products: selectedProducts }),
+  });
 
-  const data  = await response.json();
-  const text  = data.choices?.[0]?.message?.content ?? "";
-  const clean = text.replace(/```json|```/g, "").trim();
-  return JSON.parse(clean);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Could not generate routine.");
+  }
+  return data.routine;
 }
 
 // ── Product picker card ───────────────────────────────────────────────
@@ -297,7 +256,7 @@ export default function Routines() {
         // downstream `key={product.id}` reads can never crash on null.
         setAllProducts((products ?? []).filter((p) => p && p.id != null));
       })
-      .catch(console.error)
+      .catch(() => setGenError("Could not load products. Please refresh and try again."))
       .finally(() => setProductsLoading(false));
 
     supabase.from("categories").select("*").order("name")
@@ -343,7 +302,7 @@ export default function Routines() {
       setRoutine(result);
       setRoutineTitle(result.title ?? "My Routine");
       setShowModal(true);
-    } catch (err) {
+    } catch {
       setGenError("Could not generate routine. Please try again.");
     } finally {
       setGenerating(false);
@@ -367,8 +326,7 @@ export default function Routines() {
       if (error) throw error;
       if (data) setSavedRoutines((prev) => [data, ...prev]);
       setSaveSuccess(true);
-    } catch (err) {
-      console.error("Failed to save routine:", err);
+    } catch {
       setGenError("Could not save routine. Please try again.");
     } finally {
       setSaving(false);

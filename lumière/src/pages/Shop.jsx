@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 import { getProducts } from "../lib/products";
 import { supabase } from "../utils/supabase";
 import FilterSidebar from "../components/shop/FilterSidebar";
@@ -56,9 +57,14 @@ export default function Shop() {
     } finally {
       setLoading(false);
     }
-  }, [filters.category, filters.tag, JSON.stringify(filters.price), sort, urlPage]);
+  }, [filters.category, filters.price, filters.tag, sort, urlPage]);
 
-  useEffect(() => { loadProducts(); }, [loadProducts]);
+  // Load products when filters or pagination changes
+  // Calling setState indirectly via loadProducts is necessary for data fetching
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadProducts();
+  }, [loadProducts]);
 
   function updateParams(updates) {
     const next = new URLSearchParams(searchParams);
@@ -89,6 +95,11 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-(--color-cream)">
+      <SEOMeta
+        title="Shop All Products"
+        description="Browse our complete collection of skincare, makeup, haircare, and beauty essentials. Find premium products for your beauty routine."
+        canonical={`${window.location.origin}/shop`}
+      />
       <div className="border-b border-(--color-border) bg-(--color-surface)">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">

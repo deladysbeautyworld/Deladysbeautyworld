@@ -15,7 +15,7 @@ import { useAuthStore, ADMIN_ROLES } from "../stores/authStore";
 export default function AdminRoute({ children }) {
   const user    = useAuthStore((s) => s.user);
   const loading = useAuthStore((s) => s.loading);
-  const role    = useAuthStore.getState().role;
+  const role    = useAuthStore((s) => s.role);
   const location = useLocation();
 
   // 1. Session still resolving, OR user signed in but role fetch in flight.

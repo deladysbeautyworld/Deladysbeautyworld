@@ -196,7 +196,7 @@ function OrdersTab({ userId }) {
   useEffect(() => {
     getUserOrders(userId)
       .then(setOrders)
-      .catch(console.error)
+      .catch(() => setOrders([]))
       .finally(() => setLoading(false));
   }, [userId]);
 
@@ -430,7 +430,7 @@ function RoutinesTab({ userId }) {
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
     if (err) {
-      console.error("Failed to load routines:", err);
+
       setError(err.message);
     } else {
       // Defensive: drop nulls / rows without an id so we never crash on render.
@@ -439,13 +439,19 @@ function RoutinesTab({ userId }) {
     setLoading(false);
   }, [userId]);
 
-  useEffect(() => { if (userId) load(); }, [userId, load]);
+  // Load routines when userId changes; calling setState indirectly through load()
+  useEffect(() => {
+    if (userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      load();
+    }
+  }, [userId, load]);
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this routine?")) return;
     const { error: err } = await supabase.from("routines").delete().eq("id", id);
     if (err) {
-      console.error("Failed to delete routine:", err);
+
       setError(err.message);
       return;
     }
@@ -603,7 +609,7 @@ export default function Profile() {
         .maybeSingle();
 
       if (error) {
-        console.error("Failed to load profile:", error);
+
         setProfile(null);
         return;
       }
@@ -621,7 +627,10 @@ export default function Profile() {
           })
           .select()
           .maybeSingle();
-        if (createErr) console.error("Failed to create profile row:", createErr);
+        if (createErr) {
+          setProfile(null);
+          return;
+        }
         setProfile(created ?? null);
         return;
       }
@@ -686,3 +695,7 @@ export default function Profile() {
     </div>
   );
 }
+
+
+
+

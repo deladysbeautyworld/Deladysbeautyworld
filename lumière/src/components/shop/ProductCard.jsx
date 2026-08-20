@@ -9,9 +9,11 @@ export default function ProductCard({ product }) {
   const addItem = useCartStore((state) => state.addItem);
   const wishlisted = isFavorited(product.id);
   const [added, setAdded] = useState(false);
+  const hasVariants = (product.product_variants?.length ?? 0) > 0;
 
   function handleAddToCart(e) {
     e.preventDefault();
+    if (hasVariants) return;
     addItem(product, 1);
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
@@ -68,14 +70,14 @@ export default function ProductCard({ product }) {
 <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
   <button
     onClick={handleAddToCart}
-    disabled={product.stock === 0}
+    disabled={product.stock === 0 || hasVariants}
     className={`w-full text-[10px] tracking-widest uppercase py-3 transition-colors cursor-pointer ${
-      product.stock === 0
+      product.stock === 0 || hasVariants
         ? "bg-(--color-border) text-(--color-faint) cursor-not-allowed"
         : "bg-(--color-ink) text-(--color-cream) hover:bg-(--color-ink-soft)"
     }`}
   >
-    {product.stock === 0 ? "Out of stock" : added ? "✓ Added" : "Quick Add"}
+    {hasVariants ? "Choose options" : product.stock === 0 ? "Out of stock" : added ? "✓ Added" : "Quick Add"}
   </button>
 </div>
       </div>
@@ -103,3 +105,4 @@ export default function ProductCard({ product }) {
     </Link>
   );
 }
+

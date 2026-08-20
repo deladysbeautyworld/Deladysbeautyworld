@@ -7,6 +7,8 @@ import { supabase } from "../utils/supabase";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 
+const PAYSTACK_SCRIPT_ID = "paystack-inline-js";
+
 const NIGERIAN_STATES = [
   "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
   "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT","Gombe","Imo",
@@ -68,9 +70,47 @@ export default function Checkout() {
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState(null);
 
+  const loadPaystack = () =>
+    new Promise((resolve, reject) => {
+      if (window.PaystackPop) {
+        resolve(window.PaystackPop);
+        return;
+      }
+
+      const existing = document.getElementById(PAYSTACK_SCRIPT_ID);
+      if (existing) {
+        existing.addEventListener("load", () => resolve(window.PaystackPop), { once: true });
+        existing.addEventListener("error", reject, { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.id = PAYSTACK_SCRIPT_ID;
+      script.src = "https://js.paystack.co/v1/inline.js";
+      script.async = true;
+      script.onload = () => resolve(window.PaystackPop);
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+
+  const verifyPayment = async (reference) => {
+    const response = await fetch("/api/verify-paystack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reference }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Payment verification failed.");
+    }
+    return data;
+  };
+
   // Recalculate delivery fee when state changes
+  // Setting state synchronously is necessary to preserve form state synchronization
   useEffect(() => {
     if (!form.state) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDeliveryFee(null);
       setDeliveryZone(null);
       return;
@@ -165,79 +205,79 @@ export default function Checkout() {
   };
 
   const handlePlaceOrder = async () => {
+    if (loading) return;
     setLoading(true);
+    setError(null);
+
     try {
+      const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+      if (!publicKey) {
+        throw new Error("Paystack public key is not configured.");
+      }
+
       const whatsappNumber = sameWhatsApp ? form.phone : form.whatsapp;
+      const PaystackPop = await loadPaystack();
+      const handler = PaystackPop.setup({
+        key: publicKey,
+        email: form.email,
+        amount: Math.round(total * 100),
+        currency: "NGN",
+        ref: `DLBW-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        metadata: {
+          custom_fields: [
+            { display_name: "Customer Name", variable_name: "customer_name", value: form.fullName },
+            { display_name: "Phone", variable_name: "phone", value: form.phone },
+          ],
+        },
+        callback: async (response) => {
+          try {
+            await verifyPayment(response.reference);
+            const { data: order, error: finalizeError } = await supabase.rpc("finalize_order", {
+              payload: {
+                payment_reference: response.reference,
+                promo_code_id: promoData?.id ?? null,
+                shipping: {
+                  name: form.fullName,
+                  email: form.email,
+                  phone: form.phone,
+                  address: form.address,
+                  city: form.city,
+                  state: form.state,
+                  whatsapp_number: whatsappNumber,
+                  note: form.note || null,
+                },
+                delivery_fee: deliveryFee,
+                total,
+                items: items.map((item) => ({
+                  product_id: item.id,
+                  variant_id: item.variantId ?? null,
+                  quantity: item.quantity,
+                  unit_price: item.price,
+                })),
+              },
+            });
 
-      // 1. Create order
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id:          user?.id ?? null,
-          total,
-          delivery_fee:     deliveryFee,
-          payment_method:   "paystack",
-          status:           "pending",
-          shipping_name:    form.fullName,
-          shipping_email:   form.email,
-          shipping_phone:   form.phone,
-          shipping_address: form.address,
-          shipping_city:    form.city,
-          shipping_state:   form.state,
-          whatsapp_number:  whatsappNumber,
-          order_note:       form.note || null,
-        })
-        .select()
-        .single();
+            if (finalizeError) throw finalizeError;
+            clearCart();
+            navigate("/order-confirmation", { state: { order } });
+          } catch (err) {
+            setError(err.message || "Payment succeeded, but order finalization failed. Please contact support with your Paystack reference.");
+            setShowConfirm(false);
+          } finally {
+            setLoading(false);
+          }
+        },
+        onClose: () => {
+          setError("Payment was cancelled. Your cart is still intact.");
+          setShowConfirm(false);
+          setLoading(false);
+        },
+      });
 
-      if (orderError) throw orderError;
-
-      // 2. Insert order items
-      const orderItems = items.map((item) => ({
-        order_id:   order.id,
-        product_id: item.id,
-        variant_id: item.variantId ?? null,
-        quantity:   item.quantity,
-        unit_price: item.price,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      // 3. Increment promo code uses
-      if (promoData) {
-        await supabase
-          .from("promo_codes")
-          .update({ uses: promoData.uses + 1 })
-          .eq("id", promoData.id);
-      }
-
-      // 4. Decrement stock
-      for (const item of items) {
-        if (item.variantId) {
-          await supabase.rpc("decrement_variant_stock", {
-            variant_id: item.variantId,
-            qty: item.quantity,
-          });
-        } else {
-          await supabase.rpc("decrement_stock", {
-            product_id: item.id,
-            qty: item.quantity,
-          });
-        }
-      }
-
-      // 5. Clear cart and redirect
-      clearCart();
-      navigate("/order-confirmation", { state: { order } });
-
+      handler.openIframe();
     } catch (err) {
       setError(err.message);
       setShowConfirm(false);
-    } finally {
       setLoading(false);
     }
   };

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 
 export default function Signup() {
-  const navigate = useNavigate();
   const { signUp, signInWithGoogle } = useAuthStore();
 
   const [form, setForm] = useState({ fullName: "", email: "", password: "" });

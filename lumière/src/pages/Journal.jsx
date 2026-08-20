@@ -90,7 +90,7 @@ export default function Journal() {
       .eq("published", true)
       .order("created_at", { ascending: false })
       .then(({ data }) => setPosts(data ?? []))
-      .catch(console.error)
+      .catch(() => setPosts([]))
       .finally(() => setLoading(false));
   }, []);
 

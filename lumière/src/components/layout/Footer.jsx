@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 const FOOTER_LINKS = {
   Shop: ["All products", "Best sellers", "New arrivals", "Bundles", "Sale"],
-  Help: ["Track my order", "Returns & exchanges", "Shipping info", "FAQ", "Contact us"],
+  Help: ["Returns & exchanges", "Shipping info", "FAQ", "Contact us"],
   Company: ["About De Lady's", "Our products", "Sustainability", "Journal", "Careers"],
 };
 
@@ -80,7 +80,6 @@ export default function Footer() {
                       "Bundles": "/shop?category=routines",
                       "Sale": "/shop?filter=sale",
 
-                      "Track my order": "/order-confirmation",
                       "Returns & exchanges": "/returns",
                       "Shipping info": "/shipping",
                       "FAQ": "/faq",

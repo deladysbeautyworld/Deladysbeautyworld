@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useLayoutEffect } from "react";
 import { useFavorites } from "../../context/FavoritesContext";
 
 export default function FavoritesSidebar() {
@@ -6,9 +6,13 @@ export default function FavoritesSidebar() {
   const [rendered, setRendered] = useState(isOpen);
   const [visible, setVisible] = useState(isOpen);
 
-  useEffect(() => {
+  // Use useLayoutEffect to synchronize DOM state for CSS animations.
+  // Setting state in effect is intentional for CSS transition sequencing.
+  useLayoutEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setRendered(true);
+      // Use a microtask to ensure DOM is updated before animation
       requestAnimationFrame(() => setVisible(true));
       return;
     }

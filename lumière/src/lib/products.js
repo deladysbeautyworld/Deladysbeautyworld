@@ -12,8 +12,13 @@ const PRODUCT_SELECT = `
 const PRODUCT_GRID_SELECT = `
   id, name, description, price, image_url,
   rating, review_count, stock, tags, is_featured, created_at,
+  product_variants ( id ),
   categories ( id, name, slug )
 `;
+
+function escapePostgrestPattern(value) {
+  return String(value).replace(/[\\%_,().]/g, "\\$&");
+}
 
 /**
  * Fetch all categories
@@ -163,10 +168,11 @@ export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
  * Search products by name or description
  */
 export async function searchProducts(searchQuery, limit = 6) {
+  const safeQuery = escapePostgrestPattern(searchQuery);
   const { data, error } = await supabase
     .from("products")
     .select(PRODUCT_GRID_SELECT)
-    .or(`name.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+    .or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`)
     .limit(limit);
 
   if (error) throw error;

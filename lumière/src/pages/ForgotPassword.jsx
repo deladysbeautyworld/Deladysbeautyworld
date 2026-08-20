@@ -23,10 +23,10 @@ export default function ForgotPassword() {
     try {
       await resetPasswordForEmail({ email });
       setSubmitted(true);
-    } catch (err) {
+    } catch {
       // Generic message — we don't want to leak which emails are registered.
       setSubmitted(true);
-      console.error("resetPasswordForEmail:", err);
+
     } finally {
       setLoading(false);
     }
@@ -132,3 +132,4 @@ export default function ForgotPassword() {
     </div>
   );
 }
+

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { supabase } from "../utils/supabase";
+import { useCartStore } from "./cartStore";
 
 /**
  * Roles that are allowed to access the admin panel.
@@ -110,13 +111,21 @@ export const useAuthStore = create(
         // Mirror email onto the profiles row so the admin dashboard can
         // display it without doing a separate auth.users lookup. RLS policies
         // on profiles must allow INSERT/UPDATE on this user's own row.
+        // Note: The database also has a trigger (on_auth_user_created_create_profile)
+        // to auto-create the profile on auth.users INSERT, so this is a best-effort
+        // client-side sync. Errors here should be logged but not block signup.
         if (data.user?.id) {
-          await supabase
+          const { error: profileError } = await supabase
             .from("profiles")
             .upsert(
               { id: data.user.id, full_name: fullName, email },
               { onConflict: "id" }
             );
+
+          if (profileError) {
+            console.error("Failed to sync profile metadata:", profileError);
+            // Don't throw — profile was already created by the trigger
+          }
         }
 
         return data;
@@ -143,6 +152,7 @@ export const useAuthStore = create(
 
       signOut: async () => {
         await supabase.auth.signOut();
+        useCartStore.getState().clearCart();
         set({ user: null, session: null, role: null, _roleUserId: null });
       },
 

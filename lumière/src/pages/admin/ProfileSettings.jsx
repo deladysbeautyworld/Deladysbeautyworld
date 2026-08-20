@@ -10,9 +10,6 @@ const inputClass =
 const submitBtn =
   "h-11 px-6 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
 
-const ghostBtn =
-  "h-11 px-6 border border-(--color-border) text-(--color-muted) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:border-(--color-pink) hover:text-(--color-pink) transition-colors";
-
 /**
  * Admin profile settings — three independent sections:
  *

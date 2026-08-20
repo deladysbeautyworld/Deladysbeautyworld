@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import logo from "../../assets/logo_1.png";
+import logo from "../../assets/logo.jpg";
 
 export default function Hero() {
   const [visible, setVisible] = useState(false);
@@ -97,7 +97,7 @@ export default function Hero() {
           }`}
         >
           <p className="text-[9px] tracking-[0.12em] uppercase text-(--color-faint) font-normal">Trusted by</p>
-          <p className="text-[14px] font-medium text-(--color-ink) mt-0.5">1,000+ customers</p>
+          <p className="text-[14px] font-medium text-(--color-ink) mt-0.5">20K customers</p>
         </div>
 
         {/* Bottom left badge */}
@@ -111,15 +111,6 @@ export default function Hero() {
             <div className="w-2 h-2 rounded-full bg-(--color-pink) animate-pulse" />
             <p className="text-[12px] font-normal text-(--color-ink)">All 36 states</p>
           </div>
-        </div>
-
-        {/* Bottom right pill */}
-        <div
-          className={`absolute bottom-6 right-6 bg-(--color-pink) text-white text-[9px] tracking-[0.12em] uppercase font-normal px-3 py-1.5 rounded-full shadow-sm transition-all duration-700 delay-700 ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
-          }`}
-        >
-          New arrivals ✦
         </div>
       </div>
     </section>
