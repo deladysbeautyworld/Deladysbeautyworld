@@ -91,18 +91,11 @@ export default function Hero() {
         </div>
 
         {/* Top right badge */}
-        <div
-          className={`absolute top-6 right-6 bg-white/90 backdrop-blur-sm border border-(--color-border) rounded-sm px-3.5 py-2.5 text-right shadow-sm transition-all duration-700 delay-500 ${
-            visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"
-          }`}
-        >
-          <p className="text-[9px] tracking-[0.12em] uppercase text-(--color-faint) font-normal">Trusted by</p>
-          <p className="text-[14px] font-medium text-(--color-ink) mt-0.5">20K customers</p>
-        </div>
+        <div className={`hidden md:block absolute top-6 right-6 bg-white/90 backdrop-blur-sm border border-(--color-border) rounded-sm px-3.5 py-2.5 text-right shadow-sm transition-all duration-700 delay-500 ${ visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4" }`} > <p className="text-[9px] tracking-[0.12em] uppercase text-(--color-faint) font-normal"> Trusted by </p> <p className="text-[14px] font-medium text-(--color-ink) mt-0.5"> 20K customers </p> </div>
 
         {/* Bottom left badge */}
         <div
-          className={`absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm border border-(--color-border) rounded-sm px-3.5 py-2.5 shadow-sm transition-all duration-700 delay-600 ${
+          className={`hidden md:absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm border border-(--color-border) rounded-sm px-3.5 py-2.5 shadow-sm transition-all duration-700 delay-600 ${
             visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
           }`}
         >
