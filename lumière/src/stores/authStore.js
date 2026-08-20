@@ -107,27 +107,6 @@ export const useAuthStore = create(
           },
         });
         if (error) throw error;
-
-        // Mirror email onto the profiles row so the admin dashboard can
-        // display it without doing a separate auth.users lookup. RLS policies
-        // on profiles must allow INSERT/UPDATE on this user's own row.
-        // Note: The database also has a trigger (on_auth_user_created_create_profile)
-        // to auto-create the profile on auth.users INSERT, so this is a best-effort
-        // client-side sync. Errors here should be logged but not block signup.
-        if (data.user?.id) {
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .upsert(
-              { id: data.user.id, full_name: fullName, email },
-              { onConflict: "id" }
-            );
-
-          if (profileError) {
-            console.error("Failed to sync profile metadata:", profileError);
-            // Don't throw — profile was already created by the trigger
-          }
-        }
-
         return data;
       },
 
