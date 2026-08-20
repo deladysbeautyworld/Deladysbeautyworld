@@ -32,7 +32,7 @@ export default function Newsletter() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email address"
             required
-            className="flex-1 h-11 border border-(--color-border) sm:border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-t-sm sm:rounded-l-sm sm:rounded-tr-none focus:border-(--color-ink) transition-colors font-light"
+            className="flex-1 h-11 p-3 border border-(--color-border) sm:border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-t-sm sm:rounded-l-sm sm:rounded-tr-none focus:border-(--color-ink) transition-colors font-light"
           />
           <button
             type="submit"
