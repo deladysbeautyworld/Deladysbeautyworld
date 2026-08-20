@@ -114,7 +114,7 @@ export default function AdminLayout() {
       <div className="flex-1 min-w-0">
 
         {/* Mobile top bar — only visible below md */}
-        <div className="md:hidden sticky top-16 z-20 bg-(--color-cream) border-b border-(--color-border) px-6 py-3 flex items-center justify-between">
+        <div className="md:hidden sticky top-14 sm:top-16 z-20 bg-(--color-cream) border-b border-(--color-border) px-4 sm:px-6 py-3 flex items-center justify-between">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}

@@ -51,10 +51,10 @@ export default function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-(--color-cream) border-b border-(--color-border)">
-      <div className="flex items-center justify-between h-16 px-6 md:px-10">
+      <div className="flex items-center justify-between min-h-14 sm:h-16 px-4 sm:px-6 md:px-10 gap-3">
 
         {/* Logo */}
-        <Link to="/" className="font-display text-[22px] font-light italic tracking-wide text-(--color-ink)">
+        <Link to="/" className="min-w-0 font-display text-[16px] sm:text-[22px] font-light italic tracking-wide text-(--color-ink) truncate">
           De Lady's Beauty World
         </Link>
 
@@ -70,7 +70,7 @@ export default function Navbar() {
         </ul>
 
         {/* Actions */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
           {/* Search */}
           <button
             aria-label="Search"
@@ -188,7 +188,7 @@ export default function Navbar() {
                 </div>
               </div>
             ) : (
-              <Link to="/login" className="text-[11px] tracking-[0.08em] uppercase text-(--color-muted) hover:text-(--color-ink) transition-colors font-normal">
+              <Link to="/login" className="hidden sm:block text-[11px] tracking-[0.08em] uppercase text-(--color-muted) hover:text-(--color-ink) transition-colors font-normal">
                 Sign in
               </Link>
             )}
@@ -211,7 +211,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-(--color-border) bg-(--color-cream) px-6 py-4">
+        <div className="md:hidden border-t border-(--color-border) bg-(--color-cream) px-4 sm:px-6 py-4">
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map(({ label, to }) => (
               <li key={label}>
@@ -224,6 +224,17 @@ export default function Navbar() {
                 </NavLink>
               </li>
             ))}
+            {!user && (
+              <li className="border-t border-(--color-border) pt-4">
+                <Link
+                  to="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-[11px] tracking-[0.08em] uppercase text-(--color-muted)"
+                >
+                  Sign in
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       )}

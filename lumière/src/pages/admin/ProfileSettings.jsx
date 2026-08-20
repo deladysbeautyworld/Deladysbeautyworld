@@ -22,7 +22,7 @@ export default function ProfileSettings() {
 
   return (
     <div>
-      <div className="px-6 md:px-10 py-10 max-w-3xl">
+      <div className="px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-3xl">
         <AdminPageHeader
           title="Profile settings"
           subtitle="Manage your account details and login credentials."

@@ -65,7 +65,7 @@ export default function Overview() {
         className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-(--color-pink-pale) to-transparent pointer-events-none"
       />
 
-      <div className="relative px-6 md:px-10 py-10 max-w-6xl mx-auto">
+      <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
 
         <AdminPageHeader
           title="Overview"
@@ -113,7 +113,7 @@ export default function Overview() {
 
         {/* Recent orders */}
         <div className="bg-white border border-(--color-border) rounded-sm overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-(--color-border)">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-(--color-border)">
             <h2 className="text-[11px] tracking-[0.14em] uppercase font-medium text-(--color-ink)">
               Recent orders
             </h2>

@@ -15,7 +15,7 @@ export default function Hero() {
     <section className="grid grid-cols-1 md:grid-cols-2 min-h-135">
 
       {/* Left — copy */}
-      <div className="bg-(--color-cream-dark) px-8 md:px-14 py-20 flex flex-col justify-center">
+      <div className="bg-(--color-cream-dark) px-6 sm:px-8 md:px-14 py-14 sm:py-20 flex flex-col justify-center">
 
         <p
           className={`text-[11px] tracking-[0.14em] uppercase text-(--color-faint) mb-6 font-normal transition-all duration-700 ${
@@ -26,7 +26,7 @@ export default function Hero() {
         </p>
 
         <h1
-          className={`font-display text-[52px] md:text-[60px] font-normal leading-[1.05] text-(--color-ink) mb-5 transition-all duration-700 delay-100 ${
+          className={`font-display text-[42px] sm:text-[52px] md:text-[60px] font-normal leading-[1.05] text-(--color-ink) mb-5 transition-all duration-700 delay-100 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
@@ -68,7 +68,7 @@ export default function Hero() {
       <div className="bg-(--color-cream-mid) flex items-center justify-center min-h-80 md:min-h-auto relative overflow-hidden">
 
         {/* Outer ring — slow pulse */}
-        <div className="absolute w-105 h-105 rounded-full bg-(--color-pink)/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_4s_ease-in-out_infinite]" />
+        <div className="absolute w-80 h-80 sm:w-105 sm:h-105 rounded-full bg-(--color-pink)/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_4s_ease-in-out_infinite]" />
 
         {/* Logo + tagline */}
         <div
@@ -79,7 +79,7 @@ export default function Hero() {
           <img
             src={logo}
             alt="De Lady's Beauty World"
-            className="w-64 h-64 md:w-72 md:h-72 rounded-full object-contain drop-shadow-lg hover:scale-105 transition-transform duration-500"
+            className="w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full object-contain drop-shadow-lg hover:scale-105 transition-transform duration-500"
           />
           <div className="flex items-center gap-2">
             <div className="w-8 h-px bg-(--color-pink)/40" />

@@ -101,15 +101,15 @@ export default function Shop() {
         canonical={`${window.location.origin}/shop`}
       />
       <div className="border-b border-(--color-border) bg-(--color-surface)">
-        <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">
             De Lady's Beauty World
           </p>
-          <h1 className="font-display text-[36px] font-light text-(--color-ink)">Shop all</h1>
+          <h1 className="font-display text-[30px] sm:text-[36px] font-light text-(--color-ink)">Shop all</h1>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-10 flex gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex gap-6 lg:gap-10">
         <div className="hidden md:block">
           <FilterSidebar
             categories={categories}

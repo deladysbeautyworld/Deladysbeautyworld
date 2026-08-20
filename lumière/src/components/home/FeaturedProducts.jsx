@@ -33,10 +33,10 @@ export default function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="px-6 md:px-10 py-16">
+    <section className="px-4 sm:px-6 md:px-10 py-12 sm:py-16">
       {/* Header */}
-      <div className="flex items-baseline justify-between mb-10">
-        <h2 className="font-display text-[32px] font-light text-(--color-ink)">
+      <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8 sm:mb-10">
+        <h2 className="font-display text-[26px] sm:text-[32px] font-light text-(--color-ink)">
           Best sellers
         </h2>
         <Link

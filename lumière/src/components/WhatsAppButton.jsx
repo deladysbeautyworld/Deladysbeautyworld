@@ -9,11 +9,11 @@ export default function WhatsAppButton() {
   const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3">
 
       {/* Chat card */}
       {open && (
-        <div className="w-72 bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 animate-[fadeInUp_0.2s_ease-out]">
+        <div className="w-[calc(100vw-2rem)] max-w-72 bg-white rounded-lg shadow-xl overflow-hidden border border-gray-100 animate-[fadeInUp_0.2s_ease-out]">
 
           {/* Header */}
           <div className="bg-[#25D366] px-4 py-4 flex items-center gap-3">

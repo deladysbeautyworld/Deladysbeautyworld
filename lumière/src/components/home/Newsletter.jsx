@@ -12,8 +12,8 @@ export default function Newsletter() {
   };
 
   return (
-    <div className="mx-6 md:mx-10 mb-16 bg-(--color-cream-dark) rounded-sm py-14 px-6 flex flex-col items-center text-center">
-      <h2 className="font-display text-[34px] font-light text-(--color-ink) mb-3">
+    <div className="mx-4 sm:mx-6 md:mx-10 mb-12 sm:mb-16 bg-(--color-cream-dark) rounded-sm py-10 sm:py-14 px-4 sm:px-6 flex flex-col items-center text-center">
+      <h2 className="font-display text-[28px] sm:text-[34px] font-light text-(--color-ink) mb-3">
         Join the glow list
       </h2>
       <p className="text-[13px] text-(--color-muted) leading-[1.7] font-light max-w-sm mb-8">
@@ -25,18 +25,18 @@ export default function Newsletter() {
           You're on the list. Welcome to De Lady's Beauty World.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex w-full max-w-md">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row w-full max-w-md">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email address"
             required
-            className="flex-1 h-11 border border-(--color-border) border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-l-sm focus:border-(--color-ink) transition-colors font-light"
+            className="flex-1 h-11 border border-(--color-border) sm:border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-t-sm sm:rounded-l-sm sm:rounded-tr-none focus:border-(--color-ink) transition-colors font-light"
           />
           <button
             type="submit"
-            className="h-11 bg-(--color-ink) text-(--color-cream) px-6 text-[11px] tracking-widest uppercase font-normal rounded-r-sm hover:bg-(--color-ink-soft) transition-colors duration-200 shrink-0"
+            className="h-11 bg-(--color-ink) text-(--color-cream) px-6 text-[11px] tracking-widest uppercase font-normal rounded-b-sm sm:rounded-r-sm sm:rounded-bl-none hover:bg-(--color-ink-soft) transition-colors duration-200 shrink-0"
           >
             Subscribe
           </button>

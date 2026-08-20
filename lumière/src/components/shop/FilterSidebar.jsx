@@ -110,7 +110,7 @@ export default function FilterSidebar({ categories, filters, onChange, onClear, 
     return (
       <div className="fixed inset-0 z-50 flex">
         <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-        <div className="relative ml-auto w-72 h-full bg-white overflow-y-auto p-6 shadow-xl">
+        <div className="relative ml-auto w-[min(18rem,calc(100vw-1rem))] h-full bg-white overflow-y-auto p-5 sm:p-6 shadow-xl">
           {content}
         </div>
       </div>

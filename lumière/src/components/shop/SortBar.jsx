@@ -8,7 +8,7 @@ const SORT_OPTIONS = [
 
 export default function SortBar({ total, sort, onSort, onFilterToggle }) {
   return (
-    <div className="flex items-center justify-between py-3 border-b border-(--color-border) mb-6">
+    <div className="flex flex-wrap items-center justify-between gap-3 py-3 border-b border-(--color-border) mb-6">
       <div className="flex items-center gap-3">
         {/* Mobile filter toggle */}
         <button

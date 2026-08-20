@@ -8,11 +8,11 @@ function CartItem({ item }) {
   const removeItem = useCartStore((s) => s.removeItem);
 
   return (
-    <div className="flex items-start gap-5 py-6 border-b border-(--color-border)">
+    <div className="flex items-start gap-3 sm:gap-5 py-6 border-b border-(--color-border)">
 
       {/* Image */}
       <Link to={`/product/${item.id}`} className="shrink-0">
-        <div className="w-20 h-24 bg-(--color-cream-mid) rounded-sm overflow-hidden flex items-center justify-center">
+        <div className="w-16 h-20 sm:w-20 sm:h-24 bg-(--color-cream-mid) rounded-sm overflow-hidden flex items-center justify-center">
           {item.image_url ? (
             <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
           ) : (
@@ -63,7 +63,7 @@ function CartItem({ item }) {
 
       {/* Price + remove */}
       <div className="flex flex-col items-end gap-3 shrink-0">
-        <p className="text-[15px] font-medium text-(--color-ink)">
+        <p className="text-[13px] sm:text-[15px] font-medium text-(--color-ink)">
           {fmt(item.price * item.quantity)}
         </p>
         <button
@@ -111,11 +111,11 @@ export default function Cart() {
   }
 
   return (
-    <div className="px-6 md:px-10 py-12 max-w-5xl mx-auto">
+    <div className="px-4 sm:px-6 md:px-10 py-10 sm:py-12 max-w-5xl mx-auto">
 
       {/* Header */}
-      <div className="flex items-baseline justify-between mb-10">
-        <h1 className="font-display text-[36px] font-light text-(--color-ink)">
+      <div className="flex flex-wrap items-baseline justify-between gap-3 mb-8 sm:mb-10">
+        <h1 className="font-display text-[30px] sm:text-[36px] font-light text-(--color-ink)">
           Your cart
         </h1>
         <button
@@ -137,7 +137,7 @@ export default function Cart() {
 
         {/* Summary */}
         <div>
-          <div className="border border-(--color-border) rounded-sm p-6 sticky top-24">
+          <div className="border border-(--color-border) rounded-sm p-4 sm:p-6 sticky top-24">
             <h2 className="text-[11px] tracking-[0.12em] uppercase font-medium text-(--color-ink) mb-6">
               Order summary
             </h2>

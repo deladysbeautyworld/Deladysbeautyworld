@@ -107,7 +107,7 @@ export default function Categories() {
         className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-(--color-pink-pale) to-transparent pointer-events-none"
       />
 
-      <div className="relative px-6 md:px-10 py-10 max-w-6xl mx-auto">
+      <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
 
         <AdminPageHeader
           title="Categories"

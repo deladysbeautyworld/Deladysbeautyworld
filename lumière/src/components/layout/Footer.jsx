@@ -29,10 +29,10 @@ const SOCIALS = [
 export default function Footer() {
   return (
     <footer className="border-t border-(--color-border) bg-(--color-surface)">
-      <div className="px-6 md:px-10 pt-12 pb-6">
+      <div className="px-4 sm:px-6 md:px-10 pt-12 pb-6">
 
         {/* Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-10 mb-12">
 
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
@@ -119,7 +119,7 @@ export default function Footer() {
           <p className="text-[12px] text-(--color-faint) font-light">
             © 2025 De Lady's Beauty World. All rights reserved.
           </p>
-            <div className="flex items-center gap-5">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-5 gap-y-2">
               {[
                 { label: 'Privacy policy', to: '/privacy' },
                 { label: 'Terms of service', to: '/terms' },

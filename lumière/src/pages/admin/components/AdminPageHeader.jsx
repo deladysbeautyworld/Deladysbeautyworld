@@ -12,7 +12,7 @@
  */
 export default function AdminPageHeader({ title, subtitle, action }) {
   return (
-    <div className="flex items-start justify-between gap-6 mb-8">
+    <div className="flex flex-wrap items-start justify-between gap-4 sm:gap-6 mb-8">
       <div>
         <h1 className="font-display text-[30px] md:text-[34px] font-light text-(--color-ink) leading-tight">
           {title}
@@ -23,7 +23,7 @@ export default function AdminPageHeader({ title, subtitle, action }) {
           </p>
         )}
       </div>
-      {action && <div className="shrink-0">{action}</div>}
+      {action && <div className="w-full sm:w-auto shrink-0">{action}</div>}
     </div>
   );
 }
