@@ -57,42 +57,65 @@ export const useAuthStore = create(
 
       // Call once at app root — listens for auth state changes
       init: async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        const user = session?.user ?? null;
-        set({ session, user, loading: false });
+        try {
+          const { data: { session } } = await supabase.auth.getSession();
+          const user = session?.user ?? null;
+          set({ session, user, loading: false });
 
-        if (user) {
-          // If the persisted state already has the role for THIS user,
-          // use it immediately and revalidate in the background.
-          const cached = useAuthStore.getState().role;
-          if (cached && useAuthStore.getState()._roleUserId === user.id) {
-            // role already in store from a previous session for the same user
-          } else {
-            // No cache (or different user) — fetch now.
-            fetchRole(user.id).then(() => {
-              useAuthStore.setState({ _roleUserId: user.id });
-            });
-          }
-        }
-
-        supabase.auth.onAuthStateChange((_event, session) => {
-          const newUser = session?.user ?? null;
-          set({ session, user: newUser });
-
-          if (newUser) {
+          if (user) {
+            // If the persisted state already has the role for THIS user,
+            // use it immediately and revalidate in the background.
             const cached = useAuthStore.getState().role;
-            if (cached && useAuthStore.getState()._roleUserId === newUser.id) {
-              // Same user — cached role still valid; refresh in background.
-              fetchRole(newUser.id);
+            if (cached && useAuthStore.getState()._roleUserId === user.id) {
+              // role already in store from a previous session for the same user
             } else {
-              fetchRole(newUser.id).then(() => {
-                useAuthStore.setState({ _roleUserId: newUser.id });
-              });
+              // No cache (or different user) — fetch now.
+              fetchRole(user.id)
+                .then(() => {
+                  useAuthStore.setState({ _roleUserId: user.id });
+                })
+                .catch((error) => {
+                  console.error("Failed to load user role:", error);
+                  useAuthStore.setState({ role: null, _roleUserId: null });
+                });
             }
-          } else {
-            set({ role: null, _roleUserId: null });
           }
-        });
+
+          supabase.auth.onAuthStateChange((_event, session) => {
+            const newUser = session?.user ?? null;
+            set({ session, user: newUser });
+
+            if (newUser) {
+              const cached = useAuthStore.getState().role;
+              if (cached && useAuthStore.getState()._roleUserId === newUser.id) {
+                // Same user — cached role still valid; refresh in background.
+                fetchRole(newUser.id).catch((error) => {
+                  console.error("Failed to refresh user role:", error);
+                });
+              } else {
+                fetchRole(newUser.id)
+                  .then(() => {
+                    useAuthStore.setState({ _roleUserId: newUser.id });
+                  })
+                  .catch((error) => {
+                    console.error("Failed to load user role:", error);
+                    useAuthStore.setState({ role: null, _roleUserId: null });
+                  });
+              }
+            } else {
+              set({ role: null, _roleUserId: null });
+            }
+          });
+        } catch (error) {
+          console.error("Failed to initialize authentication:", error);
+          set({
+            session: null,
+            user: null,
+            loading: false,
+            role: null,
+            _roleUserId: null,
+          });
+        }
       },
 
       signUp: async ({ email, password, fullName }) => {
