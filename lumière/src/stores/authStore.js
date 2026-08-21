@@ -30,16 +30,13 @@ function fetchRole(userId) {
   if (_inflight.has(userId)) return _inflight.get(userId);
 
   const promise = (async () => {
-    // Refresh the session so we read app_metadata from a verified source
-    // rather than a possibly-stale cached user object.
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .single();
 
-    // Fail closed — unknown / unauthenticated = no admin powers.
-    const role =
-      error || !user || user.id !== userId
-        ? null
-        : (user.app_metadata?.role ?? null);
-
+    const role = error || !data ? null : (data.role ?? null);
     useAuthStore.setState({ role });
     return role;
   })().finally(() => {
