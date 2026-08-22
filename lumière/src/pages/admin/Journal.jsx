@@ -8,8 +8,6 @@ const formatDate = (iso) =>
     day: "numeric", month: "short", year: "numeric",
   }) : "—";
 
-const CATEGORY_OPTIONS = ["Skincare", "Haircare", "Fragrance", "Body Care", "Makeup", "General"];
-
 export default function AdminJournal() {
   const navigate = useNavigate();
   const [posts, setPosts]       = useState([]);
@@ -17,10 +15,6 @@ export default function AdminJournal() {
   const [error, setError]       = useState(null);
   const [search, setSearch]     = useState("");
   const [deleting, setDeleting] = useState(null);
-
-  useEffect(() => {
-    loadPosts();
-  }, []);
 
   async function loadPosts() {
     setLoading(true);
@@ -38,6 +32,11 @@ export default function AdminJournal() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    const timer = window.setTimeout(loadPosts, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   async function togglePublished(post) {
     const { error } = await supabase

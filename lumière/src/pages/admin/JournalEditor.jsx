@@ -59,7 +59,7 @@ export default function JournalEditor() {
       })
       .catch(() => navigate("/admin/journal"))
       .finally(() => setLoading(false));
-  }, [id, isEdit]);
+  }, [id, isEdit, navigate]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

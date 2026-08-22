@@ -21,7 +21,6 @@ const NAV = [
   { to: "/admin/delivery-zones", label: "Delivery zones", end: false },
   { to: "/admin/customers",     label: "Customers",      end: false },
   { to: "/admin/journal",       label: "Journal",        end: false },
-  { to: "/admin/profile",       label: "Profile",        end: false },
 ];
 
 export default function AdminLayout() {

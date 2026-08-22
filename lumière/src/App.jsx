@@ -36,6 +36,8 @@ import Customers, { CustomerDetail } from "./pages/admin/Customers.jsx";
 import PromoCodes from "./pages/admin/PromoCodes.jsx";
 import Categories from "./pages/admin/Categories.jsx";
 import DeliveryZones from "./pages/admin/DeliveryZones.jsx";
+import AdminJournal from "./pages/admin/Journal.jsx";
+import JournalEditor from "./pages/admin/JournalEditor.jsx";
 import AdminNotFound from "./pages/admin/AdminNotFound";
 
 import Profile from "./pages/Profiles/profile";
@@ -123,6 +125,9 @@ const router = createBrowserRouter([
       { path: "categories", element: <Categories /> },
       { path: "promo-codes", element: <PromoCodes /> },
       { path: "delivery-zones", element: <DeliveryZones /> },
+      { path: "journal", element: <AdminJournal /> },
+      { path: "journal/new", element: <JournalEditor /> },
+      { path: "journal/:id/edit", element: <JournalEditor /> },
 
       { path: "customers", element: <Customers /> },
       { path: "customers/:id", element: <CustomerDetail /> },
