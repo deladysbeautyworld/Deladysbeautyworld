@@ -27,7 +27,9 @@ const _inflight = new Map();
  * just awaits the existing promise instead of recomputing.
  */
 function fetchRole(userId) {
-  if (_inflight.has(userId)) return _inflight.get(userId);
+  if (_inflight.has(userId)) {
+    return _inflight.get(userId);
+  }
 
   const promise = (async () => {
     const { data, error } = await supabase
@@ -36,14 +38,19 @@ function fetchRole(userId) {
       .eq("id", userId)
       .single();
 
+    console.log("fetchRole result:", { data, error, userId });
+
     const role = error || !data ? null : (data.role ?? null);
+
     useAuthStore.setState({ role });
+
     return role;
   })().finally(() => {
     _inflight.delete(userId);
   });
 
   _inflight.set(userId, promise);
+
   return promise;
 }
 
