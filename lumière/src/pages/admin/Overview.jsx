@@ -1,32 +1,37 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getOverviewStats, getRecentOrders, getOverviewTrendsSafe } from "../../lib/admin.js";
+import {
+  getOverviewStats,
+  getRecentOrders,
+  getOverviewTrendsSafe,
+} from "../../lib/admin.js";
+
 import AdminPageHeader from "./components/AdminPageHeader.jsx";
 import AdminMetricCard from "./components/AdminMetricCard.jsx";
 import AdminStatusPill from "./components/AdminStatusPill.jsx";
 
 // Same currency format used across the app.
-const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
+const fmt = (amount) => `₦${Number(amount ?? 0).toLocaleString("en-NG")}`;
 
-const formatDate = (iso) =>
-  new Date(iso).toLocaleDateString("en-NG", {
+const formatDate = (iso) => {
+  if (!iso) return "—";
+
+  return new Date(iso).toLocaleDateString("en-NG", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+};
 
 /**
  * Admin dashboard — top-level metrics + recent orders.
- * Pulls from getOverviewStats, getOverviewTrendsSafe, and getRecentOrders
- * in parallel. The trends helper never throws, so a missing RLS permission
- * on the trend query simply renders the dashboard without delta badges.
  */
 export default function Overview() {
-  const [stats, setStats]         = useState(null);
-  const [recent, setRecent]       = useState([]);
-  const [trends, setTrends]       = useState(null);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState(null);
+  const [stats, setStats] = useState(null);
+  const [recent, setRecent] = useState([]);
+  const [trends, setTrends] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,39 +39,56 @@ export default function Overview() {
     async function load() {
       setLoading(true);
       setError(null);
+
       try {
-        const [s, r, t] = await Promise.all([
+        const [statsData, recentOrders, trendsData] = await Promise.all([
           getOverviewStats(),
           getRecentOrders(5),
           getOverviewTrendsSafe(),
         ]);
+
+        // Debug customer counts.
+        console.log("Admin dashboard data:", {
+          stats: statsData,
+          recent: recentOrders,
+          trends: trendsData,
+          customers: trendsData?.customers,
+        });
+
         if (cancelled) return;
-        setStats(s);
-        setRecent(r);
-        setTrends(t);
+
+        setStats(statsData);
+        setRecent(Array.isArray(recentOrders) ? recentOrders : []);
+        setTrends(trendsData);
       } catch (err) {
-        if (!cancelled) setError(err.message);
+        console.error("Failed to load admin dashboard:", err);
+
+        if (!cancelled) {
+          setError(err?.message || "Failed to load dashboard data.");
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     load();
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
     <div className="relative">
-
-      {/* Brand gradient strip — runs across the top of every admin page.
-          Stays subtle so it doesn't compete with the content. */}
+      {/* Brand gradient strip */}
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-(--color-pink-pale) to-transparent pointer-events-none"
       />
 
       <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
-
         <AdminPageHeader
           title="Overview"
           subtitle="A snapshot of your store today."
@@ -83,28 +105,43 @@ export default function Overview() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           <AdminMetricCard
             label="Revenue (30d)"
-            value={stats ? fmt(trends?.sales?.current ?? 0) : "—"}
+            value={
+              loading
+                ? "—"
+                : fmt(trends?.sales?.current ?? stats?.revenue ?? 0)
+            }
             loading={loading}
             icon={<RevenueIcon />}
             trend={trends?.sales}
           />
+
           <AdminMetricCard
             label="Orders (30d)"
-            value={stats ? trends?.orders?.current ?? 0 : "—"}
+            value={
+              loading
+                ? "—"
+                : trends?.orders?.current ?? stats?.orders ?? 0
+            }
             loading={loading}
             icon={<OrdersIcon />}
             trend={trends?.orders}
           />
+
           <AdminMetricCard
             label="Pending orders"
-            value={stats ? stats.pendingOrders : "—"}
+            value={loading ? "—" : stats?.pendingOrders ?? 0}
             loading={loading}
             accent
             icon={<PendingIcon />}
           />
+
           <AdminMetricCard
             label="New customers (30d)"
-            value={stats ? trends?.customers?.current ?? 0 : "—"}
+            value={
+              loading
+                ? "—"
+                : trends?.customers?.current ?? stats?.customers ?? 0
+            }
             loading={loading}
             icon={<CustomersIcon />}
             trend={trends?.customers}
@@ -117,6 +154,7 @@ export default function Overview() {
             <h2 className="text-[11px] tracking-[0.14em] uppercase font-medium text-(--color-ink)">
               Recent orders
             </h2>
+
             <Link
               to="/admin/orders"
               className="text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-pink) transition-colors"
@@ -134,6 +172,7 @@ export default function Overview() {
               <p className="text-[13px] text-(--color-muted) font-light">
                 No orders yet.
               </p>
+
               <p className="text-[11px] text-(--color-faint) font-light mt-1">
                 Once customers start placing orders, they'll appear here.
               </p>
@@ -147,9 +186,12 @@ export default function Overview() {
                     <th className="px-6 py-3 font-normal">Customer</th>
                     <th className="px-6 py-3 font-normal">Date</th>
                     <th className="px-6 py-3 font-normal">Status</th>
-                    <th className="px-6 py-3 font-normal text-right">Total</th>
+                    <th className="px-6 py-3 font-normal text-right">
+                      Total
+                    </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {recent.map((o) => (
                     <tr
@@ -157,17 +199,23 @@ export default function Overview() {
                       className="border-b border-(--color-border) last:border-b-0 hover:bg-(--color-pink-pale)/40 transition-colors"
                     >
                       <td className="px-6 py-3 font-mono text-[12px] text-(--color-ink)">
-                        {o.id.slice(0, 8).toUpperCase()}
+                        {o.id?.slice(0, 8).toUpperCase() ?? "—"}
                       </td>
+
                       <td className="px-6 py-3 text-(--color-ink)">
-                        {o.profiles?.full_name ?? o.shipping_name}
+                        {o.profiles?.full_name ??
+                          o.shipping_name ??
+                          "Unknown customer"}
                       </td>
+
                       <td className="px-6 py-3 text-(--color-muted) font-light">
                         {formatDate(o.created_at)}
                       </td>
+
                       <td className="px-6 py-3">
                         <AdminStatusPill status={o.status} />
                       </td>
+
                       <td className="px-6 py-3 text-(--color-ink) text-right font-medium">
                         {fmt(o.total)}
                       </td>
@@ -183,33 +231,78 @@ export default function Overview() {
   );
 }
 
-/* Small inline icons so the metric cards feel alive without adding a
-   dependency. Stroke matches the brand typography weight (1.5px). */
+/* Icons */
+
 function RevenueIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
     </svg>
   );
 }
+
 function OrdersIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 11V7a3 3 0 0 1 6 0v4"/><rect x="5" y="11" width="14" height="10" rx="1"/>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 11V7a3 3 0 0 1 6 0v4" />
+      <rect x="5" y="11" width="14" height="10" rx="1" />
     </svg>
   );
 }
+
 function PendingIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
     </svg>
   );
 }
+
 function CustomersIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   );
 }
