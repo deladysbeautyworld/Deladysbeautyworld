@@ -3,6 +3,7 @@ import { useEffect } from "react";
 
 import RootLayout from "./components/layout/RootLayout";
 import ComingSoon from "./components/common/ComingSoon";
+import About from "./pages/About";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
 import Shipping from "./pages/Shipping";
@@ -88,7 +89,7 @@ const router = createBrowserRouter([
       { path: "routines", element: <Routines /> },
       { path: "journal", element: <Journal /> },
       { path: "journal/:slug", element: <JournalPost /> },
-      { path: "about", element: <ComingSoon /> },
+      { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
       { path: "faq", element: <FAQ /> },
       { path: "shipping", element: <Shipping /> },
