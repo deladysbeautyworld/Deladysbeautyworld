@@ -19,7 +19,7 @@ export default function About() {
               alt="Founder and store of De Lady's Beauty World"
               className="object-cover w-full h-full"
             />
-          </div}
+          </div>
           <div>
             <h1 className="font-display text-[32px] md:text-[48px] font-light text-(--color-ink) mb-6 leading-tight">
               Redefining Beauty Standards in Abuja and Beyond.
@@ -89,7 +89,7 @@ export default function About() {
               alt="Professional beauty consultation"
               className="object-cover w-full h-full"
             />
-          </div}
+          </div>
           <div className="max-w-2xl order-1 md:order-2">
             <h2 className="font-display text-[24px] font-light text-(--color-ink) mb-4">
               Your Virtual Dermatologist & Makeup Artist.
