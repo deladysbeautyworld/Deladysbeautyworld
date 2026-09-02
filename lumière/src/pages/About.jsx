@@ -10,7 +10,7 @@ export default function About() {
         canonical={`${window.location.origin}/about`}
       />
 
-      <div className="w-full max-w-4xl">
+      <div className="w-full max-w-7xl">
         {/* Hero & Narrative Section */}
         <section className="mb-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-square overflow-hidden rounded-sm">
@@ -113,21 +113,41 @@ export default function About() {
           <h2 className="font-display text-[24px] font-light text-(--color-ink) mb-6">
             Our Footprint
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="lg:col-span-1">
               <p className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-4 font-light">Physical Locations</p>
-              <ul className="space-y-3 text-[14px] font-light text-(--color-muted)">
-                <li>Habo Mall, #128 Adetotunbo Ademola Crescent, Wuse II.</li>
-                <li>Cappadors Center, Alexandria Crescent, Off Aminu Kano Crescent (Beside Banex Plaza), Wuse II.</li>
-                <li>#44 1st Avenue, Gwarinpa (Beside Amba Bakery).</li>
+              <ul className="space-y-4 text-[14px] font-light text-(--color-muted)">
+                <li className="group">
+                  <span className="block font-medium text-(--color-ink) group-hover:text-blue-600 transition-colors cursor-pointer">Habo Mall</span>
+                  #128 Adetotunbo Ademola Crescent, Wuse II.
+                </li>
+                <li className="group">
+                  <span className="block font-medium text-(--color-ink) group-hover:text-blue-600 transition-colors cursor-pointer">Cappadors Center</span>
+                  Alexandria Crescent, Off Aminu Kano Crescent (Beside Banex Plaza), Wuse II.
+                </li>
+                <li className="group">
+                  <span className="block font-medium text-(--color-ink) group-hover:text-blue-600 transition-colors cursor-pointer">Gwarinpa Outlet</span>
+                  #44 1st Avenue, Gwarinpa (Beside Amba Bakery).
+                </li>
               </ul>
+
+              <div className="mt-8">
+                <p className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-4 font-light">Shipping & Logistics</p>
+                <p className="text-[14px] font-light text-(--color-muted) leading-relaxed">
+                  Same-day delivery within Abuja. Dependable nationwide shipping to ensure your beauty
+                  essentials reach you, wherever you are in Nigeria.
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-4 font-light">Shipping & Logistics</p>
-              <p className="text-[14px] font-light text-(--color-muted) leading-relaxed">
-                Same-day delivery within Abuja. Dependable nationwide shipping to ensure your beauty
-                essentials reach you, wherever you are in Nigeria.
-              </p>
+            <div className="lg:col-span-2 h-[400px] rounded-sm overflow-hidden border border-(--color-border)">
+              <iframe
+                width="100%"
+                height="100%"
+                frameBorder="0"
+                style={{ border: 0 }}
+                src="https://www.google.com/maps?q=De+Lady's+Beauty+World+Abuja&output=embed"
+                allowFullScreen
+              ></iframe>
             </div>
           </div>
         </section>
