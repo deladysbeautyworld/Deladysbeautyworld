@@ -139,7 +139,7 @@ export default function About() {
                 </p>
               </div>
             </div>
-            <div className="lg:col-span-2 h-[400px] rounded-sm overflow-hidden border border-(--color-border)">
+            <div className="lg:col-span-2 h-100 rounded-sm overflow-hidden border border-(--color-border)">
               <iframe
                 width="100%"
                 height="100%"
