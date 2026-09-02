@@ -85,7 +85,7 @@ export default function About() {
         <section className="mb-24 bg-(--color-faint) p-8 md:p-12 rounded-sm grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="relative aspect-square overflow-hidden rounded-sm order-2 md:order-1">
             <img
-              src="https://images.unsplash.com/photo-1512290923902-8a9f79566369?q=80&w=2070&auto=format&fit=crop"
+              src="https://images.unsplash.com/photo-1522337660859-0adc7cdf2799?q=80&w=2070&auto=format&fit=crop"
               alt="Professional beauty consultation"
               className="object-cover w-full h-full"
             />
