@@ -111,7 +111,7 @@ export default function Navbar() {
             aria-label="Search"
             type="button"
             onClick={() => setSearchOpen((open) => !open)}
-            className="hidden cursor-pointer text-(--color-muted) transition-colors duration-200 hover:text-(--color-ink) xl:flex"
+            className="flex cursor-pointer text-(--color-muted) transition-colors duration-200 hover:text-(--color-ink)"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
@@ -308,7 +308,39 @@ export default function Navbar() {
                 </NavLink>
               </li>
             ))}
-            {!user && (
+            {user ? (
+              <>
+                <li className="border-t border-(--color-border) pt-4">
+                  <Link
+                    to="/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="block text-[11px] tracking-[0.08em] uppercase text-(--color-muted)"
+                  >
+                    My account
+                  </Link>
+                </li>
+                {isAdmin && (
+                  <li>
+                    <Link
+                      to="/admin"
+                      onClick={() => setMenuOpen(false)}
+                      className="block text-[11px] tracking-[0.08em] uppercase text-(--color-pink)"
+                    >
+                      Admin dashboard
+                    </Link>
+                  </li>
+                )}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => { setMenuOpen(false); signOut(); }}
+                    className="text-left text-[11px] tracking-[0.08em] uppercase text-(--color-muted)"
+                  >
+                    Sign out
+                  </button>
+                </li>
+              </>
+            ) : (
               <li className="border-t border-(--color-border) pt-4">
                 <Link
                   to="/login"

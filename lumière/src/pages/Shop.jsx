@@ -27,6 +27,7 @@ export default function Shop() {
   const [loading, setLoading]                   = useState(true);
   const [error, setError]                       = useState(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [searchTerm, setSearchTerm]             = useState("");
 
   useEffect(() => {
     supabase
@@ -93,6 +94,18 @@ export default function Shop() {
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
 
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+    const next = new URLSearchParams(searchParams);
+    next.delete("page");
+    if (searchTerm.trim()) {
+      next.set("tag", searchTerm.trim());
+    } else {
+      next.delete("tag");
+    }
+    setSearchParams(next);
+  };
+
   return (
     <div className="min-h-screen bg-(--color-cream)">
       <SEOMeta
@@ -117,6 +130,24 @@ export default function Shop() {
             onChange={handleFiltersChange}
             onClear={clearFilters}
           />
+        </div>
+
+        <div className="w-full md:hidden">
+          <form onSubmit={handleSearchSubmit} className="mb-4 flex items-center gap-2">
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Search products"
+              className="h-11 flex-1 rounded-sm border border-(--color-border) bg-white px-3 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none focus:border-(--color-pink)"
+            />
+            <button
+              type="submit"
+              className="h-11 rounded-sm bg-(--color-pink) px-4 text-[11px] font-medium uppercase tracking-[0.08em] text-white"
+            >
+              Search
+            </button>
+          </form>
         </div>
 
         {mobileFilterOpen && (
