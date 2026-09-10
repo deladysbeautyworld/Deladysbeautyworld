@@ -33,15 +33,15 @@ export default function FeaturedProducts() {
   }, []);
 
   return (
-    <section className="px-4 sm:px-6 md:px-10 py-12 sm:py-16">
+    <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 md:px-12">
       {/* Header */}
       <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8 sm:mb-10">
-        <h2 className="font-display text-[26px] sm:text-[32px] font-light text-(--color-ink)">
+        <h2 className="font-display text-[36px] font-normal leading-none text-(--color-ink) sm:text-[48px]">
           Best sellers
         </h2>
         <Link
           to="/shop"
-          className="flex items-center gap-1.5 text-[11px] tracking-widest uppercase text-(--color-faint) hover:text-(--color-ink) transition-colors duration-200 font-normal"
+          className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-widest text-(--color-pink) transition-colors duration-200 hover:text-(--color-ink)"
         >
           View all
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">

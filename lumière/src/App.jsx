@@ -21,8 +21,7 @@ import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import AuthPage from "./pages/AuthPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import OrderConfirmation from "./pages/OrderConfirmation";
@@ -60,8 +59,8 @@ const router = createBrowserRouter([
       { path: "cart", element: <Cart /> },
 
       // Auth
-      { path: "login", element: <Login /> },
-      { path: "signup", element: <Signup /> },
+      { path: "login", element: <AuthPage /> },
+      { path: "signup", element: <AuthPage /> },
       { path: "forgot-password", element: <ForgotPassword /> },
       { path: "reset-password", element: <ResetPassword /> },
 

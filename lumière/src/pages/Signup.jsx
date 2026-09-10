@@ -73,8 +73,13 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-6 py-16">
-      <div className="w-full max-w-sm">
+    <div className="relative flex min-h-[80vh] items-center justify-center bg-(--color-surface) px-6 py-16 overflow-hidden">
+      {/* Visual Interest: Animated Background Blobs */}
+      <div className="absolute top-[-10%] right-[-10%] w-72 h-72 bg-(--color-pink-pale) rounded-full blur-3xl opacity-60 animate-blob" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-96 h-96 bg-(--color-pink-light) rounded-full blur-3xl opacity-40 animate-blob animation-delay-2000" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-(--color-cream-mid) rounded-full blur-3xl opacity-50 animate-blob animation-delay-4000" />
+
+      <div className="relative z-10 w-full max-w-sm rounded-[1.25rem] border border-(--color-border) bg-white p-6 shadow-lg sm:p-10 animate-fadeInUp hover:scale-[1.01] transition-transform duration-300">
 
         {/* Header */}
         <div className="text-center mb-10">
@@ -185,7 +190,7 @@ export default function Signup() {
           <button
             type="submit"
             disabled={loading}
-            className="h-11 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors duration-200 disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
+            className="h-11 bg-(--color-pink) text-white text-[11px] tracking-widest uppercase font-medium rounded-full hover:bg-[#f20b8e] transition-colors duration-200 disabled:opacity-60 flex items-center justify-center gap-2 mt-2"
           >
             {loading && (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

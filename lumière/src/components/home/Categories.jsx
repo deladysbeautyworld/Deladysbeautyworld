@@ -53,9 +53,9 @@ const CATEGORIES = [
 
 export default function Categories() {
   return (
-    <section className="px-4 sm:px-6 md:px-10 pb-12 sm:pb-16">
+    <section className="bg-(--color-surface) px-5 py-16 sm:px-8 sm:py-24 md:px-12">
       <div className="flex flex-wrap items-baseline justify-between gap-4 mb-8 sm:mb-10">
-        <h2 className="font-display text-[26px] sm:text-[32px] font-light text-(--color-ink)">
+        <h2 className="font-display text-[36px] font-normal leading-none text-(--color-ink) sm:text-[48px]">
           Shop by Concern
         </h2>
         <Link
@@ -75,7 +75,7 @@ export default function Categories() {
             key={cat.name}
             to={`/shop?category=${cat.slug}`}
             style={{ backgroundColor: cat.bg }}
-            className="relative h-40 sm:h-45 md:h-50 rounded-sm text-left px-4 sm:px-6 py-4 sm:py-5 flex flex-col justify-end overflow-hidden group"
+            className="group relative flex h-56 flex-col justify-end overflow-hidden rounded-[1.25rem] px-5 py-5 text-left sm:h-72 sm:px-7 sm:py-7"
           >
             <img
               src={cat.image}

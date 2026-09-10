@@ -1,9 +1,9 @@
 const TRUST_ITEMS = [
-  { icon: "🌿", label: "100% clean ingredients" },
-  { icon: "🚚", label: "Free shipping over $60" },
-  { icon: "↩️", label: "30-day returns" },
-  { icon: "🧪", label: "Dermatologist tested" },
-  { icon: "🌎", label: "Ships worldwide" },
+  { icon: "✦", label: "100% clean ingredients" },
+  { icon: "✦", label: "Free shipping over ₦50,000" },
+  { icon: "✦", label: "14-day returns" },
+  { icon: "✦", label: "Dermatologist tested" },
+  { icon: "✦", label: "Nationwide delivery" },
 ];
 
 export default function TrustStrip() {

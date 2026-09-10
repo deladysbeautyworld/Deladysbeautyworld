@@ -101,9 +101,9 @@ export default function Testimonials() {
   const next = () => setActivePage((p) => (p === pages.length - 1 ? 0 : p + 1));
 
   return (
-    <section className="px-4 sm:px-6 md:px-10 py-12 sm:py-16">
+    <section className="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 sm:py-24 md:px-12">
       <div className="flex items-center justify-between gap-4 mb-8 sm:mb-10">
-        <h2 className="font-display text-[26px] sm:text-[32px] font-light text-(--color-ink)">
+        <h2 className="font-display text-[36px] font-normal leading-none text-(--color-ink) sm:text-[48px]">
           What people say
         </h2>
 

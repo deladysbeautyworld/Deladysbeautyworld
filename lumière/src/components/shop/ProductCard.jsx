@@ -24,7 +24,7 @@ export default function ProductCard({ product }) {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group relative flex flex-col bg-white border border-(--color-border) rounded-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
+      className="group relative flex flex-col overflow-hidden rounded-[1.25rem] border border-(--color-border) bg-white transition-shadow duration-300 hover:shadow-md"
     >
       {/* Image — branded placeholder shows when no image_url is set */}
       <div className="relative overflow-hidden bg-(--color-cream-mid) aspect-3/4">
@@ -38,13 +38,13 @@ export default function ProductCard({ product }) {
 
         {/* Tags */}
         {product.tags?.includes("bestseller") && (
-          <span className="absolute top-3 left-3 bg-(--color-ink) text-(--color-cream) text-[9px] tracking-widest uppercase px-2 py-1">
+          <span className="absolute left-3 top-3 rounded-full bg-(--color-ink) px-3 py-1 text-[9px] uppercase tracking-widest text-(--color-cream)">
             Bestseller
           </span>
         )}
 
         {product.stock === 0 && (
-  <span className="absolute top-3 left-3 bg-(--color-border) text-(--color-muted) text-[9px] tracking-widest uppercase px-2 py-1">
+  <span className="absolute left-3 top-3 rounded-full bg-(--color-border) px-3 py-1 text-[9px] uppercase tracking-widest text-(--color-muted)">
     Out of stock
   </span>
 )}
@@ -57,7 +57,7 @@ export default function ProductCard({ product }) {
             e.stopPropagation();
             toggleFavorite(product);
           }}
-          className="absolute top-3 right-3 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+          className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 backdrop-blur-sm transition-opacity duration-200 md:opacity-0 md:group-hover:opacity-100"
           aria-label={wishlisted ? "Remove from favourites" : "Add to favourites"}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.5" className={wishlisted ? "text-(--color-pink)" : "text-(--color-ink)"}>
@@ -83,7 +83,7 @@ export default function ProductCard({ product }) {
       </div>
 
       {/* Info */}
-      <div className="p-4 flex flex-col gap-1 flex-1">
+      <div className="flex flex-1 flex-col gap-1 p-4">
         <p className="text-[10px] tracking-[0.12em] uppercase text-(--color-faint)">
           {product.categories?.name || "Skincare"}
         </p>

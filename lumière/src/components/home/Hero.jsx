@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import logo from "../../assets/logo.jpg";
+import heroImage from "../../assets/background.jpg";
 
 export default function Hero() {
   const [visible, setVisible] = useState(false);
@@ -12,98 +12,62 @@ export default function Hero() {
   }, []);
 
   return (
-    <section className="grid grid-cols-1 md:grid-cols-2 min-h-135">
+    <section className="relative isolate min-h-[calc(100svh-9rem)] overflow-hidden bg-(--color-navy) text-white sm:min-h-[calc(100svh-10rem)]">
+      <div
+        className="absolute inset-0 -z-20 bg-cover bg-[center_right_28%] sm:bg-[center_right_18%]"
+        style={{ backgroundImage: `url(${heroImage})` }}
+      />
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(18,14,52,0.72)_0%,rgba(22,17,59,0.58)_34%,rgba(25,18,55,0.22)_61%,rgba(17,12,42,0.08)_100%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_68%_45%,rgba(229,0,125,0.1),transparent_28%)]" />
 
-      {/* Left — copy */}
-      <div className="bg-(--color-cream-dark) px-6 sm:px-8 md:px-14 py-14 sm:py-20 flex flex-col justify-center">
+      {/* Editorial copy */}
+      <div className="mx-auto flex min-h-[calc(100svh-10rem)] max-w-[1440px] items-center px-5 py-14 sm:min-h-[calc(100svh-11rem)] sm:px-8 md:px-6 lg:px-6 xl:px-24">
+        <div className="max-w-xl">
 
         <p
-          className={`text-[11px] tracking-[0.14em] uppercase text-(--color-faint) mb-6 font-normal transition-all duration-700 ${
+          className={`mb-6 flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.14em] text-white/80 transition-all duration-700 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
           }`}
         >
-          Makeup · Skincare · Fragrance
+          <span className="text-base text-(--color-pink-light)">✦</span>
+          Beauty, beautifully yours
         </p>
 
         <h1
-          className={`font-display text-[42px] sm:text-[52px] md:text-[60px] font-normal leading-[1.05] text-(--color-ink) mb-5 transition-all duration-700 delay-100 ${
+          className={`mb-6 font-display text-[48px] font-normal leading-[0.98] tracking-[-0.02em] text-white transition-all duration-700 delay-100 sm:text-[60px] md:text-[68px] xl:text-[82px] ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          Beauty that<br /><em>speaks</em><br />for itself
+          Let your<br />beauty make<br />the <em>introduction.</em>
         </h1>
 
         <p
-          className={`text-[14px] text-(--color-muted) leading-[1.8] max-w-sm mb-10 font-light transition-all duration-700 delay-200 ${
+          className={`mb-9 max-w-md text-[15px] font-light leading-[1.8] text-white/70 transition-all duration-700 delay-200 sm:text-[16px] ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
-          Premium makeup, skincare and fragrance, delivered nationwide across Nigeria.
+          Discover makeup, skincare and fragrance chosen to celebrate every shade, every mood, every woman.
         </p>
 
         <div
-          className={`flex items-center gap-6 transition-all duration-700 delay-300 ${
+          className={`flex flex-col items-start gap-3 transition-all duration-700 delay-300 sm:flex-row sm:items-center sm:gap-5 ${
             visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
         >
           <Link
             to="/shop"
-            className="bg-(--color-pink) text-white text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-(--color-navy) transition-colors duration-200 flex items-center"
+            className="flex h-12 items-center gap-3 rounded-full bg-(--color-pink) px-8 text-[13px] font-medium text-white transition-transform duration-200 hover:-translate-y-0.5 hover:bg-[#f20b8e]"
           >
-            Shop now
+            Shop the edit
+            <span aria-hidden="true" className="text-lg leading-none">→</span>
           </Link>
           <Link
             to="/about"
-            className="flex items-center gap-2 text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-pink) transition-colors duration-200 font-normal"
+            className="flex h-12 items-center rounded-full border border-white/70 px-8 text-[13px] font-medium text-white transition-colors duration-200 hover:border-white hover:bg-white/10"
           >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-            Our story
+            Our beauty story
           </Link>
         </div>
-      </div>
-
-      {/* Right — logo visual */}
-      <div className="bg-(--color-cream-mid) flex items-center justify-center min-h-80 md:min-h-auto relative overflow-hidden">
-
-        {/* Outer ring — slow pulse */}
-        <div className="absolute w-80 h-80 sm:w-105 sm:h-105 rounded-full bg-(--color-pink)/8 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-[ping_4s_ease-in-out_infinite]" />
-
-        {/* Logo + tagline */}
-        <div
-          className={`relative z-10 flex flex-col justify-center items-center gap-5 transition-all duration-1000 delay-200 ${
-            visible ? "opacity-100 scale-100" : "opacity-0 scale-90"
-          }`}
-        >
-          <img
-            src={logo}
-            alt="De Lady's Beauty World"
-            className="w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full object-contain drop-shadow-lg hover:scale-105 transition-transform duration-500"
-          />
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-px bg-(--color-pink)/40" />
-            <p className="text-[10px] tracking-[0.18em] uppercase text-(--color-pink) font-normal">
-              Est. in Nigeria
-            </p>
-            <div className="w-8 h-px bg-(--color-pink)/40" />
-          </div>
-        </div>
-
-        {/* Top right badge */}
-        <div className={`hidden md:block absolute top-6 right-6 bg-white/90 backdrop-blur-sm border border-(--color-border) rounded-sm px-3.5 py-2.5 text-right shadow-sm transition-all duration-700 delay-500 ${ visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4" }`} > <p className="text-[9px] tracking-[0.12em] uppercase text-(--color-faint) font-normal"> Trusted by </p> <p className="text-[14px] font-medium text-(--color-ink) mt-0.5"> 20K customers </p> </div>
-
-        {/* Bottom left badge */}
-        <div
-          className={`hidden md:block absolute bottom-6 left-6 bg-white/90 backdrop-blur-sm border border-(--color-border) rounded-sm px-3.5 py-2.5 shadow-sm transition-all duration-700 delay-600 ${
-            visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-          }`}
-        >
-          <p className="text-[9px] tracking-[0.12em] uppercase text-(--color-faint) font-normal mb-1">Nationwide delivery</p>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-(--color-pink) animate-pulse" />
-            <p className="text-[12px] font-normal text-(--color-ink)">All 36 states</p>
-          </div>
         </div>
       </div>
     </section>

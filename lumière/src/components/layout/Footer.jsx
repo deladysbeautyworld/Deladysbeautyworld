@@ -28,7 +28,7 @@ const SOCIALS = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-(--color-border) bg-(--color-surface)">
+    <footer className="border-t border-(--color-border) bg-(--color-navy) text-white">
       <div className="px-4 sm:px-6 md:px-10 pt-12 pb-6">
 
         {/* Grid */}
@@ -41,7 +41,7 @@ export default function Footer() {
               alt="De Lady's Beauty World"
               className="w-20 h-20 object-contain rounded-full mb-4"
             />
-            <p className="text-[13px] text-(--color-faint) leading-[1.7] font-light mb-5 max-w-50">
+            <p className="mb-5 max-w-50 text-[13px] font-light leading-[1.7] text-white/60">
               Premium makeup, skincare and fragrance — delivered nationwide across Nigeria.
             </p>
             <div className="flex gap-3">

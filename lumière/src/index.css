@@ -5,19 +5,19 @@
   /* === De Lady's Beauty World — Brand Tokens === */
 
   /* Primary palette — pulled from logo */
-  --color-pink:         #E5007D;
-  --color-pink-light:   #F2A7CC;
-  --color-pink-pale:    #FDF0F7;
-  --color-navy:         #1E1756;
-  --color-navy-soft:    #2D2575;
+  --color-pink:         #D90078;
+  --color-pink-light:   #F3A5CB;
+  --color-pink-pale:    #FCECF5;
+  --color-navy:         #171332;
+  --color-navy-soft:    #28204F;
 
   /* Neutrals */
   --color-white:        #FFFFFF;
   --color-off-white:    #FEF8FC;
-  --color-border:       #F0C8E0;
-  --color-muted:        #6B5B7B;
-  --color-faint:        #A08CB0;
-  --color-surface:      #FDF4FA;
+  --color-border:       #E9D3E0;
+  --color-muted:        #75697B;
+  --color-faint:        #A79AA9;
+  --color-surface:      #FBF3F8;
   --color-gold:         #C8A96E;
   --color-success:      #16834A;
   --color-success-soft: #EAF8F0;
@@ -25,12 +25,12 @@
   --color-error:        #C7345A;
 
   /* Semantic aliases — same variable names as Lumière so components need minimal changes */
-  --color-ink:          #1E1756;
-  --color-ink-soft:     #2D2575;
-  --color-cream:        #FEF8FC;
-  --color-cream-dark:   #FAE8F4;
-  --color-cream-mid:    #F5D5EB;
-  --color-stone:        #E8B8D8;
+  --color-ink:          #171332;
+  --color-ink-soft:     #28204F;
+  --color-cream:        #FFF9FC;
+  --color-cream-dark:   #F8EAF2;
+  --color-cream-mid:    #F1DCE8;
+  --color-stone:        #DDBDD0;
 
   /* Typography */
   --font-display: 'Playfair Display', serif;
@@ -50,6 +50,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+button, a, select, input, textarea { -webkit-tap-highlight-color: transparent; }
+a { text-underline-offset: 3px; }
+button, select { font-family: inherit; }
+input, select, textarea { border-radius: 0.5rem; }
+
+.rounded-sm { border-radius: 0.75rem; }
+.rounded-full { border-radius: 999px; }
+.shadow-md { box-shadow: 0 16px 40px rgba(23, 19, 50, 0.10); }
+.shadow-lg { box-shadow: 0 20px 55px rgba(23, 19, 50, 0.16); }
+
 .font-display { font-family: var(--font-display); }
 
 .product-card:hover .quick-add { transform: translateY(0); }
@@ -63,3 +73,50 @@ input:focus, select:focus, textarea:focus {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--color-off-white); }
 ::-webkit-scrollbar-thumb { background: var(--color-pink-light); border-radius: 3px; }
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+}
+.animate-blob {
+  animation: blob 7s infinite alternate;
+}
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fadeInUp {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
+}

@@ -12,16 +12,16 @@ export default function Newsletter() {
   };
 
   return (
-    <div className="mx-4 sm:mx-6 md:mx-10 mb-12 sm:mb-16 bg-(--color-cream-dark) rounded-sm py-10 sm:py-14 px-4 sm:px-6 flex flex-col items-center text-center">
-      <h2 className="font-display text-[28px] sm:text-[34px] font-light text-(--color-ink) mb-3">
+    <div className="mx-4 mb-12 flex flex-col items-center rounded-[1.25rem] bg-(--color-pink) px-4 py-10 text-center text-white sm:mx-6 sm:mb-16 sm:px-6 sm:py-14 md:mx-10">
+      <h2 className="mb-3 font-display text-[28px] font-light text-white sm:text-[34px]">
         Join the glow list
       </h2>
-      <p className="text-[13px] text-(--color-muted) leading-[1.7] font-light max-w-sm mb-8">
+      <p className="mb-8 max-w-sm text-[13px] font-light leading-[1.7] text-white/85">
         Get early access to new launches, skincare tips, and 10% off your first order.
       </p>
 
       {submitted ? (
-        <div className="text-[13px] text-(--color-ink) font-normal tracking-wide">
+        <div className="text-[13px] font-normal tracking-wide text-white">
           You're on the list. Welcome to De Lady's Beauty World.
         </div>
       ) : (
@@ -32,18 +32,18 @@ export default function Newsletter() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email address"
             required
-            className="flex-1 h-11 p-3 border border-(--color-border) sm:border-r-0 bg-(--color-cream) px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) outline-none rounded-t-sm sm:rounded-l-sm sm:rounded-tr-none focus:border-(--color-ink) transition-colors font-light"
+            className="h-11 flex-1 rounded-t-sm border border-white bg-white px-4 p-3 text-[13px] font-light text-(--color-ink) outline-none placeholder:text-(--color-muted) transition-colors focus:border-(--color-navy) sm:rounded-l-sm sm:rounded-tr-none sm:border-r-0"
           />
           <button
             type="submit"
-            className="h-11 bg-(--color-ink) text-(--color-cream) px-6 text-[11px] tracking-widest uppercase font-normal rounded-b-sm sm:rounded-r-sm sm:rounded-bl-none hover:bg-(--color-ink-soft) transition-colors duration-200 shrink-0"
+            className="h-11 shrink-0 rounded-b-sm bg-(--color-navy) px-6 text-[11px] font-normal uppercase tracking-widest text-white transition-colors duration-200 hover:bg-(--color-ink-soft) sm:rounded-bl-none sm:rounded-r-sm"
           >
             Subscribe
           </button>
         </form>
       )}
 
-      <p className="text-[11px] text-(--color-faint) mt-4 font-light">
+      <p className="mt-4 text-[11px] font-light text-white/75">
         No spam. Unsubscribe anytime.
       </p>
     </div>

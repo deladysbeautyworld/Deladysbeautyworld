@@ -38,8 +38,6 @@ function fetchRole(userId) {
       .eq("id", userId)
       .single();
 
-    console.log("fetchRole result:", { data, error, userId });
-
     const role = error || !data ? null : (data.role ?? null);
 
     useAuthStore.setState({ role });
@@ -81,8 +79,7 @@ export const useAuthStore = create(
                 .then(() => {
                   useAuthStore.setState({ _roleUserId: user.id });
                 })
-                .catch((error) => {
-                  console.error("Failed to load user role:", error);
+                .catch(() => {
                   useAuthStore.setState({ role: null, _roleUserId: null });
                 });
             }
@@ -96,9 +93,7 @@ export const useAuthStore = create(
               const cached = useAuthStore.getState().role;
               if (cached && useAuthStore.getState()._roleUserId === newUser.id) {
                 // Same user — cached role still valid; refresh in background.
-                fetchRole(newUser.id).catch((error) => {
-                  console.error("Failed to refresh user role:", error);
-                });
+                fetchRole(newUser.id).catch(() => {});
               } else {
                 fetchRole(newUser.id)
                   .then(() => {
@@ -114,7 +109,6 @@ export const useAuthStore = create(
             }
           });
         } catch (error) {
-          console.error("Failed to initialize authentication:", error);
           set({
             session: null,
             user: null,

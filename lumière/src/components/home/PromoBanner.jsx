@@ -3,22 +3,22 @@ import cosBundle from "./../../assets/cos_bundle.jpg";
 
 export default function PromoBanner() {
   return (
-    <div className="mx-6 md:mx-10 rounded-sm overflow-hidden grid grid-cols-1 md:grid-cols-2 bg-(--color-ink)">
+    <div className="grid min-h-[28rem] grid-cols-1 overflow-hidden bg-(--color-navy) md:grid-cols-2">
 
       {/* Left — copy */}
-      <div className="px-10 md:px-14 py-14 flex flex-col justify-center">
+      <div className="flex flex-col justify-center px-6 py-16 sm:px-12 md:px-16">
         <p className="text-[11px] tracking-[0.14em] uppercase text-(--color-faint) mb-4 font-normal">
           Limited time
         </p>
-        <h2 className="font-display text-[36px] md:text-[42px] font-light text-(--color-cream-dark) leading-[1.1] mb-4">
+        <h2 className="mb-4 font-display text-[42px] font-normal leading-[1.05] text-white md:text-[56px]">
           Build your<br />perfect routine
         </h2>
-        <p className="text-[13px] text-(--color-faint) leading-[1.8] font-light mb-8 max-w-xs">
+        <p className="mb-8 max-w-xs text-[14px] font-light leading-[1.8] text-white/65">
           With our inbuilt AI, you can now create a skincare routine by just selecting the products and clicking generate to get a routine for you
         </p>
         <Link
           to="/routines"
-          className="self-start bg-(--color-cream-dark) text-(--color-ink) text-[11px] tracking-widest uppercase font-normal px-7 h-11 rounded-sm hover:bg-white transition-colors duration-200 flex items-center"
+          className="flex h-12 items-center self-start rounded-full bg-(--color-pink) px-8 text-[11px] font-medium uppercase tracking-widest text-white transition-colors duration-200 hover:bg-white hover:text-(--color-ink)"
         >
           Shop bundles
         </Link>

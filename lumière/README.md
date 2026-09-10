@@ -1,16 +1,65 @@
-# React + Vite
+# De Lady's Beauty World 🌸
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A luxury beauty e-commerce storefront for skincare, makeup, and fragrance.
 
-Currently, two official plugins are available:
+## 🚀 Tech Stack
+- **Frontend**: React 19, Vite, Tailwind CSS 4
+- **Backend/Database**: Supabase (PostgreSQL, Auth, Storage)
+- **Payments**: Paystack
+- **State Management**: Zustand
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ Local Setup
 
-## React Compiler
+### 1. Clone and Install
+```bash
+git clone <repository-url>
+cd lumiere
+npm install
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Environment Variables
+Create a `.env` file in the root directory:
+```bash
+cp .env.example .env
+```
+Then, fill in your keys from the Supabase and Paystack dashboards.
 
-## Expanding the ESLint configuration
+### 3. Run Development Server
+```bash
+npm run dev
+```
+The app will be available at `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🐘 Supabase Configuration
+
+### Database Schema
+The project uses several key tables. Ensure these are created in your Supabase project:
+- `profiles`: User profiles linked to `auth.users`.
+- `products`: Product details, pricing, and stock.
+- `categories`: Product categories.
+- `orders`: Order history and status.
+- `promo_codes`: Discount code management.
+- `routines`: Curated beauty routines.
+- `posts`: Journal/blog entries.
+
+### Database Functions
+The app uses a custom PostgreSQL function `finalize_order` for atomic order creation. See `supabase/sql/202608200001_predeploy_security_checkout.sql` for the implementation.
+
+## 💳 Paystack Integration
+Payments are handled via Paystack's inline JS.
+- **Public Key**: Used in the frontend for the payment popup.
+- **Secret Key**: Used in the `api/verify-paystack.js` serverless function to verify transactions.
+
+## 📦 Deployment
+
+### Vercel Deployment
+1. Connect your GitHub repository to Vercel.
+2. Add the environment variables from `.env.example` to the Vercel project settings.
+3. Deploy.
+
+## 📁 Project Structure
+- `src/components`: UI components divided by domain (home, layout, shop).
+- `src/pages`: Main view components.
+- `src/stores`: Zustand stores for global state (auth, cart).
+- `src/utils`: Shared utilities (Supabase client, SEO helper).
+- `api/`: Serverless functions for payment verification and other backend tasks.

@@ -3,6 +3,8 @@ import { Link, NavLink } from "react-router-dom";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCartStore } from "../../stores/cartStore";
 import { useAuthStore, ADMIN_ROLES } from "../../stores/authStore";
+import { searchProducts } from "../../lib/products";
+import logo from "../../assets/logo.jpg";
 
 const NAV_LINKS = [
   { label: "Shop",        to: "/shop" },
@@ -14,6 +16,10 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
   const accountRef = useRef(null);
   const { openFavorites, count: wishlistCount } = useFavorites();
   const totalItems = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
@@ -42,6 +48,30 @@ export default function Navbar() {
 
   const isAdmin = ADMIN_ROLES.includes(role);
 
+  useEffect(() => {
+    if (!searchOpen || !searchQuery.trim()) {
+      return undefined;
+    }
+
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      setSearchLoading(true);
+      try {
+        const results = await searchProducts(searchQuery.trim(), 6);
+        if (!cancelled) setSearchResults(results);
+      } catch {
+        if (!cancelled) setSearchResults([]);
+      } finally {
+        if (!cancelled) setSearchLoading(false);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [searchOpen, searchQuery]);
+
   const linkClass = ({ isActive }) =>
     `text-[11px] font-normal tracking-widest uppercase transition-colors duration-200 ${
       isActive
@@ -50,16 +80,21 @@ export default function Navbar() {
     }`;
 
   return (
-    <nav className="sticky top-0 z-50 bg-(--color-cream) border-b border-(--color-border)">
-      <div className="flex items-center justify-between min-h-14 sm:h-16 px-4 sm:px-6 md:px-10 gap-3">
+    <nav className="relative z-50 border-b border-(--color-border) bg-(--color-cream)">
+      <div className="flex min-h-20 items-center justify-between gap-3 px-5 sm:h-24 sm:px-8 md:px-10 lg:px-12">
 
         {/* Logo */}
-        <Link to="/" className="min-w-0 font-display text-[16px] sm:text-[22px] font-light italic tracking-wide text-(--color-ink) truncate">
-          De Lady's Beauty World
+        <Link to="/" aria-label="De Lady's Beauty World home" className="shrink-0">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="De Lady's Beauty World" className="h-12 w-12 rounded-full object-cover sm:h-14 sm:w-14" />
+            <span className="hidden font-display text-[18px] font-medium leading-none text-(--color-ink) sm:block sm:text-[23px]">
+              De Lady's <em className="font-normal text-(--color-pink)">Beauty World</em>
+            </span>
+          </div>
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden md:flex items-center gap-8">
+        <ul className="hidden items-center gap-8 xl:flex">
           {NAV_LINKS.map(({ label, to }) => (
             <li key={label}>
               <NavLink to={to} className={linkClass}>
@@ -70,11 +105,13 @@ export default function Navbar() {
         </ul>
 
         {/* Actions */}
-        <div className="flex items-center gap-3 sm:gap-5 shrink-0">
+        <div className="flex shrink-0 items-center gap-5 sm:gap-7">
           {/* Search */}
           <button
             aria-label="Search"
-            className="hidden md:flex text-(--color-muted) hover:text-(--color-ink) transition-colors duration-200 cursor-pointer"
+            type="button"
+            onClick={() => setSearchOpen((open) => !open)}
+            className="hidden cursor-pointer text-(--color-muted) transition-colors duration-200 hover:text-(--color-ink) xl:flex"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
@@ -86,7 +123,7 @@ export default function Navbar() {
             type="button"
             onClick={openFavorites}
             aria-label="Open favourites sidebar"
-            className="relative text-(--color-muted) hover:text-(--color-ink) transition-colors duration-200 cursor-pointer"
+            className="relative hidden cursor-pointer text-(--color-muted) transition-colors duration-200 hover:text-(--color-ink) xl:block"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
@@ -120,7 +157,7 @@ export default function Navbar() {
 
           {/* Account / Auth */}
           {user ? (
-              <div className="relative" ref={accountRef}>
+              <div className="relative hidden xl:block" ref={accountRef}>
                 <button
                   type="button"
                   onClick={() => setAccountOpen((o) => !o)}
@@ -188,7 +225,7 @@ export default function Navbar() {
                 </div>
               </div>
             ) : (
-              <Link to="/login" className="hidden sm:block text-[11px] tracking-[0.08em] uppercase text-(--color-muted) hover:text-(--color-ink) transition-colors font-normal">
+              <Link to="/login" className="hidden text-[11px] uppercase tracking-[0.08em] text-(--color-muted) transition-colors hover:text-(--color-ink) xl:block">
                 Sign in
               </Link>
             )}
@@ -196,7 +233,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             aria-label="Toggle menu"
-            className="md:hidden text-(--color-muted) hover:text-(--color-ink) transition-colors cursor-pointer"
+            className="cursor-pointer text-(--color-muted) transition-colors hover:text-(--color-ink) xl:hidden"
             onClick={() => setMenuOpen(!menuOpen)}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
@@ -209,9 +246,56 @@ export default function Navbar() {
         </div>
       </div>
 
+      {searchOpen && (
+        <div className="absolute right-10 top-full z-50 w-[min(28rem,calc(100vw-2rem))] border border-(--color-border) bg-white p-4 shadow-lg">
+          <form onSubmit={(event) => event.preventDefault()}>
+            <input
+              autoFocus
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search products"
+              aria-label="Search products"
+              className="h-11 w-full border border-(--color-border) bg-(--color-cream) px-4 text-[13px] text-(--color-ink) outline-none focus:border-(--color-pink)"
+            />
+          </form>
+
+          {searchQuery.trim() && (
+            <div className="mt-3">
+              {searchLoading ? (
+                <p className="px-1 py-3 text-[12px] text-(--color-muted)">Searching...</p>
+              ) : searchResults.length > 0 ? (
+                <div className="flex flex-col divide-y divide-(--color-border)">
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product.id}
+                      to={`/product/${product.id}`}
+                      onClick={() => setSearchOpen(false)}
+                      className="flex items-center gap-3 py-3 hover:text-(--color-pink)"
+                    >
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-(--color-cream-mid)">
+                        {product.image_url && (
+                          <img src={product.image_url} alt="" className="h-full w-full object-cover" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-[13px] font-medium text-(--color-ink)">{product.name}</p>
+                        <p className="text-[12px] text-(--color-muted)">₦{Number(product.price).toLocaleString("en-NG")}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <p className="px-1 py-3 text-[12px] text-(--color-muted)">No products found.</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-(--color-border) bg-(--color-cream) px-4 sm:px-6 py-4">
+        <div className="border-t border-(--color-border) bg-(--color-cream) px-4 py-4 sm:px-6 xl:hidden">
           <ul className="flex flex-col gap-4">
             {NAV_LINKS.map(({ label, to }) => (
               <li key={label}>

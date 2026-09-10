@@ -100,16 +100,16 @@ export default function Shop() {
         description="Browse our complete collection of skincare, makeup, haircare, and beauty essentials. Find premium products for your beauty routine."
         canonical={`${window.location.origin}/shop`}
       />
-      <div className="border-b border-(--color-border) bg-(--color-surface)">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-          <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) mb-2">
+      <div className="border-b border-(--color-border) bg-(--color-navy) text-white">
+        <div className="mx-auto max-w-[1440px] px-5 py-14 sm:px-8 sm:py-20 md:px-12">
+          <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-(--color-pink-light)">
             De Lady's Beauty World
           </p>
-          <h1 className="font-display text-[30px] sm:text-[36px] font-light text-(--color-ink)">Shop all</h1>
+          <h1 className="font-display text-[36px] font-normal leading-none sm:text-[52px]">Shop all</h1>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex gap-6 lg:gap-10">
+      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 py-8 sm:py-10 flex gap-6 lg:gap-10 md:px-12">
         <div className="hidden md:block">
           <FilterSidebar
             categories={categories}

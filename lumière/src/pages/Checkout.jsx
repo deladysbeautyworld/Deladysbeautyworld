@@ -67,6 +67,7 @@ export default function Checkout() {
   const [promoError, setPromoError]       = useState(null);
   const [promoLoading, setPromoLoading]   = useState(false);
   const [showConfirm, setShowConfirm]     = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState(null);
 
@@ -633,7 +634,7 @@ export default function Checkout() {
             {/* Trust signals */}
             <div className="mt-5 pt-5 border-t border-(--color-border) flex flex-col gap-2">
               {[
-                "Secure payment via Paystack coming soon",
+                "Secure payments powered by Paystack",
                 "Nationwide delivery across Nigeria",
                 "WhatsApp order updates",
               ].map((line) => (
