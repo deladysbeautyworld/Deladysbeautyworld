@@ -12,37 +12,38 @@ export default function About() {
 
       <div className="w-full max-w-7xl">
         {/* Hero & Narrative Section */}
-        <section className="mb-24 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <section className="mb-24 grid grid-cols-1 items-center gap-12 md:grid-cols-2">
           <div className="relative aspect-square overflow-hidden rounded-sm">
             <img
               src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=2070&auto=format&fit=crop"
-              alt="Founder and store of De Lady's Beauty World"
-              className="object-cover w-full h-full"
+              alt="Beauty and skincare consultation at De Lady's Beauty World"
+              className="h-full w-full object-cover"
+              loading="lazy"
             />
           </div>
           <div>
-            <h1 className="font-display text-[32px] md:text-[48px] font-light text-(--color-ink) mb-6 leading-tight">
-              Redefining Beauty Standards in Abuja and Beyond.
+            <h1 className="mb-6 font-display text-[32px] font-light leading-tight text-(--color-ink) md:text-[48px]">
+              Redefining beauty standards in Abuja and beyond.
             </h1>
-            <h2 className="text-[18px] md:text-[24px] font-light text-(--color-muted) mb-8 leading-relaxed max-w-2xl">
-              More than a retail brand—a beauty institution dedicated to authenticity, education, and the empowerment of every woman.
+            <h2 className="mb-8 max-w-2xl text-[18px] font-light leading-relaxed text-(--color-muted) md:text-[24px]">
+              More than a retail brand — a beauty institution built on authenticity, education, and empowerment.
             </h2>
-            <div className="space-y-6 text-[14px] md:text-[15px] font-light text-(--color-muted) leading-relaxed max-w-3xl">
+            <div className="max-w-3xl space-y-6 text-[14px] font-light leading-relaxed text-(--color-muted) md:text-[15px]">
               <p>
-                Founded on the belief that everyone deserves access to genuine, high-efficacy beauty
-                solutions, De Lady's Beauty World was born out of a necessity to combat the proliferation
-                of counterfeit products in the market. For Florence, the mission was clear: to create a
-                sanctuary where authenticity is non-negotiable and excellence is the standard.
+                Founded on the belief that every woman deserves access to genuine, high-performing beauty
+                solutions, De Lady&apos;s Beauty World was created to challenge the prevalence of counterfeit
+                products in the market. The mission was simple: create a space where authenticity is
+                non-negotiable and quality is the standard.
               </p>
               <p>
-                We understand that skincare is not one-size-fits-all. What works for one skin type may
-                not work for another, and what works in one climate may fail in another. That's why we
-                curate our collection with a clinical eye, ensuring every product we offer is not only
-                authentic but also relevant to the unique needs of the African skin and the Nigerian environment.
+                We understand that skincare is never one-size-fits-all. What works for one skin type may not
+                work for another, and what works in one climate may not suit another. That is why we curate our
+                collection with care, ensuring every product we offer is authentic, effective, and relevant to the
+                needs of African skin and the Nigerian environment.
               </p>
               <p>
-                Our goal is to move beyond the transaction. We strive to empower our community through
-                knowledge, helping women navigate the complexities of beauty with confidence and clarity.
+                Our goal is to go beyond the transaction. We want to equip our community with knowledge and
+                confidence, helping women build routines that feel personal, informed, and beautiful.
               </p>
             </div>
           </div>
@@ -50,101 +51,101 @@ export default function About() {
 
         {/* Gold Standard Section */}
         <section className="mb-24 border-t border-(--color-border) pt-16">
-          <h2 className="font-display text-[24px] font-light text-(--color-ink) mb-8">
-            Uncompromising Quality, Unwavering Trust
+          <h2 className="mb-8 font-display text-[24px] font-light text-(--color-ink)">
+            Uncompromising quality, unwavering trust.
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="flex flex-col p-6 border border-(--color-border) rounded-sm">
-              <span className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-3 font-light">Authenticity</span>
-              <h3 className="font-display text-[18px] font-light text-(--color-ink) mb-2">100% Authentic</h3>
-              <p className="text-[13px] font-light text-(--color-muted) leading-relaxed">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            <div className="flex flex-col rounded-sm border border-(--color-border) p-6">
+              <span className="mb-3 text-[11px] font-light uppercase tracking-widest text-(--color-faint)">Authenticity</span>
+              <h3 className="mb-2 font-display text-[18px] font-light text-(--color-ink)">100% authentic</h3>
+              <p className="text-[13px] font-light leading-relaxed text-(--color-muted)">
                 Zero tolerance for counterfeits. Every product is sourced directly from authorized
-                distributors to ensure purity and efficacy.
+                distributors to ensure purity, efficacy, and confidence in every purchase.
               </p>
             </div>
-            <div className="flex flex-col p-6 border border-(--color-border) rounded-sm">
-              <span className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-3 font-light">Curation</span>
-              <h3 className="font-display text-[18px] font-light text-(--color-ink) mb-2">Climate-Relevant</h3>
-              <p className="text-[13px] font-light text-(--color-muted) leading-relaxed">
-                Our catalog is specifically selected to perform optimally in the heat and humidity
-                of the Nigerian climate.
+            <div className="flex flex-col rounded-sm border border-(--color-border) p-6">
+              <span className="mb-3 text-[11px] font-light uppercase tracking-widest text-(--color-faint)">Curation</span>
+              <h3 className="mb-2 font-display text-[18px] font-light text-(--color-ink)">Climate-relevant</h3>
+              <p className="text-[13px] font-light leading-relaxed text-(--color-muted)">
+                Our catalog is chosen to perform beautifully in the heat, humidity, and skincare demands of the Nigerian climate.
               </p>
             </div>
-            <div className="flex flex-col p-6 border border-(--color-border) rounded-sm">
-              <span className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-3 font-light">Approach</span>
-              <h3 className="font-display text-[18px] font-light text-(--color-ink) mb-2">Efficacy-First</h3>
-              <p className="text-[13px] font-light text-(--color-muted) leading-relaxed">
-                We prioritize results-driven formulations that deliver visible improvements to skin
-                health and appearance.
+            <div className="flex flex-col rounded-sm border border-(--color-border) p-6">
+              <span className="mb-3 text-[11px] font-light uppercase tracking-widest text-(--color-faint)">Approach</span>
+              <h3 className="mb-2 font-display text-[18px] font-light text-(--color-ink)">Efficacy-first</h3>
+              <p className="text-[13px] font-light leading-relaxed text-(--color-muted)">
+                We prioritize results-driven formulas that support visible skin improvement, healthy routines, and long-term confidence.
               </p>
             </div>
           </div>
         </section>
 
         {/* Expert Guidance Section */}
-        <section className="mb-24 bg-(--color-faint) p-8 md:p-12 rounded-sm grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-square overflow-hidden rounded-sm order-2 md:order-1">
+        <section className="mb-24 grid grid-cols-1 items-center gap-12 rounded-sm bg-(--color-faint) p-8 md:grid-cols-2 md:p-12">
+          <div className="order-2 relative aspect-square overflow-hidden rounded-sm md:order-1">
             <img
               src="https://images.unsplash.com/photo-1522337660859-0adc7cdf2799?q=80&w=2070&auto=format&fit=crop"
               alt="Professional beauty consultation"
-              className="object-cover w-full h-full"
+              className="h-full w-full object-cover"
+              loading="lazy"
             />
           </div>
-          <div className="max-w-2xl order-1 md:order-2">
-            <h2 className="font-display text-[24px] font-light text-(--color-ink) mb-4">
-              Your Virtual Dermatologist & Makeup Artist.
+          <div className="order-1 max-w-2xl md:order-2">
+            <h2 className="mb-4 font-display text-[24px] font-light text-(--color-ink)">
+              Your virtual dermatologist and makeup artist.
             </h2>
-            <p className="text-[14px] font-light text-(--color-muted) mb-8 leading-relaxed">
-              We believe beauty is a science. From understanding the nuances of undertones to the
-              precise layering of active ingredients, our approach is rooted in education. We don't
-              just sell products; we guide you toward a routine that respects your skin's unique biology.
+            <p className="mb-8 text-[14px] font-light leading-relaxed text-(--color-muted)">
+              We believe beauty is a science. From understanding undertones to choosing the right actives,
+              our approach is rooted in education and care. We do not just sell products — we help you build a
+              routine that respects your skin and your lifestyle.
             </p>
             <Link
               to="/routines"
-              className="h-11 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase rounded-sm px-6 flex items-center justify-center"
+              className="flex h-11 items-center justify-center rounded-sm bg-(--color-ink) px-6 text-[11px] uppercase tracking-widest text-(--color-cream)"
             >
-              Explore Routines
+              Explore routines
             </Link>
           </div>
         </section>
 
         {/* Footprint Section */}
         <section className="mb-8">
-          <h2 className="font-display text-[24px] font-light text-(--color-ink) mb-6">
-            Our Footprint
+          <h2 className="mb-6 font-display text-[24px] font-light text-(--color-ink)">
+            Our footprint
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
             <div className="lg:col-span-1">
-              <p className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-4 font-light">Physical Locations</p>
+              <p className="mb-4 text-[11px] font-light uppercase tracking-widest text-(--color-faint)">Physical locations</p>
               <ul className="space-y-4 text-[14px] font-light text-(--color-muted)">
-                <li className="group">
-                  <span className="block font-medium text-(--color-ink) group-hover:text-blue-600 transition-colors cursor-pointer">Habo Mall</span>
+                <li>
+                  <span className="block font-medium text-(--color-ink)">Habo Mall</span>
                   #128 Adetotunbo Ademola Crescent, Wuse II.
                 </li>
-                <li className="group">
-                  <span className="block font-medium text-(--color-ink) group-hover:text-blue-600 transition-colors cursor-pointer">Cappadors Center</span>
-                  Alexandria Crescent, Off Aminu Kano Crescent (Beside Banex Plaza), Wuse II.
+                <li>
+                  <span className="block font-medium text-(--color-ink)">Cappadors Center</span>
+                  Alexandria Crescent, Off Aminu Kano Crescent, Beside Banex Plaza, Wuse II.
                 </li>
-                <li className="group">
-                  <span className="block font-medium text-(--color-ink) group-hover:text-blue-600 transition-colors cursor-pointer">Gwarinpa Outlet</span>
-                  #44 1st Avenue, Gwarinpa (Beside Amba Bakery).
+                <li>
+                  <span className="block font-medium text-(--color-ink)">Gwarinpa outlet</span>
+                  #44 1st Avenue, Gwarinpa, beside Amba Bakery.
                 </li>
               </ul>
 
               <div className="mt-8">
-                <p className="text-[11px] tracking-widest uppercase text-(--color-faint) mb-4 font-light">Shipping & Logistics</p>
-                <p className="text-[14px] font-light text-(--color-muted) leading-relaxed">
-                  Same-day delivery within Abuja. Dependable nationwide shipping to ensure your beauty
-                  essentials reach you, wherever you are in Nigeria.
+                <p className="mb-4 text-[11px] font-light uppercase tracking-widest text-(--color-faint)">Shipping & logistics</p>
+                <p className="text-[14px] font-light leading-relaxed text-(--color-muted)">
+                  Same-day delivery within Abuja and dependable nationwide shipping so your beauty essentials arrive when you need them.
                 </p>
               </div>
             </div>
-            <div className="lg:col-span-2 h-100 rounded-sm overflow-hidden border border-(--color-border)">
+            <div className="lg:col-span-2 overflow-hidden rounded-sm border border-(--color-border)" style={{ height: "420px" }}>
               <iframe
+                title="De Lady's Beauty World locations map"
                 width="100%"
                 height="100%"
-                frameBorder="0"
                 style={{ border: 0 }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
                 src="https://www.google.com/maps?q=De+Lady's+Beauty+World+Abuja&output=embed"
                 allowFullScreen
               ></iframe>
