@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import SEOMeta from "../utils/seo";
 import { getProducts } from "../lib/products";
@@ -14,11 +14,31 @@ export default function Shop() {
 
   const urlPage = Number(searchParams.get("page") || 1);
 
-  const filters = {
-    category: searchParams.get("category") || null,
-    price:    searchParams.get("price") ? JSON.parse(searchParams.get("price")) : null,
-    tag:      searchParams.get("tag") || null,
-  };
+  const filters = useMemo(() => {
+    const rawPrice = searchParams.get("price");
+    let price = null;
+
+    if (rawPrice) {
+      try {
+        const parsedPrice = JSON.parse(rawPrice);
+        if (
+          Array.isArray(parsedPrice) &&
+          parsedPrice.length === 2 &&
+          parsedPrice.every((value) => value === null || Number.isFinite(Number(value)))
+        ) {
+          price = parsedPrice.map((value) => (value === null ? null : Number(value)));
+        }
+      } catch {
+        // Ignore malformed filter URLs and load the unfiltered catalogue.
+      }
+    }
+
+    return {
+      category: searchParams.get("category") || null,
+      price,
+      tag: searchParams.get("tag") || null,
+    };
+  }, [searchParams]);
   const sort = searchParams.get("sort") || "newest";
 
   const [products, setProducts]                 = useState([]);
@@ -63,7 +83,6 @@ export default function Shop() {
   // Load products when filters or pagination changes
   // Calling setState indirectly via loadProducts is necessary for data fetching
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadProducts();
   }, [loadProducts]);
 

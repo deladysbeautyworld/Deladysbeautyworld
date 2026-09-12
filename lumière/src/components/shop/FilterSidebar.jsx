@@ -1,9 +1,9 @@
 const PRICE_RANGES = [
   { label: "All prices", value: null },
-  { label: "Under $30", value: [0, 30] },
-  { label: "$30 – $50", value: [30, 50] },
-  { label: "$50 – $75", value: [50, 75] },
-  { label: "$75+", value: [75, 999] },
+  { label: "Under ₦30,000", value: [0, 30000] },
+  { label: "₦30,000 – ₦50,000", value: [30000, 50000] },
+  { label: "₦50,000 – ₦75,000", value: [50000, 75000] },
+  { label: "₦75,000+", value: [75000, null] },
 ];
 
 const SKIN_TAGS = ["brightening", "hydration", "acne", "sensitive", "antiaging", "spf", "daily"];
