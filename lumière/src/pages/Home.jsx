@@ -6,6 +6,7 @@ import Categories from "../components/home/Categories";
 import PromoBanner from "../components/home/PromoBanner";
 import Testimonials from "../components/home/Testimonials";
 import Newsletter from "../components/home/Newsletter";
+import { getCanonicalUrl } from "../utils/seoConfig";
 
 export default function Home() {
   return (
@@ -13,7 +14,7 @@ export default function Home() {
       <SEOMeta
         title="Premium Beauty & Skincare Products"
         description="Discover premium Nigerian beauty and skincare products. Shop our collections of cleansers, moisturizers, treatments, and more for healthy glowing skin."
-        canonical={`${window.location.origin}/`}
+        canonical={getCanonicalUrl("/")}
       />
       <Hero />
       <TrustStrip />

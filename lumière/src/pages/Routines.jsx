@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "../stores/authStore";
 import { supabase } from "../utils/supabase";
 import { getProducts } from "../lib/products";
+import SEOMeta from "../utils/seo";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 
@@ -348,6 +349,11 @@ export default function Routines() {
 
   return (
     <div className="min-h-screen bg-(--color-cream)">
+      <SEOMeta
+        title="Build Your Skincare Routine"
+        description="Build a personalized skincare routine with authentic products from De Lady's Beauty World, a trusted Nigerian beauty store in Abuja."
+        canonical="https://deladysbeautyworld.com/routines"
+      />
 
       {/* Routine modal */}
       {showModal && routine && (

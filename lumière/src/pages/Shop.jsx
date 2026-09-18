@@ -6,6 +6,7 @@ import { supabase } from "../utils/supabase";
 import FilterSidebar from "../components/shop/FilterSidebar";
 import SortBar from "../components/shop/SortBar";
 import ProductGrid from "../components/shop/ProductGrid";
+import { getCanonicalUrl } from "../utils/seoConfig";
 
 const PAGE_SIZE = 12;
 
@@ -130,7 +131,7 @@ export default function Shop() {
       <SEOMeta
         title="Shop All Products"
         description="Browse our complete collection of skincare, makeup, haircare, and beauty essentials. Find premium products for your beauty routine."
-        canonical={`${window.location.origin}/shop`}
+        canonical={getCanonicalUrl("/shop")}
       />
       <div className="border-b border-(--color-border) bg-(--color-navy) text-white">
         <div className="mx-auto max-w-[1440px] px-5 py-14 sm:px-8 sm:py-20 md:px-12">

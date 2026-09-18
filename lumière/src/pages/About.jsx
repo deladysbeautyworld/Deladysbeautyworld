@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SEOMeta from "../utils/seo";
+import { getCanonicalUrl } from "../utils/seoConfig";
 
 export default function About() {
   return (
@@ -7,7 +8,7 @@ export default function About() {
       <SEOMeta
         title="About De Lady's Beauty World"
         description="Learn about De Lady's Beauty World, Abuja's premier beauty institution dedicated to authentic skincare, expert education, and empowering every woman."
-        canonical={`${window.location.origin}/about`}
+        canonical={getCanonicalUrl("/about")}
       />
 
       <div className="w-full max-w-7xl">

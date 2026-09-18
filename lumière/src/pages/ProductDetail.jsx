@@ -4,6 +4,7 @@ import SEOMeta from "../utils/seo";
 import { getProductById, getRelatedProducts } from "../lib/products";
 import { useCartStore } from "../stores/cartStore";
 import ProductImage from "../components/shop/ProductImage";
+import { getCanonicalUrl } from "../utils/seoConfig";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 
@@ -134,7 +135,7 @@ export default function ProductDetail() {
       <SEOMeta
         title={product?.name || "Product"}
         description={product?.description || "View this product from De Lady's Beauty World"}
-        canonical={`${window.location.origin}/product/${id}`}
+        canonical={getCanonicalUrl(`/product/${id}`)}
         ogImage={product?.image_url}
         ogType="product"
       />

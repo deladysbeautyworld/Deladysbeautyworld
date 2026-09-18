@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../utils/supabase";
+import SEOMeta from "../utils/seo";
 
 const CATEGORIES = ["All", "Skincare", "Haircare", "Fragrance", "Body Care"];
 
@@ -100,6 +101,11 @@ export default function Journal() {
 
   return (
     <div className="min-h-screen bg-(--color-cream)">
+      <SEOMeta
+        title="Beauty Journal"
+        description="Read skincare guides, beauty tips, and expert advice from De Lady's Beauty World for Nigerian skin and routines."
+        canonical="https://deladysbeautyworld.com/journal"
+      />
 
       {/* Hero */}
       <div className="bg-(--color-cream-dark) border-b border-(--color-border)">

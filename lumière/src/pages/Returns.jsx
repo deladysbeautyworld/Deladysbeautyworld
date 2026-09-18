@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 export default function Returns() {
   return (
     <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+      <SEOMeta
+        title="Returns & Exchanges"
+        description="Review De Lady's Beauty World's returns and exchanges policy for authentic skincare, makeup, haircare, and beauty orders."
+        canonical="https://deladysbeautyworld.com/returns"
+      />
       <div className="w-full max-w-3xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>

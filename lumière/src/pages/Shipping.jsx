@@ -1,8 +1,14 @@
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 export default function Shipping() {
   return (
     <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+      <SEOMeta
+        title="Shipping Information"
+        description="Learn about De Lady's Beauty World's standard and express delivery options across Abuja and Nigeria."
+        canonical="https://deladysbeautyworld.com/shipping"
+      />
       <div className="w-full max-w-3xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>

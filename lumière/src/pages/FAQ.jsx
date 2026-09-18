@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 const FAQ_ITEMS = [
   { q: "How long does shipping take?", a: "Standard shipping within Nigeria typically takes 3–7 business days." },
@@ -10,6 +11,11 @@ const FAQ_ITEMS = [
 export default function FAQ() {
   return (
     <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+      <SEOMeta
+        title="Beauty Store Help & FAQ"
+        description="Find answers about De Lady's Beauty World orders, authentic beauty products, delivery across Nigeria, returns, and customer accounts."
+        canonical="https://deladysbeautyworld.com/faq"
+      />
       <div className="w-full max-w-3xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>

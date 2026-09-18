@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -28,6 +29,11 @@ export default function Contact() {
 
   return (
     <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+      <SEOMeta
+        title="Contact De Lady's Beauty World"
+        description="Contact De Lady's Beauty World in Abuja for help choosing authentic skincare, makeup, haircare, and beauty products in Nigeria."
+        canonical="https://deladysbeautyworld.com/contact"
+      />
       <div className="w-full max-w-2xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>
