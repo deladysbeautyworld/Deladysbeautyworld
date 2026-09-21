@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://deladysbeautyworld.com/</loc></url>
+  <url><loc>https://deladysbeautyworld.com/about</loc></url>
   <url><loc>https://deladysbeautyworld.com/shop</loc></url>
   <url><loc>https://deladysbeautyworld.com/routines</loc></url>
   <url><loc>https://deladysbeautyworld.com/journal</loc></url>
-  <url><loc>https://deladysbeautyworld.com/about</loc></url>
   <url><loc>https://deladysbeautyworld.com/contact</loc></url>
   <url><loc>https://deladysbeautyworld.com/faq</loc></url>
   <url><loc>https://deladysbeautyworld.com/shipping</loc></url>
   <url><loc>https://deladysbeautyworld.com/returns</loc></url>
+  <url><loc>https://deladysbeautyworld.com/privacy</loc></url>
+  <url><loc>https://deladysbeautyworld.com/terms</loc></url>
+  <url><loc>https://deladysbeautyworld.com/cookies</loc></url>
+  <url><loc>https://deladysbeautyworld.com/careers</loc></url>
 </urlset>

@@ -1,5 +1,4 @@
 import { Helmet } from 'react-helmet-async';
-import logo from '../assets/logo_1.png';
 import { getCanonicalUrl, SITE_URL } from './seoConfig';
 
 /**
@@ -17,7 +16,7 @@ export function SEOMeta({
   const siteTitle = 'De Lady\'s Beauty World | Nigerian Beauty & Skincare';
   const defaultDesc = 'De Lady\'s Beauty World is a trusted Nigerian beauty store in Abuja offering authentic skincare, makeup, haircare, and beauty routines.';
   const canonicalUrl = canonical || getCanonicalUrl(window.location.pathname);
-  const defaultImage = `${window.location.origin}${logo}`;
+  const defaultImage = `${SITE_URL}/logo.png`;
   const pageTitle = title ? `${title} | De Lady's Beauty World` : siteTitle;
   const pageDescription = description || defaultDesc;
   const structuredData = [
@@ -53,6 +52,7 @@ export function SEOMeta({
         name="description"
         content={pageDescription}
       />
+      <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="theme-color" content="#000000" />
       
@@ -70,6 +70,7 @@ export function SEOMeta({
         content={pageDescription}
       />
       <meta property="og:image" content={ogImage || defaultImage} />
+      <meta property="og:image:alt" content={pageTitle} />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:site_name" content="De Lady's Beauty World" />
       <meta property="og:locale" content="en_NG" />
