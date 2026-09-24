@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabase";
+import SEOMeta from "../utils/seo";
+import { getCanonicalUrl } from "../utils/seoConfig";
 
 function renderContent(content) {
   if (!content) return null;
@@ -90,6 +92,13 @@ export default function JournalPost() {
 
   return (
     <div className="min-h-screen bg-(--color-cream)">
+      <SEOMeta
+        title={post.title}
+        description={post.excerpt || `Read ${post.title} in the De Lady's Beauty World journal.`}
+        canonical={getCanonicalUrl(`/journal/${post.slug}`)}
+        ogImage={post.cover_url || undefined}
+        ogType="article"
+      />
       <div className="max-w-2xl mx-auto px-6 md:px-10 py-12">
 
         {/* Breadcrumb */}
