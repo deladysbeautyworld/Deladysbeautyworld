@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 export default function Cookies() {
   const [prefs, setPrefs] = useState({ analytics: true, marketing: false });
@@ -9,7 +10,13 @@ export default function Cookies() {
   }
 
   return (
-    <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+    <>
+      <SEOMeta
+        title="Cookie Settings"
+        description="Manage cookie preferences for De Lady's Beauty World."
+        canonical="https://deladysbeautyworld.com/cookies"
+      />
+      <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
       <div className="w-full max-w-2xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>
@@ -47,6 +54,7 @@ export default function Cookies() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

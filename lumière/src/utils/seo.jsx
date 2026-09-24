@@ -11,6 +11,7 @@ export function SEOMeta({
   canonical,
   ogImage,
   ogType = 'website',
+  indexable = true,
   children,
 }) {
   const siteTitle = 'De Lady\'s Beauty World | Nigerian Beauty & Skincare';
@@ -29,7 +30,7 @@ export function SEOMeta({
       logo: getCanonicalUrl('/favicon.svg'),
       image: defaultImage,
       description: defaultDesc,
-      email: 'careers@deladys.ng',
+      email: 'deladysbeautyworld@gmail.com',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Abuja',
@@ -52,7 +53,12 @@ export function SEOMeta({
         name="description"
         content={pageDescription}
       />
-      <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+      <meta
+        name="robots"
+        content={indexable
+          ? 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
+          : 'noindex,nofollow,noarchive'}
+      />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta name="theme-color" content="#000000" />
       

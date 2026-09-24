@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 export default function Privacy() {
   return (
-    <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+    <>
+      <SEOMeta
+        title="Privacy Policy"
+        description="Read De Lady's Beauty World's privacy policy and learn how we collect, use, and protect customer information."
+        canonical="https://deladysbeautyworld.com/privacy"
+      />
+      <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
       <div className="w-full max-w-3xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>
@@ -22,6 +29,7 @@ export default function Privacy() {
           </section>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

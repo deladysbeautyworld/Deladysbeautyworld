@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 const OPENINGS = [
   { id: 1, title: "Customer Support Representative", location: "Remote / Lagos" },
@@ -7,7 +8,13 @@ const OPENINGS = [
 
 export default function Careers() {
   return (
-    <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+    <>
+      <SEOMeta
+        title="Careers"
+        description="Explore current career opportunities with De Lady's Beauty World."
+        canonical="https://deladysbeautyworld.com/careers"
+      />
+      <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
       <div className="w-full max-w-3xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>
@@ -27,6 +34,7 @@ export default function Careers() {
           ))}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

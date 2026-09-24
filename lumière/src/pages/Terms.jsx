@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
+import SEOMeta from "../utils/seo";
 
 export default function Terms() {
   return (
-    <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
+    <>
+      <SEOMeta
+        title="Terms of Service"
+        description="Review the terms that apply when using De Lady's Beauty World or placing an order."
+        canonical="https://deladysbeautyworld.com/terms"
+      />
+      <div className="min-h-[80vh] flex items-start justify-center px-6 py-16">
       <div className="w-full max-w-3xl">
         <div className="mb-8">
           <Link to="/" className="font-display text-[24px] italic font-light text-(--color-ink) block mb-4">De Lady's Beauty World</Link>
@@ -22,6 +29,7 @@ export default function Terms() {
           </section>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
