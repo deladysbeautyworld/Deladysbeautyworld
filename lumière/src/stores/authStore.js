@@ -108,7 +108,7 @@ export const useAuthStore = create(
               set({ role: null, _roleUserId: null });
             }
           });
-        } catch (error) {
+        } catch {
           set({
             session: null,
             user: null,

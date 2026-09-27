@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import logo from "../assets/logo.jpg";
@@ -9,12 +9,7 @@ export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle } = useAuthStore();
 
   // Determine mode based on path: /login or /signup
-  const [mode, setMode] = useState(location.pathname === "/signup" ? "signup" : "login");
-
-  useEffect(() => {
-    if (location.pathname === "/signup") setMode("signup");
-    else if (location.pathname === "/login") setMode("login");
-  }, [location.pathname]);
+  const mode = location.pathname === "/signup" ? "signup" : "login";
 
   const [form, setForm] = useState({ fullName: "", email: "", password: "" });
   const [error, setError] = useState(null);
@@ -83,7 +78,6 @@ export default function AuthPage() {
   }
 
   const switchMode = (nextMode) => {
-    setMode(nextMode);
     navigate(nextMode === "login" ? "/login" : "/signup", { replace: false });
   };
 

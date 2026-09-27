@@ -69,7 +69,6 @@ export default function Checkout() {
   const [promoError, setPromoError]       = useState(null);
   const [promoLoading, setPromoLoading]   = useState(false);
   const [showConfirm, setShowConfirm]     = useState(false);
-  const [paymentError, setPaymentError] = useState(null);
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState(null);
 
