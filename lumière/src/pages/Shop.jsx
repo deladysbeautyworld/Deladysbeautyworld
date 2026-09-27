@@ -142,7 +142,7 @@ export default function Shop() {
         </div>
       </div>
 
-      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 py-8 sm:py-10 flex gap-6 lg:gap-10 md:px-12">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-10 flex flex-col gap-5 md:flex-row md:gap-6 md:px-12">
         <div className="hidden md:block">
           <FilterSidebar
             categories={categories}

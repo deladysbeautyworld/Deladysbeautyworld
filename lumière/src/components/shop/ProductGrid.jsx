@@ -25,7 +25,7 @@ export default function ProductGrid({ products, loading, error }) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-3">
         {Array.from({ length: 9 }).map((_, i) => <SkeletonCard key={i} />)}
       </div>
     );
@@ -44,7 +44,7 @@ export default function ProductGrid({ products, loading, error }) {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-3">
       {products.map(product => (
         <ProductCard key={product.id} product={product} />
       ))}

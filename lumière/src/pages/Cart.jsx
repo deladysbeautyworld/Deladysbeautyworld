@@ -80,7 +80,9 @@ function CartItem({ item }) {
 export default function Cart() {
   const items     = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
-  const subtotal  = useCartStore((s) => s.subtotal()); // called as function
+  const subtotal  = useCartStore((s) =>
+    s.items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  );
 
   const itemCount = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -146,7 +148,7 @@ export default function Cart() {
             <div className="flex flex-col gap-3 mb-6">
               {items.map((item) => (
                 <div key={`${item.id}-${item.variantId ?? "base"}`} className="flex justify-between text-[12px] text-(--color-muted) font-light">
-                  <span className="truncate max-w-[160px]">
+                  <span className="truncate max-w-40">
                     {item.name}{item.variantName ? ` · ${item.variantName}` : ""} × {item.quantity}
                   </span>
                   <span className="shrink-0 ml-2">{fmt(item.price * item.quantity)}</span>

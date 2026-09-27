@@ -46,7 +46,9 @@ export default function Checkout() {
   const user      = useAuthStore((s) => s.user);
   const items     = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
-  const subtotal  = useCartStore((s) => s.subtotal());
+  const subtotal  = useCartStore((s) =>
+    s.items.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  );
 
   const [form, setForm] = useState({
     fullName: user?.user_metadata?.full_name ?? "",
