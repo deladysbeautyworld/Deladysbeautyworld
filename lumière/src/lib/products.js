@@ -15,20 +15,26 @@ async function apiFetch(endpoint, options = {}) {
   };
 
   const response = await fetch(url, { ...options, headers });
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+  let data;
 
-  if (!response.ok) {
-    const text = await response.text();
-    console.error(`API Error ${response.status}:`, text);
-
-    try {
-      const errorData = JSON.parse(text);
-      throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
-    } catch (e) {
-      throw new Error(`API Error ${response.status}: Server returned HTML or plain text instead of JSON. Check URL and API Key.`);
-    }
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    const responseType = contentType || 'an unknown content type';
+    throw new Error(
+      `POS API returned ${responseType} instead of JSON (HTTP ${response.status}). Check VITE_POS_API_URL and the deployed POS API configuration.`
+    );
   }
 
-  return response.json();
+  if (!response.ok) {
+    throw new Error(
+      data?.message || data?.error || `POS API error: ${response.status} ${response.statusText}`
+    );
+  }
+
+  return data;
 }
 
 /**
