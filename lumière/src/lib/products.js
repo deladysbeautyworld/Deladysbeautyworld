@@ -17,8 +17,15 @@ async function apiFetch(endpoint, options = {}) {
   const response = await fetch(url, { ...options, headers });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
+    const text = await response.text();
+    console.error(`API Error ${response.status}:`, text);
+
+    try {
+      const errorData = JSON.parse(text);
+      throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
+    } catch (e) {
+      throw new Error(`API Error ${response.status}: Server returned HTML or plain text instead of JSON. Check URL and API Key.`);
+    }
   }
 
   return response.json();
