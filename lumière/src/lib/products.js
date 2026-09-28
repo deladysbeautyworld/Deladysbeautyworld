@@ -3,7 +3,7 @@
  * Replaces Supabase implementation with direct POS API calls.
  */
 
-const API_URL = import.meta.env.VITE_POS_API_URL;
+const API_URL = `${import.meta.env.VITE_POS_API_URL}/api`;
 const API_KEY = import.meta.env.VITE_POS_API_KEY;
 
 async function apiFetch(endpoint, options = {}) {
