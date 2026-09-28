@@ -45,6 +45,11 @@ The project uses several key tables. Ensure these are created in your Supabase p
 ### Database Functions
 The app uses a custom PostgreSQL function `finalize_order` for atomic order creation. See `supabase/sql/202608200001_predeploy_security_checkout.sql` for the implementation.
 
+### Product Catalog Sync
+To sync the external product catalog into Supabase, set `PRODUCTS_API_KEY` and `SUPABASE_SERVICE_ROLE_KEY` in the root `.env` file. `VITE_SUPABASE_URL` must also be set there. Keep both secret keys server-side and never prefix them with `VITE_`.
+
+Run `npm run sync:products` to import and refresh all API pages. External product IDs are mapped to stable UUIDs so the existing product detail, cart, and checkout flows continue to work. The sync updates names, prices, categories, and stock while preserving descriptions, images, ratings, reviews, and featured status managed in the admin. Products removed from the API are set out of stock, not deleted.
+
 ## 💳 Paystack Integration
 Payments are handled via Paystack's inline JS.
 - **Public Key**: Used in the frontend for the payment popup.
