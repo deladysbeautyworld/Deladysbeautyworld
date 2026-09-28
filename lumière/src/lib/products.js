@@ -9,10 +9,14 @@ const API_URL = (
 const API_KEY = import.meta.env.VITE_POS_API_KEY;
 
 async function apiFetch(endpoint, options = {}) {
+  if (!API_KEY?.trim()) {
+    throw new Error('VITE_POS_API_KEY is not configured for this build.');
+  }
+
   const url = `${API_URL}${endpoint}`;
   const headers = {
     'Content-Type': 'application/json',
-    'x-api-key': API_KEY,
+    'x-api-key': API_KEY.trim(),
     ...options.headers,
   };
 
