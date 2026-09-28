@@ -1,50 +1,84 @@
-import { supabase } from "../utils/supabase.js";
+/**
+ * POS API Product Service
+ * Replaces Supabase implementation with direct POS API calls.
+ */
 
-// Full detail select — includes variants, used on product detail page only
-const PRODUCT_SELECT = `
-  id, name, description, price, image_url, category_id,
-  rating, review_count, stock, tags, is_featured, created_at,
-  categories ( id, name, slug ),
-  product_variants ( id, name, type, price, stock, sku )
-`;
+const API_URL = import.meta.env.VITE_POS_API_URL;
+const API_KEY = import.meta.env.VITE_POS_API_KEY;
 
-// Lightweight select — no variants, used for grids, search, homepage
-const PRODUCT_GRID_SELECT = `
-  id, name, description, price, image_url,
-  rating, review_count, stock, tags, is_featured, created_at,
-  product_variants ( id ),
-  categories ( id, name, slug )
-`;
+async function apiFetch(endpoint, options = {}) {
+  const url = `${API_URL}${endpoint}`;
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': API_KEY,
+    ...options.headers,
+  };
 
-function escapePostgrestPattern(value) {
-  return String(value).replace(/[\\%_,().]/g, "\\$&");
+  const response = await fetch(url, { ...options, headers });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || `API Error: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Mappers to ensure the frontend receives the expected data shapes
+ */
+
+function mapCategory(cat) {
+  if (!cat) return null;
+  return {
+    id: cat.id,
+    name: cat.name || 'Unknown Category',
+    slug: cat.slug || `category-${cat.id}`,
+  };
+}
+
+function mapProduct(prod, categoriesMap = {}) {
+  if (!prod) return null;
+
+  // Resolve category object from map or ID
+  const category = categoriesMap[prod.category_id]
+    ? categoriesMap[prod.category_id]
+    : { id: prod.category_id, name: 'General', slug: 'general' };
+
+  return {
+    id: prod.id,
+    name: prod.name || 'Unnamed Product',
+    description: prod.description || '',
+    price: Number(prod.price) || 0,
+    image_url: prod.image_url || '/assets/placeholder.jpg',
+    rating: Number(prod.average_rating) || 0,
+    review_count: Number(prod.reviews_count) || 0,
+    stock: Number(prod.stock_quantity) || 0,
+    tags: Array.isArray(prod.tags) ? prod.tags : [],
+    is_featured: !!prod.is_featured,
+    created_at: prod.created_at,
+    categories: category,
+    product_variants: (prod.variants || []).map(v => ({
+      id: v.id,
+      name: v.name || 'Standard',
+      type: v.type || 'variant',
+      price: Number(v.price) || Number(prod.price) || 0,
+      stock: Number(v.stock) || 0,
+      sku: v.sku || '',
+    })),
+  };
 }
 
 /**
  * Fetch all categories
  */
 export async function getCategories() {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .order("name");
-
-  if (error) throw error;
-  return data;
+  const data = await apiFetch('/categories');
+  return (data.categories || data).map(mapCategory).sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
  * Fetch products with optional filters
- *
- * @param {Object} options
- * @param {string|null}  options.category  - category slug to filter by
- * @param {number|null}  options.minPrice  - minimum price in NGN (null = no lower bound)
- * @param {number|null}  options.maxPrice  - maximum price in NGN (null = no upper bound)
- * @param {string}       options.sort      - "price_asc" | "price_desc" | "rating" | "popular" | "newest"
- * @param {boolean|null} options.featured  - only featured products
- * @param {string|null}  options.tag       - single tag to filter by
- * @param {number}       options.page      - page number (0-indexed)
- * @param {number}       options.pageSize  - results per page
  */
 export async function getProducts({
   category = null,
@@ -56,133 +90,102 @@ export async function getProducts({
   page = 0,
   pageSize = 9,
 } = {}) {
-  let query = supabase
-    .from("products")
-    .select(PRODUCT_GRID_SELECT, { count: "exact" });
+  const params = new URLSearchParams();
 
-  // Price filters — only apply when explicitly set
-  if (minPrice !== null) query = query.gte("price", minPrice);
-  if (maxPrice !== null) query = query.lte("price", maxPrice);
+  if (category) params.append('category', category);
+  if (minPrice !== null) params.append('minPrice', minPrice);
+  if (maxPrice !== null) params.append('maxPrice', maxPrice);
+  if (featured !== null) params.append('featured', featured);
+  if (tag) params.append('tag', tag);
+  if (sort) params.append('sort', sort);
+  params.append('page', page);
+  params.append('pageSize', pageSize);
 
-  // Category filter
-  if (category) {
-    const { data: cat } = await supabase
-      .from("categories")
-      .select("id")
-      .eq("slug", category)
-      .single();
+  const data = await apiFetch(`/products?${params.toString()}`);
 
-    if (cat) query = query.eq("category_id", cat.id);
-  }
+  // The POS API might return a paginated object or a raw array
+  const productsRaw = data.products || data;
+  const total = data.total || productsRaw.length;
 
-  // Featured filter
-  if (featured !== null) {
-    query = query.eq("is_featured", featured);
-  }
-
-  // Tag filter
-  if (tag) {
-    query = query.contains("tags", [tag]);
-  }
-
-  // Sorting
-  switch (sort) {
-    case "price_asc":  query = query.order("price",        { ascending: true });  break;
-    case "price_desc": query = query.order("price",        { ascending: false }); break;
-    case "rating":     query = query.order("rating",       { ascending: false }); break;
-    case "popular":    query = query.order("review_count", { ascending: false }); break;
-    case "newest":
-    default:           query = query.order("created_at",   { ascending: false }); break;
-  }
-
-  // Pagination
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
-  query = query.range(from, to);
-
-  const { data, error, count } = await query;
-
-  // 416 = range beyond available rows (empty page) — return gracefully
-  if (error) {
-    if (error.code === "PGRST103") {
-      return { products: [], total: count ?? 0, page, pageSize, totalPages: 0 };
-    }
-    throw error;
-  }
+  // We need categories to map them into the products
+  const categoriesData = await getCategories();
+  const categoriesMap = {};
+  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
 
   return {
-    products: data || [],
-    total: count || 0,
+    products: productsRaw.map(p => mapProduct(p, categoriesMap)),
+    total: total,
     page,
     pageSize,
-    totalPages: Math.ceil((count || 0) / pageSize),
+    totalPages: Math.ceil(total / pageSize),
   };
 }
 
 /**
- * Fetch a single product by ID — includes variants
+ * Fetch a single product by ID
  */
 export async function getProductById(id) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_SELECT)
-    .eq("id", id)
-    .single();
+  const prod = await apiFetch(`/products/${id}`);
 
-  if (error) throw error;
-  return data;
+  // Fetch category for this product
+  const catRaw = await apiFetch(`/categories/${prod.category_id}`).catch(() => null);
+  const category = mapCategory(catRaw);
+
+  const categoriesMap = { [prod.category_id]: category };
+  return mapProduct(prod, categoriesMap);
 }
 
 /**
  * Fetch featured products for homepage
  */
 export async function getFeaturedProducts(limit = 4) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_GRID_SELECT)
-    .eq("is_featured", true)
-    .order("rating", { ascending: false })
-    .limit(limit);
+  const data = await apiFetch(`/products?featured=true&limit=${limit}`);
+  const productsRaw = data.products || data;
 
-  if (error) throw error;
-  return data || [];
+  const categoriesData = await getCategories();
+  const categoriesMap = {};
+  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
+
+  return productsRaw.map(p => mapProduct(p, categoriesMap));
 }
 
 /**
  * Related products — same category, excludes current product
  */
 export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_GRID_SELECT)
-    .eq("category_id", categoryId)
-    .neq("id", excludeId)
-    .order("rating", { ascending: false })
-    .limit(limit);
+  const data = await apiFetch(`/products?category=${categoryId}&limit=${limit}`);
+  const productsRaw = data.products || data;
 
-  if (error) throw error;
-  return data || [];
+  const categoriesData = await getCategories();
+  const categoriesMap = {};
+  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
+
+  return productsRaw
+    .filter(p => p.id !== excludeId)
+    .map(p => mapProduct(p, categoriesMap))
+    .slice(0, limit);
 }
 
 /**
  * Search products by name or description
  */
 export async function searchProducts(searchQuery, limit = 6) {
-  const safeQuery = escapePostgrestPattern(searchQuery);
-  const { data, error } = await supabase
-    .from("products")
-    .select(PRODUCT_GRID_SELECT)
-    .or(`name.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`)
-    .limit(limit);
+  const data = await apiFetch(`/products?search=${encodeURIComponent(searchQuery)}&limit=${limit}`);
+  const productsRaw = data.products || data;
 
-  if (error) throw error;
-  return data || [];
+  const categoriesData = await getCategories();
+  const categoriesMap = {};
+  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
+
+  return productsRaw.map(p => mapProduct(p, categoriesMap));
 }
 
 /**
  * Get delivery fee for a specific Nigerian state
- * Returns { fee, zone_name } or null if state not found
+ * Note: Still using Supabase for delivery zones as they aren't in POS API
  */
+import { supabase } from "../utils/supabase.js";
+
 export async function getDeliveryFee(state) {
   const { data, error } = await supabase
     .from("delivery_zones")
@@ -194,9 +197,6 @@ export async function getDeliveryFee(state) {
   return data;
 }
 
-/**
- * Get all delivery zones — used to build state → fee map in checkout
- */
 export async function getDeliveryZones() {
   const { data, error } = await supabase
     .from("delivery_zones")
