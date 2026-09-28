@@ -3,6 +3,8 @@
  * Replaces Supabase implementation with direct POS API calls.
  */
 
+import { supabase } from "../utils/supabase.js";
+
 const API_URL = (
   import.meta.env.VITE_POS_API_URL || 'https://delady-api-production.up.railway.app/api'
 ).replace(/\/+$/, '');
@@ -56,27 +58,31 @@ function mapCategory(cat) {
   };
 }
 
-function mapProduct(prod, categoriesMap = {}) {
+function mapProduct(prod) {
   if (!prod) return null;
 
-  // Resolve category object from map or ID
-  const category = categoriesMap[prod.category_id]
-    ? categoriesMap[prod.category_id]
-    : { id: prod.category_id, name: 'General', slug: 'general' };
+  const categoryName = prod.Category || prod.category || 'General';
+  const categorySlug = categoryName
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'general';
+  const categoryId = prod.GroupID ?? prod.category_id ?? categoryName;
 
   return {
-    id: prod.id,
-    name: prod.name || 'Unnamed Product',
+    id: prod.ProductID ?? prod.id,
+    name: prod.ProductName || prod.name || 'Unnamed Product',
     description: prod.description || '',
-    price: Number(prod.price) || 0,
+    price: Number(prod.SellPrice ?? prod.price) || 0,
     image_url: prod.image_url || '/assets/placeholder.jpg',
     rating: Number(prod.average_rating) || 0,
     review_count: Number(prod.reviews_count) || 0,
-    stock: Number(prod.stock_quantity) || 0,
+    stock: Number(prod.QtyInStock ?? prod.stock_quantity ?? prod.stock) || 0,
     tags: Array.isArray(prod.tags) ? prod.tags : [],
     is_featured: !!prod.is_featured,
     created_at: prod.created_at,
-    categories: category,
+    category_id: categoryId,
+    categories: { id: categoryId, name: categoryName, slug: categorySlug },
     product_variants: (prod.variants || []).map(v => ({
       id: v.id,
       name: v.name || 'Standard',
@@ -92,51 +98,40 @@ function mapProduct(prod, categoriesMap = {}) {
  * Fetch all categories
  */
 export async function getCategories() {
-  const data = await apiFetch('/categories');
-  return (data.categories || data).map(mapCategory).sort((a, b) => a.name.localeCompare(b.name));
+  const { data, error } = await supabase.from('categories').select('*').order('name');
+  if (error) throw error;
+  return (data || []).map(mapCategory);
 }
 
 /**
  * Fetch products with optional filters
  */
-export async function getProducts({
-  category = null,
-  minPrice = null,
-  maxPrice = null,
-  sort = "newest",
-  featured = null,
-  tag = null,
-  page = 0,
-  pageSize = 9,
-} = {}) {
+export async function getProducts(options = {}) {
+  const {
+    category = null,
+    tag = null,
+    page = 0,
+    pageSize = 9,
+  } = options;
   const params = new URLSearchParams();
 
   if (category) params.append('category', category);
-  if (minPrice !== null) params.append('minPrice', minPrice);
-  if (maxPrice !== null) params.append('maxPrice', maxPrice);
-  if (featured !== null) params.append('featured', featured);
-  if (tag) params.append('tag', tag);
-  if (sort) params.append('sort', sort);
-  params.append('page', page);
-  params.append('pageSize', pageSize);
+  if (tag) params.append('q', tag);
+  const apiPage = Math.max(1, Number(page) + 1);
+  const apiPageSize = Math.min(100, Math.max(1, Number(pageSize) || 9));
+  params.append('page', apiPage);
+  params.append('pageSize', apiPageSize);
 
   const data = await apiFetch(`/products?${params.toString()}`);
-
-  // The POS API might return a paginated object or a raw array
-  const productsRaw = data.products || data;
-  const total = data.total || productsRaw.length;
-
-  // We need categories to map them into the products
-  const categoriesData = await getCategories();
-  const categoriesMap = {};
-  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
+  const productsRaw = Array.isArray(data) ? data : (data.products || []);
+  const total = data.total ?? productsRaw.length;
 
   return {
-    products: productsRaw.map(p => mapProduct(p, categoriesMap)),
+    products: productsRaw.map(mapProduct),
     total: total,
     page,
-    pageSize,
-    totalPages: Math.ceil(total / pageSize),
+    pageSize: apiPageSize,
+    totalPages: data.totalPages ?? Math.ceil(total / apiPageSize),
   };
 }
 
@@ -145,43 +140,32 @@ export async function getProducts({
  */
 export async function getProductById(id) {
   const prod = await apiFetch(`/products/${id}`);
-
-  // Fetch category for this product
-  const catRaw = await apiFetch(`/categories/${prod.category_id}`).catch(() => null);
-  const category = mapCategory(catRaw);
-
-  const categoriesMap = { [prod.category_id]: category };
-  return mapProduct(prod, categoriesMap);
+  return mapProduct(prod);
 }
 
 /**
  * Fetch featured products for homepage
  */
 export async function getFeaturedProducts(limit = 4) {
-  const data = await apiFetch(`/products?featured=true&limit=${limit}`);
-  const productsRaw = data.products || data;
-
-  const categoriesData = await getCategories();
-  const categoriesMap = {};
-  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
-
-  return productsRaw.map(p => mapProduct(p, categoriesMap));
+  const { products } = await getProducts({ pageSize: limit });
+  return products;
 }
 
 /**
  * Related products — same category, excludes current product
  */
 export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
-  const data = await apiFetch(`/products?category=${categoryId}&limit=${limit}`);
-  const productsRaw = data.products || data;
-
-  const categoriesData = await getCategories();
-  const categoriesMap = {};
-  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
+  const params = new URLSearchParams({
+    category: categoryId,
+    page: '1',
+    pageSize: String(Math.min(100, limit + 1)),
+  });
+  const data = await apiFetch(`/products?${params.toString()}`);
+  const productsRaw = Array.isArray(data) ? data : (data.products || []);
 
   return productsRaw
+    .map(mapProduct)
     .filter(p => p.id !== excludeId)
-    .map(p => mapProduct(p, categoriesMap))
     .slice(0, limit);
 }
 
@@ -189,22 +173,16 @@ export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
  * Search products by name or description
  */
 export async function searchProducts(searchQuery, limit = 6) {
-  const data = await apiFetch(`/products?search=${encodeURIComponent(searchQuery)}&limit=${limit}`);
-  const productsRaw = data.products || data;
-
-  const categoriesData = await getCategories();
-  const categoriesMap = {};
-  categoriesData.forEach(c => { categoriesMap[c.id] = c; });
-
-  return productsRaw.map(p => mapProduct(p, categoriesMap));
+  const params = new URLSearchParams({ q: searchQuery, page: '1', pageSize: String(limit) });
+  const data = await apiFetch(`/products?${params.toString()}`);
+  const productsRaw = Array.isArray(data) ? data : (data.products || []);
+  return productsRaw.map(mapProduct);
 }
 
 /**
  * Get delivery fee for a specific Nigerian state
  * Note: Still using Supabase for delivery zones as they aren't in POS API
  */
-import { supabase } from "../utils/supabase.js";
-
 export async function getDeliveryFee(state) {
   const { data, error } = await supabase
     .from("delivery_zones")
