@@ -5,6 +5,7 @@ import { getProducts } from "../lib/products";
 import SEOMeta from "../utils/seo";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
+const MAX_ROUTINE_PRODUCTS = 12;
 
 async function generateRoutine(selectedProducts) {
   const response = await fetch("/api/generate-routine", {
@@ -21,9 +22,10 @@ async function generateRoutine(selectedProducts) {
 }
 
 // ── Product picker card ───────────────────────────────────────────────
-function ProductPickerCard({ product, selected, onToggle }) {
+function ProductPickerCard({ product, selected, onToggle, disabled }) {
   return (
     <button
+      disabled={disabled}
       onClick={() => onToggle(product)}
       className={`relative text-left border rounded-sm p-3 transition-all duration-150 ${
         selected
@@ -280,11 +282,13 @@ export default function Routines() {
   }, [user]);
 
   const toggleProduct = (product) =>
-    setSelected((prev) =>
-      prev.find((p) => p.id === product.id)
-        ? prev.filter((p) => p.id !== product.id)
-        : [...prev, product]
-    );
+    setSelected((prev) => {
+      if (prev.some((p) => p.id === product.id)) {
+        return prev.filter((p) => p.id !== product.id);
+      }
+      if (prev.length >= MAX_ROUTINE_PRODUCTS) return prev;
+      return [...prev, product];
+    });
 
   const filteredProducts = allProducts.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase());
@@ -393,7 +397,9 @@ export default function Routines() {
               <h2 className="text-[13px] font-medium text-(--color-ink)">
                 Select your products
                 {selected.length > 0 && (
-                  <span className="ml-2 text-(--color-pink)">({selected.length} selected)</span>
+                  <span className="ml-2 text-(--color-pink)">
+                    ({selected.length} selected{selected.length >= MAX_ROUTINE_PRODUCTS ? ", maximum 12" : ""})
+                  </span>
                 )}
               </h2>
               {selected.length > 0 && (
@@ -455,6 +461,10 @@ export default function Routines() {
                     key={product.id}
                     product={product}
                     selected={!!selected.find((p) => p.id === product.id)}
+                    disabled={
+                      selected.length >= MAX_ROUTINE_PRODUCTS &&
+                      !selected.some((p) => p.id === product.id)
+                    }
                     onToggle={toggleProduct}
                   />
                 ))}

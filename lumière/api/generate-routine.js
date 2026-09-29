@@ -25,6 +25,7 @@ Generate a personalised daily beauty routine using ONLY these products. Structur
 
 Rules:
 - Only use products from the list provided. Do not invent products.
+- Include every selected product by its exact name in at least one routine step.
 - If a product is only relevant to morning or evening, only include it there.
 - Weekly steps are for treatments like masks, scrubs, or deep conditioning - only include if relevant products were selected.
 - Keep tips practical and Nigeria-appropriate (consider humidity and climate).
@@ -42,7 +43,7 @@ function chooseProduct(products, keywords) {
     products.find((product) => {
       const label = `${product.name} ${product.category ?? ""}`.toLowerCase();
       return keywords.some((keyword) => label.includes(keyword));
-    }) ?? products[0] ?? null
+    }) ?? null
   );
 }
 
@@ -117,6 +118,20 @@ function buildFallbackRoutine(products) {
     },
   ].filter(Boolean);
 
+  const usedProductNames = new Set(
+    [...morning, ...evening, ...weekly].map((step) => step.product)
+  );
+  products
+    .filter((product) => !usedProductNames.has(product.name))
+    .forEach((product) => {
+      evening.push({
+        step: evening.length + 1,
+        action: "Use selected product as directed",
+        product: product.name,
+        tip: "Follow the product label, introduce active ingredients gradually, and avoid layering anything that irritates your skin.",
+      });
+    });
+
   return {
     title: "Your Personalised Routine",
     skin_tip: "Consistency matters more than quantity. Keep the routine simple, gentle, and suited to your skin's needs.",
@@ -124,6 +139,22 @@ function buildFallbackRoutine(products) {
     evening,
     weekly,
   };
+}
+
+function usesSelectedProducts(routine, products) {
+  const sections = [routine?.morning, routine?.evening, routine?.weekly];
+  if (sections.some((steps) => !Array.isArray(steps))) return false;
+
+  const selectedNames = new Set(products.map((product) => product.name));
+  const routineNames = sections
+    .flatMap((steps) => steps)
+    .map((step) => step?.product)
+    .filter(Boolean);
+
+  return (
+    routineNames.every((name) => typeof name === "string" && selectedNames.has(name)) &&
+    [...selectedNames].every((name) => routineNames.includes(name))
+  );
 }
 
 export default async function handler(req, res) {
@@ -173,6 +204,9 @@ export default async function handler(req, res) {
     const data = await response.json();
     const raw = data.choices?.[0]?.message?.content ?? "";
     const routine = parseGroqJson(raw);
+    if (!usesSelectedProducts(routine, safeProducts)) {
+      return res.status(200).json({ routine: buildFallbackRoutine(safeProducts) });
+    }
     return res.status(200).json({ routine });
   } catch (error) {
     console.error("Routine generation fallback triggered:", error);
