@@ -7,7 +7,7 @@ import { supabase } from "../utils/supabase";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 
-const PAYSTACK_SCRIPT_ID = "paystack-inline-js";
+const KORAPAY_SCRIPT_ID = "korapay-collections-js";
 
 const NIGERIAN_STATES = [
   "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
@@ -72,34 +72,34 @@ export default function Checkout() {
   const [loading, setLoading]             = useState(false);
   const [error, setError]                 = useState(null);
 
-  const loadPaystack = () =>
+  const loadKorapay = () =>
     new Promise((resolve, reject) => {
-      if (window.PaystackPop) {
-        resolve(window.PaystackPop);
+      if (window.Korapay) {
+        resolve(window.Korapay);
         return;
       }
 
-      const existing = document.getElementById(PAYSTACK_SCRIPT_ID);
+      const existing = document.getElementById(KORAPAY_SCRIPT_ID);
       if (existing) {
-        existing.addEventListener("load", () => resolve(window.PaystackPop), { once: true });
+        existing.addEventListener("load", () => resolve(window.Korapay), { once: true });
         existing.addEventListener("error", reject, { once: true });
         return;
       }
 
       const script = document.createElement("script");
-      script.id = PAYSTACK_SCRIPT_ID;
-      script.src = "https://js.paystack.co/v1/inline.js";
+      script.id = KORAPAY_SCRIPT_ID;
+      script.src = "https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js";
       script.async = true;
-      script.onload = () => resolve(window.PaystackPop);
+      script.onload = () => resolve(window.Korapay);
       script.onerror = reject;
       document.body.appendChild(script);
     });
 
-  const verifyPayment = async (reference) => {
-    const response = await fetch("/api/verify-paystack", {
+  const verifyPayment = async (reference, paymentReference, expectedAmount) => {
+    const response = await fetch("/api/verify-korapay", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reference }),
+      body: JSON.stringify({ reference, paymentReference, expectedAmount }),
     });
     const data = await response.json();
     if (!response.ok) {
@@ -212,31 +212,36 @@ export default function Checkout() {
     setError(null);
 
     try {
-      const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY;
+      const publicKey = import.meta.env.VITE_KORAPAY_PUBLIC_KEY;
       if (!publicKey) {
-        throw new Error("Paystack public key is not configured.");
+        throw new Error("KoraPay public key is not configured.");
       }
 
       const whatsappNumber = sameWhatsApp ? form.phone : form.whatsapp;
-      const PaystackPop = await loadPaystack();
-      const handler = PaystackPop.setup({
+      const Korapay = await loadKorapay();
+      if (!Korapay?.initialize) {
+        throw new Error("KoraPay checkout could not be loaded. Please try again.");
+      }
+      const paymentReference = `DLBW-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      let paymentHandled = false;
+
+      Korapay.initialize({
         key: publicKey,
-        email: form.email,
-        amount: Math.round(total * 100),
+        reference: paymentReference,
+        amount: Math.round(total),
         currency: "NGN",
-        ref: `DLBW-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
-        metadata: {
-          custom_fields: [
-            { display_name: "Customer Name", variable_name: "customer_name", value: form.fullName },
-            { display_name: "Phone", variable_name: "phone", value: form.phone },
-          ],
+        customer: {
+          name: form.fullName,
+          email: form.email,
         },
-        callback: async (response) => {
+        onSuccess: async (response) => {
+          if (paymentHandled) return;
+          paymentHandled = true;
           try {
-            await verifyPayment(response.reference);
+            await verifyPayment(response.reference, paymentReference, Math.round(total));
             const { data: order, error: finalizeError } = await supabase.rpc("finalize_order", {
               payload: {
-                payment_reference: response.reference,
+                payment_reference: paymentReference,
                 promo_code_id: promoData?.id ?? null,
                 shipping: {
                   name: form.fullName,
@@ -263,20 +268,26 @@ export default function Checkout() {
             clearCart();
             navigate("/order-confirmation", { state: { order } });
           } catch (err) {
-            setError(err.message || "Payment succeeded, but order finalization failed. Please contact support with your Paystack reference.");
+            setError(err.message || `Payment succeeded, but order finalization failed. Contact support with reference ${paymentReference}.`);
             setShowConfirm(false);
           } finally {
             setLoading(false);
           }
         },
+        onFailed: () => {
+          if (paymentHandled) return;
+          paymentHandled = true;
+          setError("KoraPay could not complete the payment. Your cart is still intact.");
+          setShowConfirm(false);
+          setLoading(false);
+        },
         onClose: () => {
+          if (paymentHandled) return;
           setError("Payment was cancelled. Your cart is still intact.");
           setShowConfirm(false);
           setLoading(false);
         },
       });
-
-      handler.openIframe();
     } catch (err) {
       setError(err.message);
       setShowConfirm(false);
@@ -635,7 +646,7 @@ export default function Checkout() {
             {/* Trust signals */}
             <div className="mt-5 pt-5 border-t border-(--color-border) flex flex-col gap-2">
               {[
-                "Secure payments powered by Paystack",
+                "Secure payments powered by KoraPay",
                 "Nationwide delivery across Nigeria",
                 "WhatsApp order updates",
               ].map((line) => (

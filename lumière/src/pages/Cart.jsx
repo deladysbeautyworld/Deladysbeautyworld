@@ -186,7 +186,7 @@ export default function Cart() {
             {/* Trust signals */}
             <div className="mt-6 pt-5 border-t border-(--color-border) flex flex-col gap-2.5">
               {[
-                "Secure payment via Paystack",
+                "Secure payment via KoraPay",
                 "Nationwide delivery across Nigeria",
                 "WhatsApp support available",
               ].map((line) => (

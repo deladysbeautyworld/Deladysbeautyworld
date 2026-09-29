@@ -5,7 +5,7 @@ A luxury beauty e-commerce storefront for skincare, makeup, and fragrance.
 ## 🚀 Tech Stack
 - **Frontend**: React 19, Vite, Tailwind CSS 4
 - **Backend/Database**: Supabase (PostgreSQL, Auth, Storage)
-- **Payments**: Paystack
+- **Payments**: KoraPay Checkout Standard
 - **State Management**: Zustand
 
 ## 🛠️ Local Setup
@@ -22,7 +22,7 @@ Create a `.env` file in the root directory:
 ```bash
 cp .env.example .env
 ```
-Then, fill in your keys from the Supabase and Paystack dashboards.
+Then, fill in your Supabase and KoraPay keys. Use the KoraPay public key in `VITE_KORAPAY_PUBLIC_KEY`; keep `KORAPAY_SECRET_KEY` server-side only.
 
 ### 3. Run Development Server
 ```bash
@@ -46,16 +46,16 @@ The project uses several key tables. Ensure these are created in your Supabase p
 The app uses a custom PostgreSQL function `finalize_order` for atomic order creation. See `supabase/sql/202608200001_predeploy_security_checkout.sql` for the implementation.
 
 
-## 💳 Paystack Integration
-Payments are handled via Paystack's inline JS.
-- **Public Key**: Used in the frontend for the payment popup.
-- **Secret Key**: Used in the `api/verify-paystack.js` serverless function to verify transactions.
+## 💳 KoraPay Integration
+Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout, and `api/verify-korapay.js` verifies the transaction with the server-only secret key before an order is finalized.
+
+The migration `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` updates the order payment method and `finalize_order` function. Apply it to the Supabase project before deploying the new checkout code.
 
 ## 📦 Deployment
 
 ### Vercel Deployment
 1. Connect your GitHub repository to Vercel.
-2. Add the environment variables from `.env.example` to the Vercel project settings.
+2. Add the variables from `.env.example` to the Vercel project settings. Set `VITE_KORAPAY_PUBLIC_KEY` for the frontend build and `KORAPAY_SECRET_KEY` as a server environment variable.
 3. Deploy.
 
 ## 📁 Project Structure

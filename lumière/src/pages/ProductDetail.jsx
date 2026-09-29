@@ -326,7 +326,7 @@ export default function ProductDetail() {
             {/* Trust signals */}
             <div className="border-t border-(--color-border) mt-6 pt-6 flex flex-col gap-2.5">
               {[
-                "Secure payment via Paystack",
+                "Secure payment via KoraPay",
                 "Nationwide delivery across Nigeria",
                 "WhatsApp support available",
               ].map((line) => (
