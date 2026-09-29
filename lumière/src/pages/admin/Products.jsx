@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import {
-  listAdminProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
+  getAdminProducts,
+  updateAdminProduct,
+} from "../../lib/products.js";
+import {
   listAdminCategories,
   createCategory,
-  listProductVariants,
-  deleteVariantsForProduct,
-  createVariant,
 } from "../../lib/admin.js";
 import AdminPageHeader from "./components/AdminPageHeader.jsx";
 
@@ -26,17 +23,6 @@ const newVariantId = () =>
     : `tmp-${Math.random().toString(36).slice(2)}`;
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
-
-const EMPTY_FORM = {
-  name: "",
-  description: "",
-  price: "",
-  stock: "",
-  category_id: "",
-  image_url: "",
-  is_featured: false,
-  tags: [],
-};
 
 const STATUS_STYLES = {
   in_stock:  "bg-green-50 text-green-700",
@@ -68,7 +54,6 @@ export default function Products() {
   const [editing, setEditing]           = useState(null);  // null = create mode
   const [submitting, setSubmitting]     = useState(false);
   const [submitError, setSubmitError]   = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null);
 
   // Reload products when search or page changes
   useEffect(() => {
@@ -77,7 +62,7 @@ export default function Products() {
       setLoading(true);
       setError(null);
       try {
-        const result = await listAdminProducts({ search, page, pageSize: 20 });
+        const result = await getAdminProducts({ search, page, pageSize: 20 });
         if (cancelled) return;
         setData(result);
       } catch (err) {
@@ -106,51 +91,21 @@ export default function Products() {
   };
 
   const reload = async () => {
-    const result = await listAdminProducts({ search, page, pageSize: 20 });
+    const result = await getAdminProducts({ search, page, pageSize: 20 });
     setData(result);
-  };
-
-  const openCreate = () => {
-    setEditing({ ...EMPTY_FORM });
-    setSubmitError(null);
-    setModalOpen(true);
   };
 
   const openEdit = async (product) => {
     setEditing({
       id:          product.id,
       name:        product.name ?? "",
-      description: product.description ?? "",
       price:       String(product.price ?? ""),
       stock:       String(product.stock ?? 0),
-      category_id: product.category_id ?? "",
-      image_url:   product.image_url ?? "",
-      is_featured: Boolean(product.is_featured),
-      tags:        Array.isArray(product.tags) ? product.tags : [],
-      variants:    [],
-      showVariants: false,
+      category:    product.categories?.name ?? "",
+      posProduct:  true,
     });
     setSubmitError(null);
     setModalOpen(true);
-
-    // Load existing variants for this product into the modal's local state.
-    try {
-      const vs = await listProductVariants(product.id);
-      setEditing((prev) => ({
-        ...prev,
-        variants: vs.map((v) => ({
-          id:        v.id,
-          name:      v.name,
-          type:      v.type,
-          price:     String(v.price ?? ""),
-          stock:     String(v.stock ?? 0),
-          sku:       v.sku ?? "",
-        })),
-        showVariants: vs.length > 0,
-      }));
-    } catch {
-      // Variant loading failure shouldn't block the modal — just leave empty.
-    }
   };
 
   const closeModal = () => {
@@ -165,52 +120,13 @@ export default function Products() {
     setSubmitting(true);
     setSubmitError(null);
     try {
-      const variants = Array.isArray(editing.variants) ? editing.variants : [];
-
-      if (editing.id) {
-        await updateProduct(editing.id, editing);
-        // Variants are stored in a separate table — easiest is delete + re-insert.
-        await deleteVariantsForProduct(editing.id);
-        for (const v of variants) {
-          if (!v.name?.trim()) continue;
-          await createVariant(editing.id, {
-            name:  v.name,
-            type:  v.type,
-            price: v.price,
-            stock: v.stock,
-            sku:   v.sku,
-          });
-        }
-      } else {
-        const created = await createProduct(editing);
-        for (const v of variants) {
-          if (!v.name?.trim()) continue;
-          await createVariant(created.id, {
-            name:  v.name,
-            type:  v.type,
-            price: v.price,
-            stock: v.stock,
-            sku:   v.sku,
-          });
-        }
-      }
+      await updateAdminProduct(editing.id, editing);
       await reload();
       closeModal();
     } catch (err) {
       setSubmitError(err.message);
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (product) => {
-    try {
-      await deleteProduct(product.id);
-      await reload();
-      setConfirmDelete(null);
-    } catch (err) {
-      // Show inline error via simple confirm-replace — fall back to alert-equivalent
-      setConfirmDelete({ ...product, error: err.message });
     }
   };
 
@@ -226,14 +142,6 @@ export default function Products() {
         <AdminPageHeader
           title="Products"
           subtitle={`${data.total} ${data.total === 1 ? "product" : "products"} in your store`}
-          action={
-            <button
-              onClick={openCreate}
-              className="w-full sm:w-auto h-11 px-6 bg-(--color-pink) text-white text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-navy) transition-colors"
-            >
-              + New product
-            </button>
-          }
         />
 
         {/* Search */}
@@ -272,7 +180,6 @@ export default function Products() {
                     <th className="px-6 py-3 font-normal">Category</th>
                     <th className="px-6 py-3 font-normal">Price</th>
                     <th className="px-6 py-3 font-normal">Stock</th>
-                    <th className="px-6 py-3 font-normal">Featured</th>
                     <th className="px-6 py-3 font-normal text-right">Actions</th>
                   </tr>
                 </thead>
@@ -309,9 +216,6 @@ export default function Products() {
                             {stock.label}
                           </span>
                         </td>
-                        <td className="px-6 py-3 text-(--color-muted) font-light">
-                          {p.is_featured ? "Yes" : "—"}
-                        </td>
                         <td className="px-6 py-3 text-right">
                           <div className="inline-flex gap-2">
                             <button
@@ -319,12 +223,6 @@ export default function Products() {
                               className="h-8 px-3 border border-(--color-border) text-(--color-muted) text-[10px] tracking-widest uppercase rounded-sm hover:border-(--color-pink) hover:text-(--color-pink) transition-colors"
                             >
                               Edit
-                            </button>
-                            <button
-                              onClick={() => setConfirmDelete(p)}
-                              className="h-8 px-3 border border-(--color-border) text-(--color-muted) text-[10px] tracking-widest uppercase rounded-sm hover:border-red-300 hover:text-red-500 transition-colors"
-                            >
-                              Delete
                             </button>
                           </div>
                         </td>
@@ -384,48 +282,6 @@ export default function Products() {
         />
       )}
 
-      {/* Delete confirm */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            onClick={() => !confirmDelete.error && setConfirmDelete(null)}
-          />
-          <div className="relative bg-white rounded-sm p-8 w-full max-w-sm shadow-xl">
-            <h3 className="font-display text-[20px] font-light text-(--color-ink) mb-2">
-              Delete product?
-            </h3>
-            <p className="text-[13px] text-(--color-muted) font-light mb-1">
-              <strong className="font-normal text-(--color-ink)">{confirmDelete.name}</strong>
-              {" "}will be permanently removed.
-            </p>
-            <p className="text-[11px] text-(--color-faint) font-light mb-6">
-              This cannot be undone.
-            </p>
-
-            {confirmDelete.error && (
-              <p className="text-[12px] text-red-500 font-light mb-4">
-                {confirmDelete.error}
-              </p>
-            )}
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmDelete(null)}
-                className="flex-1 h-11 border border-(--color-border) text-(--color-muted) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:border-(--color-pink) hover:text-(--color-pink) transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(confirmDelete)}
-                className="flex-1 h-11 bg-red-500 text-white text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-red-600 transition-colors"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -499,16 +355,18 @@ function ProductModal({
             />
           </Field>
 
-          <Field label="Description">
-            <textarea
-              name="description"
-              value={editing.description}
-              onChange={handleChange}
-              rows={3}
-              className={`${modalInputClass} h-auto py-3 resize-none`}
-              placeholder="Short description"
-            />
-          </Field>
+          {!editing.posProduct && (
+            <Field label="Description">
+              <textarea
+                name="description"
+                value={editing.description}
+                onChange={handleChange}
+                rows={3}
+                className={`${modalInputClass} h-auto py-3 resize-none`}
+                placeholder="Short description"
+              />
+            </Field>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <Field label="Price (₦)" required>
@@ -538,7 +396,15 @@ function ProductModal({
           </div>
 
           <Field label="Category">
-            {editing._newCategoryOpen ? (
+            {editing.posProduct ? (
+              <input
+                name="category"
+                value={editing.category}
+                onChange={handleChange}
+                className={modalInputClass}
+                placeholder="Category"
+              />
+            ) : editing._newCategoryOpen ? (
               <NewCategoryInline
                 onCancel={() => setEditing((p) => ({ ...p, _newCategoryOpen: false }))}
                 onCreated={(newCat) => {
@@ -572,30 +438,35 @@ function ProductModal({
             )}
           </Field>
 
-          <Field label="Image URL">
-            <input
-              name="image_url"
-              value={editing.image_url}
-              onChange={handleChange}
-              className={modalInputClass}
-              placeholder="https://…"
-            />
-          </Field>
+          {!editing.posProduct && (
+            <Field label="Image URL">
+              <input
+                name="image_url"
+                value={editing.image_url}
+                onChange={handleChange}
+                className={modalInputClass}
+                placeholder="https://…"
+              />
+            </Field>
+          )}
 
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              name="is_featured"
-              type="checkbox"
-              checked={editing.is_featured}
-              onChange={handleChange}
-              className="w-4 h-4 accent-(--color-pink)"
-            />
-            <span className="text-[13px] text-(--color-muted) font-light">
-              Feature on the homepage
-            </span>
-          </label>
+          {!editing.posProduct && (
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                name="is_featured"
+                type="checkbox"
+                checked={editing.is_featured}
+                onChange={handleChange}
+                className="w-4 h-4 accent-(--color-pink)"
+              />
+              <span className="text-[13px] text-(--color-muted) font-light">
+                Feature on the homepage
+              </span>
+            </label>
+          )}
 
           {/* Variants — optional. Toggle on to add shade / size / scent rows. */}
+          {!editing.posProduct && (
           <div className="border border-(--color-border) rounded-sm p-4">
             <label className="flex items-center gap-3 cursor-pointer mb-3">
               <input
@@ -764,6 +635,7 @@ function ProductModal({
               </div>
             )}
           </div>
+          )}
 
           {submitError && (
             <p className="text-[12px] text-red-500 font-light">{submitError}</p>
@@ -787,7 +659,7 @@ function ProductModal({
             {submitting && (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             )}
-            {submitting ? "Saving…" : isEdit ? "Save changes" : "Create product"}
+            {submitting ? "Saving…" : "Save changes"}
           </button>
         </div>
       </form>

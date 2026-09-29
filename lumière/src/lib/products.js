@@ -136,6 +136,44 @@ export async function getProducts(options = {}) {
 }
 
 /**
+ * Paginated product list for the admin dashboard.
+ */
+export async function getAdminProducts({ search = "", page = 0, pageSize = 20 } = {}) {
+  const params = new URLSearchParams({
+    page: String(Math.max(1, Number(page) + 1)),
+    pageSize: String(Math.min(100, Math.max(1, Number(pageSize) || 20))),
+  });
+  if (search) params.set("q", search);
+
+  const data = await apiFetch(`/products?${params.toString()}`);
+  const productsRaw = Array.isArray(data) ? data : (data.products || []);
+  const total = Number(data.total ?? productsRaw.length);
+
+  return {
+    products: productsRaw.map(mapProduct),
+    total,
+    page,
+    pageSize: Number(params.get("pageSize")),
+    totalPages: Number(data.totalPages ?? Math.ceil(total / pageSize)),
+  };
+}
+
+/**
+ * Update fields supported by the POS product API.
+ */
+export async function updateAdminProduct(id, patch) {
+  return apiFetch(`/products/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      ProductName: patch.name,
+      Category: patch.category,
+      SellPrice: Number(patch.price),
+      QtyInStock: Number(patch.stock),
+    }),
+  });
+}
+
+/**
  * Fetch a single product by ID
  */
 export async function getProductById(id) {
