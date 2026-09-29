@@ -113,6 +113,20 @@ export default function Shop() {
   }
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
+  const pageWindowStart = Math.max(2, Math.min(urlPage - 2, totalPages - 4));
+  const pageWindowEnd = Math.min(totalPages - 1, pageWindowStart + 4);
+  const pageNumbers = totalPages <= 7
+    ? Array.from({ length: totalPages }, (_, index) => index + 1)
+    : [
+        1,
+        ...(pageWindowStart > 2 ? ["start-ellipsis"] : []),
+        ...Array.from(
+          { length: pageWindowEnd - pageWindowStart + 1 },
+          (_, index) => pageWindowStart + index
+        ),
+        ...(pageWindowEnd < totalPages - 1 ? ["end-ellipsis"] : []),
+        totalPages,
+      ];
 
   const handleSearchSubmit = (event) => {
     event.preventDefault();
@@ -192,7 +206,7 @@ export default function Shop() {
           <ProductGrid products={products} loading={loading} error={error} />
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-12">
+            <nav aria-label="Shop pages" className="mt-12 flex flex-wrap items-center justify-center gap-2">
               <button
                 disabled={urlPage <= 1}
                 onClick={() => updateParams({ page: urlPage - 1 })}
@@ -201,18 +215,26 @@ export default function Shop() {
                 Prev
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => updateParams({ page: p })}
-                  className={`w-8 h-8 text-[12px] border rounded-sm transition-colors ${
-                    p === urlPage
-                      ? "bg-(--color-ink) text-(--color-cream) border-(--color-ink)"
-                      : "border-(--color-border) text-(--color-muted) hover:border-(--color-ink) hover:text-(--color-ink)"
-                  }`}
-                >
-                  {p}
-                </button>
+              {pageNumbers.map((page) => (
+                typeof page === "string" ? (
+                  <span key={page} aria-hidden="true" className="px-1 text-[12px] text-(--color-muted)">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    onClick={() => updateParams({ page })}
+                    aria-label={`Go to page ${page}`}
+                    aria-current={page === urlPage ? "page" : undefined}
+                    className={`h-8 min-w-8 rounded-sm border px-2 text-[12px] transition-colors ${
+                      page === urlPage
+                        ? "border-(--color-ink) bg-(--color-ink) text-(--color-cream)"
+                        : "border-(--color-border) text-(--color-muted) hover:border-(--color-ink) hover:text-(--color-ink)"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
               ))}
 
               <button
@@ -222,7 +244,7 @@ export default function Shop() {
               >
                 Next
               </button>
-            </div>
+            </nav>
           )}
         </div>
       </div>
