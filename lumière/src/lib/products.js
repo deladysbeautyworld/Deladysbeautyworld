@@ -112,6 +112,12 @@ function mapProduct(prod, { includeWholesale = false } = {}) {
   };
 }
 
+function normalizeInteger(value, fallback, min, max = Infinity) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.floor(parsed)));
+}
+
 /**
  * Fetch all categories
  */
@@ -208,8 +214,9 @@ export async function getProducts(options = {}) {
 
   if (category) params.append('category', category);
   if (tag) params.append('q', tag);
-  const apiPage = Math.max(1, Number(page) + 1);
-  const apiPageSize = Math.min(100, Math.max(1, Number(pageSize) || 9));
+  const normalizedPage = normalizeInteger(page, 0, 0);
+  const apiPage = normalizedPage + 1;
+  const apiPageSize = normalizeInteger(pageSize, 9, 1, 100);
   params.append('page', apiPage);
   params.append('pageSize', apiPageSize);
 
@@ -220,7 +227,7 @@ export async function getProducts(options = {}) {
   return {
     products: productsRaw.map(mapProduct),
     total: total,
-    page,
+    page: normalizedPage,
     pageSize: apiPageSize,
     totalPages: data.totalPages ?? Math.ceil(total / apiPageSize),
   };
@@ -230,9 +237,11 @@ export async function getProducts(options = {}) {
  * Paginated product list for the admin dashboard.
  */
 export async function getAdminProducts({ search = "", page = 0, pageSize = 20 } = {}) {
+  const normalizedPage = normalizeInteger(page, 0, 0);
+  const normalizedPageSize = normalizeInteger(pageSize, 20, 1, 100);
   const params = new URLSearchParams({
-    page: String(Math.max(1, Number(page) + 1)),
-    pageSize: String(Math.min(100, Math.max(1, Number(pageSize) || 20))),
+    page: String(normalizedPage + 1),
+    pageSize: String(normalizedPageSize),
   });
   if (search) params.set("q", search);
 
@@ -243,8 +252,8 @@ export async function getAdminProducts({ search = "", page = 0, pageSize = 20 } 
   return {
     products: productsRaw.map((product) => mapProduct(product, { includeWholesale: true })),
     total,
-    page,
-    pageSize: Number(params.get("pageSize")),
+    page: normalizedPage,
+    pageSize: normalizedPageSize,
     totalPages: Number(data.totalPages ?? Math.ceil(total / pageSize)),
   };
 }
