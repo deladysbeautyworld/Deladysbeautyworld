@@ -23,6 +23,12 @@ const newVariantId = () =>
     : `tmp-${Math.random().toString(36).slice(2)}`;
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
+const fmtDate = (value) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toLocaleDateString("en-NG", { dateStyle: "medium" });
+};
 
 const STATUS_STYLES = {
   in_stock:  "bg-green-50 text-green-700",
@@ -30,10 +36,11 @@ const STATUS_STYLES = {
   out:       "bg-red-50  text-red-700",
 };
 
-function stockLabel(stock) {
-  const n = Number(stock);
+function stockLabel(product) {
+  const n = Number(product.stock);
+  const threshold = product.reorder_level ?? 5;
   if (n <= 0) return { label: "Out of stock", cls: STATUS_STYLES.out };
-  if (n <= 5) return { label: `Low · ${n}`,   cls: STATUS_STYLES.low_stock };
+  if (n <= threshold) return { label: `Low · ${n}`, cls: STATUS_STYLES.low_stock };
   return { label: `${n} in stock`, cls: STATUS_STYLES.in_stock };
 }
 
@@ -102,6 +109,12 @@ export default function Products() {
       price:       String(product.price ?? ""),
       stock:       String(product.stock ?? 0),
       category:    product.categories?.name ?? "",
+      image_url:   product.image_url_source ?? "",
+      pack_size:   product.pack_size ?? "",
+      on_sale:     product.is_on_sale,
+      reorder_level: product.reorder_level == null ? "" : String(product.reorder_level),
+      expiry_date: product.expiry_date ? String(product.expiry_date).slice(0, 10) : "",
+      wholesale_price: String(product.wholesale_price ?? 0),
       posProduct:  true,
     });
     setSubmitError(null);
@@ -185,7 +198,7 @@ export default function Products() {
                 </thead>
                 <tbody>
                   {data.products.map((p) => {
-                    const stock = stockLabel(p.stock);
+                    const stock = stockLabel(p);
                     return (
                       <tr
                         key={p.id}
@@ -203,6 +216,11 @@ export default function Products() {
                             <p className="text-(--color-ink) font-normal truncate max-w-50">
                               {p.name}
                             </p>
+                            {(p.pack_size || fmtDate(p.expiry_date)) && (
+                              <p className="text-[10px] text-(--color-faint)">
+                                {[p.pack_size && `Pack ${p.pack_size}`, fmtDate(p.expiry_date) && `Expires ${fmtDate(p.expiry_date)}`].filter(Boolean).join(" · ")}
+                              </p>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-3 text-(--color-muted) font-light">
@@ -215,6 +233,11 @@ export default function Products() {
                           <span className={`inline-block px-2.5 py-1 rounded-sm text-[10px] tracking-[0.08em] uppercase font-normal ${stock.cls}`}>
                             {stock.label}
                           </span>
+                          {p.reorder_level !== null && p.reorder_level !== undefined && (
+                            <p className="mt-1 text-[10px] text-(--color-faint)">
+                              Reorder at {p.reorder_level}
+                            </p>
+                          )}
                         </td>
                         <td className="px-6 py-3 text-right">
                           <div className="inline-flex gap-2">
@@ -437,6 +460,80 @@ function ProductModal({
               </select>
             )}
           </Field>
+
+          {editing.posProduct && (
+            <Field label="Image URL">
+              <input
+                name="image_url"
+                value={editing.image_url}
+                onChange={handleChange}
+                className={modalInputClass}
+                placeholder="/images/product.jpg or https://…"
+              />
+            </Field>
+          )}
+
+          {editing.posProduct && (
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Pack size">
+                <input
+                  name="pack_size"
+                  value={editing.pack_size}
+                  onChange={handleChange}
+                  className={modalInputClass}
+                  placeholder="Small"
+                />
+              </Field>
+              <Field label="Wholesale price (₦)">
+                <input
+                  name="wholesale_price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editing.wholesale_price}
+                  onChange={handleChange}
+                  className={modalInputClass}
+                  placeholder="0"
+                />
+              </Field>
+              <Field label="Reorder level">
+                <input
+                  name="reorder_level"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={editing.reorder_level}
+                  onChange={handleChange}
+                  className={modalInputClass}
+                  placeholder="No threshold"
+                />
+              </Field>
+              <Field label="Expiry date">
+                <input
+                  name="expiry_date"
+                  type="date"
+                  value={editing.expiry_date}
+                  onChange={handleChange}
+                  className={modalInputClass}
+                />
+              </Field>
+            </div>
+          )}
+
+          {editing.posProduct && (
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                name="on_sale"
+                type="checkbox"
+                checked={Boolean(editing.on_sale)}
+                onChange={handleChange}
+                className="w-4 h-4 accent-(--color-pink)"
+              />
+              <span className="text-[13px] text-(--color-muted) font-light">
+                Mark as on sale
+              </span>
+            </label>
+          )}
 
           {!editing.posProduct && (
             <Field label="Image URL">

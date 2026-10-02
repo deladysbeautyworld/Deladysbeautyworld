@@ -52,8 +52,24 @@ async function apiFetch(endpoint, options = {}) {
  * Mappers to ensure the frontend receives the expected data shapes
  */
 
-function mapProduct(prod) {
+function mapProduct(prod, { includeWholesale = false } = {}) {
   if (!prod) return null;
+
+  const imageSource = prod.image_url || prod.imageUrl;
+  let imageUrl = '/assets/placeholder.jpg';
+  if (imageSource) {
+    try {
+      imageUrl = new URL(imageSource, API_URL).href;
+    } catch {
+      imageUrl = imageSource;
+    }
+  }
+
+  const reorderLevelValue = prod.ReOrderLevel ?? prod.reorder_level;
+  const reorderLevel = reorderLevelValue === null || reorderLevelValue === undefined || reorderLevelValue === ''
+    ? null
+    : Number(reorderLevelValue);
+  const onSaleValue = prod.OnSale ?? prod.is_on_sale ?? prod.on_sale;
 
   const categoryName = prod.Category || prod.category || 'General';
   const categorySlug = categoryName
@@ -68,10 +84,18 @@ function mapProduct(prod) {
     name: prod.ProductName || prod.name || 'Unnamed Product',
     description: prod.description || '',
     price: Number(prod.SellPrice ?? prod.price) || 0,
-    image_url: prod.image_url || '/assets/placeholder.jpg',
+    image_url: imageUrl,
+    image_url_source: imageSource || '',
     rating: Number(prod.average_rating) || 0,
     review_count: Number(prod.reviews_count) || 0,
     stock: Number(prod.QtyInStock ?? prod.stock_quantity ?? prod.stock) || 0,
+    pack_size: prod.PackSize ?? prod.pack_size ?? null,
+    is_on_sale: onSaleValue === true || ['1', 'true', 'yes'].includes(String(onSaleValue).toLowerCase()),
+    reorder_level: Number.isFinite(reorderLevel) ? reorderLevel : null,
+    expiry_date: prod.ExpireDate ?? prod.expiry_date ?? null,
+    ...(includeWholesale && {
+      wholesale_price: Number(prod.WholesalePrice ?? prod.wholesale_price) || 0,
+    }),
     tags: Array.isArray(prod.tags) ? prod.tags : [],
     is_featured: !!prod.is_featured,
     created_at: prod.created_at,
@@ -217,7 +241,7 @@ export async function getAdminProducts({ search = "", page = 0, pageSize = 20 } 
   const total = Number(data.total ?? productsRaw.length);
 
   return {
-    products: productsRaw.map(mapProduct),
+    products: productsRaw.map((product) => mapProduct(product, { includeWholesale: true })),
     total,
     page,
     pageSize: Number(params.get("pageSize")),
@@ -236,6 +260,14 @@ export async function updateAdminProduct(id, patch) {
       Category: patch.category,
       SellPrice: Number(patch.price),
       QtyInStock: Number(patch.stock),
+      WholesalePrice: Number(patch.wholesale_price) || 0,
+      PackSize: patch.pack_size?.trim() || null,
+      OnSale: patch.on_sale ? 1 : 0,
+      ReOrderLevel: patch.reorder_level === '' ? null : Number(patch.reorder_level),
+      ExpireDate: patch.expiry_date
+        ? new Date(`${patch.expiry_date}T00:00:00.000Z`).toISOString()
+        : null,
+      imageUrl: patch.image_url?.trim() || null,
     }),
   });
 }

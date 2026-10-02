@@ -7,6 +7,12 @@ import ProductImage from "../components/shop/ProductImage";
 import { getCanonicalUrl } from "../utils/seoConfig";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
+const fmtDate = (value) => {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toLocaleDateString("en-NG", { dateStyle: "medium" });
+};
 
 const VARIANT_TYPE_LABELS = {
   shade: "Shade",
@@ -180,7 +186,7 @@ export default function ProductDetail() {
 
             {/* Category */}
             <Link
-              to={`/shop?category=${product.categories?.slug}`}
+              to={`/shop?category=${encodeURIComponent(product.categories?.name ?? "")}`}
               className="text-[11px] tracking-[0.12em] uppercase text-(--color-faint) hover:text-(--color-pink) transition-colors mb-3 w-fit"
             >
               {product.categories?.name}
@@ -197,9 +203,23 @@ export default function ProductDetail() {
             </div>
 
             {/* Price — updates with variant */}
-            <p className="text-[28px] font-medium text-(--color-ink) mb-6">
-              {fmt(effectivePrice)}
-            </p>
+            <div className="flex items-center gap-3 mb-6">
+              <p className="text-[28px] font-medium text-(--color-ink)">
+                {fmt(effectivePrice)}
+              </p>
+              {product.is_on_sale && (
+                <span className="rounded-full bg-(--color-pink-pale) px-3 py-1 text-[10px] uppercase tracking-widest text-(--color-pink)">
+                  On sale
+                </span>
+              )}
+            </div>
+
+            {(product.pack_size || fmtDate(product.expiry_date)) && (
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-[12px] text-(--color-muted) mb-6">
+                {product.pack_size && <p>Pack size: {product.pack_size}</p>}
+                {fmtDate(product.expiry_date) && <p>Expires: {fmtDate(product.expiry_date)}</p>}
+              </div>
+            )}
 
             {/* Description */}
             <p className="text-[14px] text-(--color-muted) leading-[1.8] font-light mb-6">

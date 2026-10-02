@@ -36,18 +36,23 @@ export default function ProductCard({ product }) {
           />
         </div>
 
-        {/* Tags */}
-        {product.tags?.includes("bestseller") && (
-          <span className="absolute left-3 top-3 rounded-full bg-(--color-ink) px-3 py-1 text-[9px] uppercase tracking-widest text-(--color-cream)">
-            Bestseller
-          </span>
-        )}
-
-        {product.stock === 0 && (
-  <span className="absolute left-3 top-3 rounded-full bg-(--color-border) px-3 py-1 text-[9px] uppercase tracking-widest text-(--color-muted)">
-    Out of stock
-  </span>
-)}
+        <div className="absolute left-3 top-3 flex flex-col items-start gap-1">
+          {product.is_on_sale && (
+            <span className="rounded-full bg-(--color-pink) px-3 py-1 text-[9px] uppercase tracking-widest text-white">
+              On sale
+            </span>
+          )}
+          {product.tags?.includes("bestseller") && (
+            <span className="rounded-full bg-(--color-ink) px-3 py-1 text-[9px] uppercase tracking-widest text-(--color-cream)">
+              Bestseller
+            </span>
+          )}
+          {product.stock === 0 && (
+            <span className="rounded-full bg-(--color-border) px-3 py-1 text-[9px] uppercase tracking-widest text-(--color-muted)">
+              Out of stock
+            </span>
+          )}
+        </div>
 
         {/* Wishlist */}
         <button
@@ -88,6 +93,9 @@ export default function ProductCard({ product }) {
           {product.categories?.name || "Skincare"}
         </p>
         <h3 className="text-[13px] font-medium text-(--color-ink) leading-snug">{product.name}</h3>
+        {product.pack_size && (
+          <p className="text-[10px] text-(--color-faint)">Pack size: {product.pack_size}</p>
+        )}
 
         <div className="flex items-center gap-1.5 mt-1">
           <div className="flex gap-0.5">
