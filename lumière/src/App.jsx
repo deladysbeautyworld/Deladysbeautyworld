@@ -31,7 +31,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import Overview from "./pages/admin/Overview";
 import ProfileSettings from "./pages/admin/ProfileSettings";
 import Orders, { OrderDetail } from "./pages/admin/Orders.jsx";
-import Products from "./pages/admin/Products.jsx";
+import Products from "./pages/admin/ProductsReadOnly.jsx";
 import Customers, { CustomerDetail } from "./pages/admin/Customers.jsx";
 import PromoCodes from "./pages/admin/PromoCodes.jsx";
 import Categories from "./pages/admin/Categories.jsx";

@@ -211,7 +211,6 @@ export async function getProducts(options = {}) {
     pageSize = 9,
   } = options;
   const params = new URLSearchParams();
-
   if (category) params.append('category', category);
   if (tag) params.append('q', tag);
   const normalizedPage = normalizeInteger(page, 0, 0);
@@ -259,28 +258,6 @@ export async function getAdminProducts({ search = "", page = 0, pageSize = 20 } 
 }
 
 /**
- * Update fields supported by the POS product API.
- */
-export async function updateAdminProduct(id, patch) {
-  return apiFetch(`/products/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    body: JSON.stringify({
-      ProductName: patch.name,
-      Category: patch.category,
-      SellPrice: Number(patch.price),
-      QtyInStock: Number(patch.stock),
-      WholesalePrice: Number(patch.wholesale_price) || 0,
-      PackSize: patch.pack_size?.trim() || null,
-      OnSale: patch.on_sale ? 1 : 0,
-      ReOrderLevel: patch.reorder_level === '' ? null : Number(patch.reorder_level),
-      ExpireDate: patch.expiry_date
-        ? new Date(`${patch.expiry_date}T00:00:00.000Z`).toISOString()
-        : null,
-      imageUrl: patch.image_url?.trim() || null,
-    }),
-  });
-}
-
 /**
  * Fetch a single product by ID
  */
