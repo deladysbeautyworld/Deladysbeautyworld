@@ -4,6 +4,7 @@ import SEOMeta from "../utils/seo";
 import { getProductById, getRelatedProducts } from "../lib/products";
 import { useCartStore } from "../stores/cartStore";
 import ProductImage from "../components/shop/ProductImage";
+import ProductReviews from "../components/shop/ProductReviews.jsx";
 import { getCanonicalUrl } from "../utils/seoConfig";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
@@ -19,27 +20,6 @@ const VARIANT_TYPE_LABELS = {
   size:  "Size",
   scent: "Scent",
 };
-
-function StarRating({ rating, count }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} width="13" height="13" viewBox="0 0 24 24"
-            fill={i < Math.round(rating) ? "#C8A96E" : "none"}
-            stroke={i < Math.round(rating) ? "#C8A96E" : "var(--color-border)"}
-            strokeWidth="1.5"
-          >
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-        ))}
-      </div>
-      <span className="text-[12px] text-(--color-muted) font-light">
-        {rating} · {count} reviews
-      </span>
-    </div>
-  );
-}
 
 function SkeletonDetail() {
   return (
@@ -199,7 +179,7 @@ export default function ProductDetail() {
 
             {/* Rating */}
             <div className="mb-4">
-              <StarRating rating={product.rating} count={product.review_count} />
+              <ProductReviews productId={product.id} />
             </div>
 
             {/* Price — updates with variant */}

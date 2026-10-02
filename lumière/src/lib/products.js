@@ -4,6 +4,7 @@
  */
 
 import { supabase } from "../utils/supabase.js";
+import { getProductReviewSummaries } from "./productReviews.js";
 
 const API_URL = (
   import.meta.env.VITE_POS_API_URL || 'https://delady-api-production.up.railway.app/api'
@@ -118,6 +119,14 @@ function normalizeInteger(value, fallback, min, max = Infinity) {
   return Math.min(max, Math.max(min, Math.floor(parsed)));
 }
 
+async function attachReviewSummaries(products) {
+  const summaries = await getProductReviewSummaries(products.map((product) => product.id));
+  return products.map((product) => ({
+    ...product,
+    ...(summaries.get(String(product.id)) ?? {}),
+  }));
+}
+
 /**
  * Fetch all categories
  */
@@ -222,9 +231,10 @@ export async function getProducts(options = {}) {
   const data = await apiFetch(`/products?${params.toString()}`);
   const productsRaw = Array.isArray(data) ? data : (data.products || []);
   const total = data.total ?? productsRaw.length;
+  const products = await attachReviewSummaries(productsRaw.map(mapProduct));
 
   return {
-    products: productsRaw.map(mapProduct),
+    products,
     total: total,
     page: normalizedPage,
     pageSize: apiPageSize,
@@ -258,7 +268,6 @@ export async function getAdminProducts({ search = "", page = 0, pageSize = 20 } 
 }
 
 /**
-/**
  * Fetch a single product by ID
  */
 export async function getProductById(id) {
@@ -286,10 +295,11 @@ export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
   const data = await apiFetch(`/products?${params.toString()}`);
   const productsRaw = Array.isArray(data) ? data : (data.products || []);
 
-  return productsRaw
+  const relatedProducts = productsRaw
     .map(mapProduct)
     .filter(p => p.id !== excludeId)
     .slice(0, limit);
+  return attachReviewSummaries(relatedProducts);
 }
 
 /**
