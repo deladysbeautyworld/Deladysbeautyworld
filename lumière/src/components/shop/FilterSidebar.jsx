@@ -51,8 +51,8 @@ export default function FilterSidebar({ categories, filters, onChange, onClear, 
           {categories.map(cat => (
             <button
               key={cat.id}
-              onClick={() => toggle("category", cat.slug)}
-              className={`text-left text-[13px] transition-colors cursor-pointer ${filters.category === cat.slug ? "text-(--color-ink) font-medium" : "text-(--color-muted) hover:text-(--color-ink)"}`}
+              onClick={() => toggle("category", cat.name)}
+              className={`text-left text-[13px] transition-colors cursor-pointer ${filters.category === cat.name ? "text-(--color-ink) font-medium" : "text-(--color-muted) hover:text-(--color-ink)"}`}
             >
               {cat.name}
             </button>

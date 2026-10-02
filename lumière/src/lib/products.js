@@ -9,6 +9,9 @@ const API_URL = (
   import.meta.env.VITE_POS_API_URL || 'https://delady-api-production.up.railway.app/api'
 ).replace(/\/+$/, '');
 const API_KEY = import.meta.env.VITE_POS_API_KEY;
+const CATEGORY_CACHE_KEY = 'lumiere.pos-categories.v2';
+const CATEGORY_CACHE_TTL = 24 * 60 * 60 * 1000;
+let categoriesPromise;
 
 async function apiFetch(endpoint, options = {}) {
   if (!API_KEY?.trim()) {
@@ -49,15 +52,6 @@ async function apiFetch(endpoint, options = {}) {
  * Mappers to ensure the frontend receives the expected data shapes
  */
 
-function mapCategory(cat) {
-  if (!cat) return null;
-  return {
-    id: cat.id,
-    name: cat.name || 'Unknown Category',
-    slug: cat.slug || `category-${cat.id}`,
-  };
-}
-
 function mapProduct(prod) {
   if (!prod) return null;
 
@@ -97,10 +91,83 @@ function mapProduct(prod) {
 /**
  * Fetch all categories
  */
-export async function getCategories() {
-  const { data, error } = await supabase.from('categories').select('*').order('name');
-  if (error) throw error;
-  return (data || []).map(mapCategory);
+export async function getCategories(onUpdate) {
+  try {
+    const cached = JSON.parse(window.localStorage.getItem(CATEGORY_CACHE_KEY));
+    if (cached?.expiresAt > Date.now() && Array.isArray(cached.categories)) {
+      onUpdate?.(cached.categories);
+      return cached.categories;
+    }
+  } catch {
+    // Ignore unavailable storage and refresh categories from the POS API.
+  }
+
+  if (!categoriesPromise) {
+    categoriesPromise = (async () => {
+      const firstPage = await apiFetch('/products?page=1&pageSize=100');
+      const categoryMap = new Map();
+      const addCategories = (products) => {
+        products.forEach((product) => {
+          const name = String(product.Category || product.category || '').trim();
+          const key = name.toLowerCase();
+          if (key && !categoryMap.has(key)) {
+            categoryMap.set(key, {
+              id: name,
+              name,
+              slug: name.toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, ''),
+            });
+          }
+        });
+      };
+      const currentCategories = () => [...categoryMap.values()].sort((a, b) =>
+        a.name.localeCompare(b.name)
+      );
+
+      const firstProducts = Array.isArray(firstPage)
+        ? firstPage
+        : firstPage.products || [];
+      const totalPages = Number(firstPage.totalPages) || 1;
+      addCategories(firstProducts);
+      onUpdate?.(currentCategories());
+      const concurrency = 6;
+      for (let page = 2; page <= totalPages; page += concurrency) {
+        const pageCount = Math.min(concurrency, totalPages - page + 1);
+        const results = await Promise.all(
+          Array.from({ length: pageCount }, (_, index) =>
+            apiFetch(`/products?${new URLSearchParams({
+              page: String(page + index),
+              pageSize: '100',
+            })}`)
+          )
+        );
+        results.forEach((result) => {
+          const products = Array.isArray(result) ? result : result.products || [];
+          addCategories(products);
+        });
+        onUpdate?.(currentCategories());
+      }
+
+      const categories = currentCategories();
+      try {
+        window.localStorage.setItem(CATEGORY_CACHE_KEY, JSON.stringify({
+          expiresAt: Date.now() + CATEGORY_CACHE_TTL,
+          categories,
+        }));
+      } catch {
+        // Keep the in-memory result when browser storage is unavailable.
+      }
+      return categories;
+    })().catch((error) => {
+      categoriesPromise = null;
+      throw error;
+    });
+  }
+
+  const categories = await categoriesPromise;
+  onUpdate?.(categories);
+  return categories;
 }
 
 /**

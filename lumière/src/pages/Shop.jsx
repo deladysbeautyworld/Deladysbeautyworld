@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import SEOMeta from "../utils/seo";
-import { getProducts } from "../lib/products";
-import { supabase } from "../utils/supabase";
+import { getCategories, getProducts } from "../lib/products";
 import FilterSidebar from "../components/shop/FilterSidebar";
 import SortBar from "../components/shop/SortBar";
 import ProductGrid from "../components/shop/ProductGrid";
@@ -51,11 +50,11 @@ export default function Shop() {
   const [searchTerm, setSearchTerm]             = useState("");
 
   useEffect(() => {
-    supabase
-      .from("categories")
-      .select("*")
-      .order("name")
-      .then(({ data }) => { if (data) setCategories(data); });
+    let cancelled = false;
+    getCategories((data) => { if (!cancelled) setCategories(data); })
+      .then((data) => { if (!cancelled) setCategories(data); })
+      .catch(() => { if (!cancelled) setCategories([]); });
+    return () => { cancelled = true; };
   }, []);
 
   const loadProducts = useCallback(async () => {
