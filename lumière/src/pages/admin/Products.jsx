@@ -94,7 +94,16 @@ export default function Products() {
   };
 
   const setPage = (newPage) => {
-    setFilter((f) => ({ ...f, page: newPage }));
+    setFilter((current) => {
+      const requestedPage = typeof newPage === "function"
+        ? newPage(current.page)
+        : newPage;
+      const parsedPage = Number(requestedPage);
+      return {
+        ...current,
+        page: Number.isFinite(parsedPage) ? Math.max(0, Math.floor(parsedPage)) : 0,
+      };
+    });
   };
 
   const reload = async () => {
