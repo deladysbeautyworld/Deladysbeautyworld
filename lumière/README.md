@@ -47,16 +47,24 @@ The app uses a custom PostgreSQL function `finalize_order` for atomic order crea
 
 
 ## 💳 KoraPay Integration
-Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout, and `api/verify-korapay.js` verifies the transaction with the server-only secret key before an order is finalized.
+Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout, and `api/verify-korapay.js` verifies the transaction with the server-only secret key before an order is finalized. The `api/korapay-webhook.js` endpoint independently validates KoraPay's `x-korapay-signature`, verifies successful charges with KoraPay, and marks the matching order as paid in Supabase. Duplicate notifications are safe to process, and notifications received before their order exists receive a retryable response.
 
 The migration `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` updates the order payment method and `finalize_order` function. Apply it to the Supabase project before deploying the new checkout code.
+
+Configure this webhook URL in the KoraPay dashboard:
+
+```text
+https://<your-deployed-domain>/api/korapay-webhook
+```
+
+Set `KORAPAY_SECRET_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` as server-side environment variables in Vercel. Never use a `VITE_` prefix for the Supabase service role key.
 
 ## 📦 Deployment
 
 ### Vercel Deployment
 1. Connect your GitHub repository to Vercel.
-2. Add the variables from `.env.example` to the Vercel project settings. Set `VITE_KORAPAY_PUBLIC_KEY` for the frontend build and `KORAPAY_SECRET_KEY` as a server environment variable.
-3. Deploy.
+2. Add the required variables from `.env.example` to the Vercel project settings. Set `VITE_KORAPAY_PUBLIC_KEY` for the frontend build and `KORAPAY_SECRET_KEY`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY` as server environment variables.
+3. Deploy, then configure `https://<your-deployed-domain>/api/korapay-webhook` in the KoraPay dashboard's API Configuration settings.
 
 ## 📁 Project Structure
 - `src/components`: UI components divided by domain (home, layout, shop).
