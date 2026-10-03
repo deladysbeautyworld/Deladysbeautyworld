@@ -20,7 +20,7 @@ export default function OrderConfirmation() {
   if (!order) return <Navigate to="/profile" replace />;
 
   const deliveryEstimate = DELIVERY_ESTIMATES[order.zone_name] ?? "3–7 business days";
-  const whatsappContact = "https://wa.me/2348000000000"; // replace with client's number
+  const whatsappContact = "https://wa.me/2348174950045";
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-6 py-16">

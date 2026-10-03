@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const WHATSAPP_NUMBER = "2348000000000"; // replace with client's number
+const WHATSAPP_NUMBER = "2348174950045";
 const WHATSAPP_MESSAGE = "Hello! I'd like to enquire about an order from De Lady's Beauty World.";
 
 export default function WhatsAppButton() {
