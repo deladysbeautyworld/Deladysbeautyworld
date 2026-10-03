@@ -1,4 +1,4 @@
-create extension if not exists pg_net with schema net;
+create extension if not exists pg_net with schema extensions;
 create extension if not exists supabase_vault with schema vault;
 
 create table if not exists public.admin_push_subscriptions (

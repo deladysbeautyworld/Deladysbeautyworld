@@ -137,6 +137,34 @@ export default function AdminPushSetup() {
     }
   };
 
+  const sendTestNotification = async () => {
+    setLoading(true);
+    setError(null);
+    setMessage(null);
+    try {
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      const accessToken = data.session?.access_token;
+      if (!accessToken) throw new Error("Your admin session has expired. Please sign in again.");
+
+      const response = await fetch("/api/admin-push-test", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not send a test notification.");
+      setMessage("Test notification sent. Check your device.");
+    } catch (testError) {
+      console.error("Could not send admin push test notification:", testError);
+      setError(testError.message || "Could not send a test notification.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="mb-6 rounded-sm border border-(--color-border) bg-white px-4 py-4 sm:px-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -162,20 +190,32 @@ export default function AdminPushSetup() {
             </p>
           )}
         </div>
-        <button
-          type="button"
-          onClick={subscribed ? disableNotifications : enableNotifications}
-          disabled={loading || !supported}
-          className="h-10 shrink-0 rounded-sm bg-(--color-ink) px-4 text-[10px] font-medium uppercase tracking-widest text-(--color-cream) transition-colors hover:bg-(--color-pink) disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading
-            ? "Please wait…"
-            : !supported
-              ? "Not supported"
-              : subscribed
-                ? "Turn off alerts"
-                : "Enable alerts"}
-        </button>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {subscribed && (
+            <button
+              type="button"
+              onClick={sendTestNotification}
+              disabled={loading}
+              className="h-10 rounded-sm border border-(--color-border) px-4 text-[10px] font-medium uppercase tracking-widest text-(--color-ink) transition-colors hover:border-(--color-pink) disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {loading ? "Please wait…" : "Send test"}
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={subscribed ? disableNotifications : enableNotifications}
+            disabled={loading || !supported}
+            className="h-10 rounded-sm bg-(--color-ink) px-4 text-[10px] font-medium uppercase tracking-widest text-(--color-cream) transition-colors hover:bg-(--color-pink) disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {loading
+              ? "Please wait…"
+              : !supported
+                ? "Not supported"
+                : subscribed
+                  ? "Turn off alerts"
+                  : "Enable alerts"}
+          </button>
+        </div>
       </div>
     </section>
   );

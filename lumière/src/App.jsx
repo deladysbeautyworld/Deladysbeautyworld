@@ -1,48 +1,56 @@
+import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { useEffect } from "react";
-
-import RootLayout from "./components/layout/RootLayout";
-import ComingSoon from "./components/common/ComingSoon";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import FAQ from "./pages/FAQ";
-import Shipping from "./pages/Shipping";
-import Returns from "./pages/Returns";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import Cookies from "./pages/Cookies";
-import Careers from "./pages/Careers";
-import ProtectedRoute from "./components/common/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
-import Journal from "./pages/Journal";
-import JournalPost from "./pages/JournalPost.jsx";
-import Home from "./pages/Home";
-import Shop from "./pages/Shop";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
-import AuthPage from "./pages/AuthPage";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import OrderConfirmation from "./pages/OrderConfirmation";
-import Routines from "./pages/Routines";
-
-import AdminLayout from "./pages/admin/AdminLayout";
-import Overview from "./pages/admin/Overview";
-import ProfileSettings from "./pages/admin/ProfileSettings";
-import Orders, { OrderDetail } from "./pages/admin/Orders.jsx";
-import Products from "./pages/admin/ProductsReadOnly.jsx";
-import Customers, { CustomerDetail } from "./pages/admin/Customers.jsx";
-import PromoCodes from "./pages/admin/PromoCodes.jsx";
-import Categories from "./pages/admin/Categories.jsx";
-import DeliveryZones from "./pages/admin/DeliveryZones.jsx";
-import AdminJournal from "./pages/admin/Journal.jsx";
-import JournalEditor from "./pages/admin/JournalEditor.jsx";
-import AdminNotFound from "./pages/admin/AdminNotFound";
-
-import Profile from "./pages/Profiles/profile";
 
 import { useAuthStore } from "./stores/authStore";
+
+const RootLayout = lazy(() => import("./components/layout/RootLayout"));
+const ComingSoon = lazy(() => import("./components/common/ComingSoon"));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const Shipping = lazy(() => import("./pages/Shipping"));
+const Returns = lazy(() => import("./pages/Returns"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Cookies = lazy(() => import("./pages/Cookies"));
+const Careers = lazy(() => import("./pages/Careers"));
+const ProtectedRoute = lazy(() => import("./components/common/ProtectedRoute"));
+const AdminRoute = lazy(() => import("./components/AdminRoute"));
+const Journal = lazy(() => import("./pages/Journal"));
+const JournalPost = lazy(() => import("./pages/JournalPost.jsx"));
+const Home = lazy(() => import("./pages/Home"));
+const Shop = lazy(() => import("./pages/Shop"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
+const Routines = lazy(() => import("./pages/Routines"));
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const Overview = lazy(() => import("./pages/admin/Overview"));
+const ProfileSettings = lazy(() => import("./pages/admin/ProfileSettings"));
+const Orders = lazy(() => import("./pages/admin/Orders.jsx"));
+const OrderDetail = lazy(() =>
+  import("./pages/admin/Orders.jsx").then((module) => ({
+    default: module.OrderDetail,
+  }))
+);
+const Products = lazy(() => import("./pages/admin/ProductsReadOnly.jsx"));
+const Customers = lazy(() => import("./pages/admin/Customers.jsx"));
+const CustomerDetail = lazy(() =>
+  import("./pages/admin/Customers.jsx").then((module) => ({
+    default: module.CustomerDetail,
+  }))
+);
+const PromoCodes = lazy(() => import("./pages/admin/PromoCodes.jsx"));
+const Categories = lazy(() => import("./pages/admin/Categories.jsx"));
+const DeliveryZones = lazy(() => import("./pages/admin/DeliveryZones.jsx"));
+const AdminJournal = lazy(() => import("./pages/admin/Journal.jsx"));
+const JournalEditor = lazy(() => import("./pages/admin/JournalEditor.jsx"));
+const AdminNotFound = lazy(() => import("./pages/admin/AdminNotFound"));
+const Profile = lazy(() => import("./pages/Profiles/profile"));
 
 const router = createBrowserRouter([
   {
@@ -150,5 +158,15 @@ export default function App() {
     init();
   }, [init]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center text-sm text-(--color-muted)">
+          Loading…
+        </div>
+      }
+    >
+      <RouterProvider router={router} />
+    </Suspense>
+  );
 }
