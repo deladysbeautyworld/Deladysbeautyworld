@@ -87,8 +87,6 @@ On Android, open the admin link in Chrome and use **Install app** or **Add to Ho
    Keep the secret out of source control and do not paste it into chat.
 4. Apply `supabase/migrations/202610030001_admin_order_push_notifications.sql` to the Supabase project. It creates a private device-subscription table and an order-insert trigger that calls the Vercel push endpoint.
 5. Open `/admin/orders` on each device and tap **Enable alerts**. Push permission is per device/browser; enabling it on one device does not enable it on the others.
-6. After enabling alerts, tap **Send test** on that page to send a demo push to the signed-in admin's registered devices without creating an order.
-
 The push endpoint uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` already required by the KoraPay webhook. Store `VAPID_PRIVATE_KEY` and `ADMIN_PUSH_WEBHOOK_SECRET` only as server-side secrets in Vercel and Supabase Vault.
 
 ## 📦 Deployment

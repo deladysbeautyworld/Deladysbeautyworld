@@ -1,7 +1,7 @@
 import webPush from "web-push";
 import { HttpError } from "./adminPush.js";
 
-export async function sendAdminPush(supabase, payload, userId) {
+export async function sendAdminPush(supabase, payload) {
   const publicKey = (process.env.VAPID_PUBLIC_KEY || "").replace(/^["']|["']$/g, "").trim();
   const privateKey = (process.env.VAPID_PRIVATE_KEY || "").replace(/^["']|["']$/g, "").trim();
   const subject = (process.env.VAPID_SUBJECT || "mailto:admin@deladysbeautyworld.com")
@@ -35,12 +35,9 @@ export async function sendAdminPush(supabase, payload, userId) {
     );
   }
 
-  let query = supabase
+  const { data: subscriptions, error: queryError } = await supabase
     .from("admin_push_subscriptions")
     .select("id, endpoint, p256dh, auth");
-  if (userId) query = query.eq("user_id", userId);
-
-  const { data: subscriptions, error: queryError } = await query;
   if (queryError?.code === "42P01" || queryError?.code === "PGRST205") {
     throw new HttpError(
       503,
