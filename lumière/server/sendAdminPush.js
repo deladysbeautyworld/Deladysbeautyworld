@@ -2,23 +2,36 @@ import webPush from "web-push";
 import { HttpError } from "./adminPush.js";
 
 export async function sendAdminPush(supabase, payload, userId) {
-  const publicKey = process.env.VAPID_PUBLIC_KEY;
-  const privateKey = process.env.VAPID_PRIVATE_KEY;
+  const publicKey = (process.env.VAPID_PUBLIC_KEY || "").replace(/^["']|["']$/g, "").trim();
+  const privateKey = (process.env.VAPID_PRIVATE_KEY || "").replace(/^["']|["']$/g, "").trim();
+  const subject = (process.env.VAPID_SUBJECT || "mailto:admin@deladysbeautyworld.com")
+    .replace(/^["']|["']$/g, "")
+    .trim();
+
+  const finalSubject = (subject.startsWith("mailto:") || subject.startsWith("https://"))
+    ? subject
+    : `mailto:${subject}`;
+
   if (!publicKey || !privateKey) {
-    throw new HttpError(500, "Push notifications are not configured.");
+    throw new HttpError(500, "Push notifications are not configured. VAPID keys are missing.");
   }
 
   try {
     webPush.setVapidDetails(
-      process.env.VAPID_SUBJECT || "mailto:admin@deladysbeautyworld.com",
+      finalSubject,
       publicKey,
       privateKey
     );
   } catch (error) {
-    console.error("Admin push VAPID configuration is invalid:", error.message);
+    console.error("VAPID Validation Error:", {
+      message: error.message,
+      publicKeyLength: publicKey.length,
+      privateKeyLength: privateKey.length,
+      subject: finalSubject
+    });
     throw new HttpError(
       500,
-      "Push server settings are invalid. Verify VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT."
+      `Push server settings are invalid: ${error.message}. Verify your VAPID keys in Vercel.`
     );
   }
 
