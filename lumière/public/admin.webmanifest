@@ -1,0 +1,25 @@
+{
+  "id": "/admin/orders",
+  "name": "De Lady's Beauty World Admin",
+  "short_name": "DLBW Admin",
+  "description": "Manage orders for De Lady's Beauty World.",
+  "start_url": "/admin/orders",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbf8f5",
+  "theme_color": "#f7e9ef",
+  "icons": [
+    {
+      "src": "/admin-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/admin-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

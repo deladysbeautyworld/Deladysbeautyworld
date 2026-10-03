@@ -29,7 +29,7 @@ export default function AdminRoute({ children }) {
 
   // 2. No user at all.
   if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
   }
 
   // 3. Signed in but not in the admin role set.

@@ -45,6 +45,11 @@ import Profile from "./pages/Profiles/profile";
 import { useAuthStore } from "./stores/authStore";
 
 const router = createBrowserRouter([
+  {
+    path: "/admin/login",
+    element: <AuthPage adminOnly />,
+  },
+
   // -------------------------
   // Public + Auth Routes
   // -------------------------

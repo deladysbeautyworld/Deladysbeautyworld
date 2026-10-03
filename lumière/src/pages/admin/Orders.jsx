@@ -5,6 +5,7 @@ import {
   getOrderDetail,
   updateOrderStatus,
 } from "../../lib/admin.js";
+import AdminPushSetup from "../../components/admin/AdminPushSetup.jsx";
 import AdminPageHeader from "./components/AdminPageHeader.jsx";
 import AdminStatusPill from "./components/AdminStatusPill.jsx";
 
@@ -92,6 +93,8 @@ export default function Orders() {
           title="Orders"
           subtitle={`${data.total} ${data.total === 1 ? "order" : "orders"} total`}
         />
+
+        <AdminPushSetup />
 
         {/* Status filter chips */}
         <div className="flex flex-wrap gap-2 mb-6">

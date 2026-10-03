@@ -3,13 +3,13 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../stores/authStore";
 import logo from "../assets/logo.jpg";
 
-export default function AuthPage() {
+export default function AuthPage({ adminOnly = false }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signIn, signUp, signInWithGoogle } = useAuthStore();
 
   // Determine mode based on path: /login or /signup
-  const mode = location.pathname === "/signup" ? "signup" : "login";
+  const mode = !adminOnly && location.pathname === "/signup" ? "signup" : "login";
 
   const [form, setForm] = useState({ fullName: "", email: "", password: "" });
   const [error, setError] = useState(null);
@@ -31,7 +31,11 @@ export default function AuthPage() {
     try {
       if (mode === "login") {
         await signIn({ email: form.email, password: form.password });
-        navigate("/", { replace: true });
+        const returnPath = location.state?.from?.pathname;
+        const destination = adminOnly
+          ? returnPath?.startsWith("/admin") ? returnPath : "/admin/orders"
+          : returnPath || "/";
+        navigate(destination, { replace: true });
       } else {
         await signUp({ email: form.email, password: form.password, fullName: form.fullName });
         setSuccess(true);
@@ -47,7 +51,11 @@ export default function AuthPage() {
     setError(null);
     setGoogleLoading(true);
     try {
-      await signInWithGoogle();
+      const returnPath = location.state?.from?.pathname;
+      const redirectTo = adminOnly
+        ? `${window.location.origin}${returnPath?.startsWith("/admin") ? returnPath : "/admin/orders"}`
+        : undefined;
+      await signInWithGoogle(redirectTo);
     } catch (err) {
       setError(err.message);
       setGoogleLoading(false);
@@ -125,15 +133,20 @@ export default function AuthPage() {
             </div>
 
             <h1 className="text-center font-display text-[2.8rem] leading-[0.95] text-[#1b1836] sm:text-[3.2rem]">
-              {mode === "login" ? "Welcome back," : "Create an account,"}
-              <span className="block">beautiful.</span>
+              {adminOnly ? "Admin access," : mode === "login" ? "Welcome back," : "Create an account,"}
+              <span className="block">{adminOnly ? "welcome back." : "beautiful."}</span>
             </h1>
 
             <p className="mt-2 text-center text-[13px] text-[#71657a]">
-              {mode === "login" ? "Sign in to continue your beauty ritual." : "Join De Lady's Beauty World and start your skincare journey."}
+              {adminOnly
+                ? "Sign in to manage De Lady's Beauty World orders."
+                : mode === "login"
+                  ? "Sign in to continue your beauty ritual."
+                  : "Join De Lady's Beauty World and start your skincare journey."}
             </p>
 
-            <div className="mt-6 grid grid-cols-2 rounded-[16px] border border-[#e8dfe4] bg-[#f1edf0] p-1 shadow-[0_10px_30px_rgba(39,27,55,0.04)]">
+            {!adminOnly && (
+              <div className="mt-6 grid grid-cols-2 rounded-[16px] border border-[#e8dfe4] bg-[#f1edf0] p-1 shadow-[0_10px_30px_rgba(39,27,55,0.04)]">
               <button
                 type="button"
                 onClick={() => switchMode("login")}
@@ -156,7 +169,8 @@ export default function AuthPage() {
               >
                 Create account
               </button>
-            </div>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               {mode === "signup" && (

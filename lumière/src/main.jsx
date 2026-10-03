@@ -4,6 +4,14 @@ import { HelmetProvider } from 'react-helmet-async'
 import './index.css'
 import App from './App.jsx'
 
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((error) => {
+      console.error("Failed to register the admin app service worker:", error);
+    });
+  });
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <HelmetProvider>
