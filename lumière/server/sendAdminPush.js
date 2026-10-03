@@ -8,11 +8,19 @@ export async function sendAdminPush(supabase, payload, userId) {
     throw new HttpError(500, "Push notifications are not configured.");
   }
 
-  webPush.setVapidDetails(
-    process.env.VAPID_SUBJECT || "mailto:admin@deladysbeautyworld.com",
-    publicKey,
-    privateKey
-  );
+  try {
+    webPush.setVapidDetails(
+      process.env.VAPID_SUBJECT || "mailto:admin@deladysbeautyworld.com",
+      publicKey,
+      privateKey
+    );
+  } catch (error) {
+    console.error("Admin push VAPID configuration is invalid:", error.message);
+    throw new HttpError(
+      500,
+      "Push server settings are invalid. Verify VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and VAPID_SUBJECT."
+    );
+  }
 
   let query = supabase
     .from("admin_push_subscriptions")
@@ -20,7 +28,16 @@ export async function sendAdminPush(supabase, payload, userId) {
   if (userId) query = query.eq("user_id", userId);
 
   const { data: subscriptions, error: queryError } = await query;
+  if (queryError?.code === "42P01" || queryError?.code === "PGRST205") {
+    throw new HttpError(
+      503,
+      "The admin push subscription table is missing. Apply the admin order push notifications SQL migration."
+    );
+  }
   if (queryError) throw queryError;
+  if (!Array.isArray(subscriptions)) {
+    throw new HttpError(500, "Could not read saved admin notification devices.");
+  }
   if (!subscriptions.length) return { sent: 0 };
 
   const results = await Promise.allSettled(
