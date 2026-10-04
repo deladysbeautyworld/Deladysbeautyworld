@@ -49,6 +49,7 @@ const Categories = lazy(() => import("./pages/admin/Categories.jsx"));
 const DeliveryZones = lazy(() => import("./pages/admin/DeliveryZones.jsx"));
 const AdminJournal = lazy(() => import("./pages/admin/Journal.jsx"));
 const JournalEditor = lazy(() => import("./pages/admin/JournalEditor.jsx"));
+const Announcements = lazy(() => import("./pages/admin/Announcements.jsx"));
 const AdminNotFound = lazy(() => import("./pages/admin/AdminNotFound"));
 const Profile = lazy(() => import("./pages/Profiles/profile"));
 
@@ -141,6 +142,7 @@ const router = createBrowserRouter([
       { path: "journal", element: <AdminJournal /> },
       { path: "journal/new", element: <JournalEditor /> },
       { path: "journal/:id/edit", element: <JournalEditor /> },
+      { path: "announcements", element: <Announcements /> },
 
       { path: "customers", element: <Customers /> },
       { path: "customers/:id", element: <CustomerDetail /> },

@@ -19,6 +19,7 @@ const NAV = [
   { to: "/admin/categories",    label: "Categories",     end: false },
   { to: "/admin/promo-codes",   label: "Promo codes",    end: false },
   { to: "/admin/delivery-zones", label: "Delivery zones", end: false },
+  { to: "/admin/announcements", label: "Announcements", end: false },
   { to: "/admin/customers",     label: "Customers",      end: false },
   { to: "/admin/journal",       label: "Journal",        end: false },
 ];

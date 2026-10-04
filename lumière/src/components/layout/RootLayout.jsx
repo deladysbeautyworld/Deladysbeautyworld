@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import FavoritesSidebar from "../favorites/FavoritesSidebar";
 import { FavoritesProvider } from "../../context/FavoritesContext";
 import WhatsAppButton from "./../WhatsAppButton";
+import AnnouncementPopup from "../common/AnnouncementPopup";
 import SEOMeta from "../../utils/seo";
 
 export default function RootLayout() {
@@ -42,6 +43,7 @@ export default function RootLayout() {
       <Footer />
       <FavoritesSidebar />
       <WhatsAppButton />
+      <AnnouncementPopup />
     </FavoritesProvider>
   );
 }

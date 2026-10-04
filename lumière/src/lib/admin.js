@@ -318,6 +318,71 @@ export async function deletePromoCode(id) {
   if (error) throw error;
 }
 
+/* ---------------- Site announcements ---------------- */
+
+export async function listAnnouncements() {
+  const { data, error } = await supabase
+    .from("site_announcements")
+    .select("id, title, message, active, created_at, updated_at")
+    .order("updated_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createAnnouncement({ title, message, active }) {
+  const { data, error } = await supabase
+    .from("site_announcements")
+    .insert({
+      title: title.trim(),
+      message: message.trim(),
+      active: Boolean(active),
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function updateAnnouncement(id, { title, message, active }) {
+  const { data, error } = await supabase
+    .from("site_announcements")
+    .update({
+      title: title.trim(),
+      message: message.trim(),
+      active: Boolean(active),
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteAnnouncement(id) {
+  const { error } = await supabase
+    .from("site_announcements")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function getActiveAnnouncement() {
+  const { data, error } = await supabase
+    .from("site_announcements")
+    .select("id, title, message, updated_at")
+    .eq("active", true)
+    .order("updated_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
 /* ---------------- Customers ---------------- */
 
 /**
