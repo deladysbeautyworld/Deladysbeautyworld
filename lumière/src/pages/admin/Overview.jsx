@@ -92,6 +92,14 @@ export default function Overview() {
         <AdminPageHeader
           title="Overview"
           subtitle="A snapshot of your store today."
+          action={
+            <Link
+              to="/admin/announcements"
+              className="inline-flex h-11 items-center justify-center rounded-sm bg-(--color-pink) px-6 text-[11px] font-normal uppercase tracking-widest text-white transition-colors hover:bg-(--color-navy)"
+            >
+              Manage announcements
+            </Link>
+          }
         />
 
         {/* Error */}
