@@ -275,7 +275,7 @@ export default function Navbar() {
                     >
                       <div className="h-12 w-12 shrink-0 overflow-hidden rounded-sm bg-(--color-cream-mid)">
                         {product.image_url && (
-                          <img src={product.image_url} alt="" className="h-full w-full object-cover" />
+                          <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
                         )}
                       </div>
                       <div className="min-w-0">

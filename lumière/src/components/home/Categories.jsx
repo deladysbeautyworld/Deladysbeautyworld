@@ -79,7 +79,7 @@ export default function Categories() {
           >
             <img
               src={cat.image}
-              alt=""
+              alt={`${cat.name} beauty products`}
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               style={{ objectPosition: cat.position }}
             />
