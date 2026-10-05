@@ -37,6 +37,19 @@ const STATUS_FILTERS = [
   { value: "cancelled", label: "Cancelled"},
 ];
 
+const FULFILLMENT_STEPS = [
+  { value: "pending", label: "Placed" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "shipped", label: "Shipped" },
+  { value: "delivered", label: "Delivered" },
+];
+
+const NEXT_STATUS = {
+  pending: "confirmed",
+  confirmed: "shipped",
+  shipped: "delivered",
+};
+
 /**
  * Admin orders — list view. Filters by status, paginated.
  * Clicking a row opens /admin/orders/:id (OrderDetail sub-page).
@@ -149,7 +162,7 @@ export default function Orders() {
                     <th className="px-6 py-3 font-normal">Order</th>
                     <th className="px-6 py-3 font-normal">Customer</th>
                     <th className="px-6 py-3 font-normal">Date</th>
-                    <th className="px-6 py-3 font-normal">Status</th>
+                    <th className="px-6 py-3 font-normal">Fulfillment / payment</th>
                     <th className="px-6 py-3 font-normal text-right">Total</th>
                   </tr>
                 </thead>
@@ -170,7 +183,12 @@ export default function Orders() {
                         {formatDate(o.created_at)}
                       </td>
                       <td className="px-6 py-3">
-                        <AdminStatusPill status={o.status} />
+                        <div className="flex flex-col items-start gap-1.5">
+                          <AdminStatusPill status={o.status} />
+                          <span className={`text-[9px] tracking-[0.08em] uppercase ${o.payment_status === "paid" ? "text-green-700" : "text-amber-700"}`}>
+                            {o.payment_status === "paid" ? "Payment received" : "Payment pending"}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-3 text-(--color-ink) text-right font-medium">
                         {fmt(o.total)}
@@ -260,6 +278,24 @@ export function OrderDetail() {
     }
   };
 
+  const handleAdvanceStatus = async () => {
+    if (!order || order.payment_status !== "paid") return;
+    const nextStatus = NEXT_STATUS[order.status];
+    if (!nextStatus) return;
+
+    setSavingStatus(true);
+    setSaveError(null);
+    try {
+      const updated = await updateOrderStatus(order.id, nextStatus);
+      setOrder((prev) => ({ ...prev, ...updated }));
+      setStatusDraft(nextStatus);
+    } catch (err) {
+      setSaveError(err.message);
+    } finally {
+      setSavingStatus(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -314,7 +350,12 @@ export function OrderDetail() {
               Placed {formatDateTime(order.created_at)}
             </p>
           </div>
-          <AdminStatusPill status={order.status} />
+          <div className="flex flex-col items-end gap-2">
+            <AdminStatusPill status={order.status} />
+            <span className={`text-[10px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-sm ${order.payment_status === "paid" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+              {order.payment_method}: {order.payment_status}
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
@@ -408,42 +449,98 @@ export function OrderDetail() {
 
           {/* Right — status update */}
           <aside className="bg-white border border-(--color-border) rounded-sm p-6 h-fit lg:sticky lg:top-24">
-            <h2 className="text-[11px] tracking-[0.14em] uppercase font-medium text-(--color-ink) mb-4">
-              Update status
+            <h2 className="text-[11px] tracking-[0.14em] uppercase font-medium text-(--color-ink) mb-5">
+              Fulfillment progress
             </h2>
 
-            <select
-              value={statusDraft ?? ""}
-              onChange={(e) => setStatusDraft(e.target.value)}
-              className="w-full h-11 border border-(--color-border) rounded-sm px-4 text-[13px] text-(--color-ink) bg-white outline-none focus:border-(--color-pink) transition-colors font-light mb-4"
-            >
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="shipped">Shipped</option>
-              <option value="delivered">Delivered</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-
-            <button
-              onClick={handleSaveStatus}
-              disabled={savingStatus || statusDraft === order.status}
-              className="w-full h-11 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              {savingStatus && (
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              )}
-              {savingStatus ? "Saving…" : "Save status"}
-            </button>
-
-            {saveError && (
-              <p className="text-[12px] text-red-500 font-light mt-3">{saveError}</p>
+            {order.status === "cancelled" ? (
+              <div className="mb-5 px-3 py-3 bg-red-50 text-red-700 text-[12px] rounded-sm">
+                This order has been cancelled.
+              </div>
+            ) : (
+              <ol className="mb-5 flex flex-col gap-3">
+                {FULFILLMENT_STEPS.map((step, index) => {
+                  const currentIndex = FULFILLMENT_STEPS.findIndex(
+                    (item) => item.value === order.status
+                  );
+                  const complete = currentIndex >= index;
+                  return (
+                    <li key={step.value} className="flex items-center gap-3">
+                      <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] ${complete ? "bg-(--color-ink) text-white" : "border border-(--color-border) text-(--color-faint)"}`}>
+                        {complete ? "✓" : index + 1}
+                      </span>
+                      <span className={`text-[12px] ${complete ? "text-(--color-ink)" : "text-(--color-faint)"}`}>
+                        {step.label}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
             )}
 
-            {statusDraft !== order.status && (
-              <p className="text-[11px] text-(--color-faint) font-light mt-3">
-                Current: <span className="text-(--color-ink)">{order.status}</span>
+            {order.delivered_at && (
+              <p className="mb-5 text-[11px] text-(--color-muted) font-light">
+                Receipt confirmed {formatDateTime(order.delivered_at)}
               </p>
             )}
+
+            {NEXT_STATUS[order.status] && order.payment_status === "paid" && (
+              <button
+                type="button"
+                onClick={handleAdvanceStatus}
+                disabled={savingStatus}
+                className="w-full h-11 mb-4 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase rounded-sm hover:bg-(--color-ink-soft) transition-colors disabled:opacity-40"
+              >
+                {savingStatus ? "Updating…" : `Next: mark ${NEXT_STATUS[order.status]}`}
+              </button>
+            )}
+
+            {NEXT_STATUS[order.status] && order.payment_status !== "paid" && (
+              <p className="mb-4 text-[11px] text-amber-700 font-light">
+                Fulfillment actions are paused until KoraPay confirms payment.
+              </p>
+            )}
+
+            {saveError && (
+              <p role="alert" className="mb-4 text-[12px] text-red-500 font-light">
+                {saveError}
+              </p>
+            )}
+
+            <details className="border-t border-(--color-border) pt-4">
+              <summary className="cursor-pointer text-[10px] tracking-[0.1em] uppercase text-(--color-muted)">
+                Manual status change
+              </summary>
+
+              <select
+                value={statusDraft ?? ""}
+                onChange={(e) => setStatusDraft(e.target.value)}
+                className="w-full h-11 mt-4 border border-(--color-border) rounded-sm px-4 text-[13px] text-(--color-ink) bg-white outline-none focus:border-(--color-pink) transition-colors font-light mb-4"
+              >
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+
+              <button
+                onClick={handleSaveStatus}
+                disabled={savingStatus || statusDraft === order.status}
+                className="w-full h-11 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {savingStatus && (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                )}
+                {savingStatus ? "Saving…" : "Save status"}
+              </button>
+
+              {statusDraft !== order.status && (
+                <p className="text-[11px] text-(--color-faint) font-light mt-3">
+                  Current: <span className="text-(--color-ink)">{order.status}</span>
+                </p>
+              )}
+            </details>
           </aside>
         </div>
       </div>

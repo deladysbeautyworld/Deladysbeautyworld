@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useAuthStore } from "./../../stores/authStore";
 import { supabase } from "./../../utils/supabase";
-import { getUserOrders } from "./../../lib/admin";
+import { confirmOrderDelivery, getUserOrders } from "./../../lib/admin";
 
 const fmt  = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 const fmtDate = (iso) =>
@@ -192,13 +192,34 @@ function DetailsTab({ user, profile, onSaved }) {
 function OrdersTab({ userId }) {
   const [orders, setOrders]   = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmingOrderId, setConfirmingOrderId] = useState(null);
+  const [deliveryError, setDeliveryError] = useState(null);
 
   useEffect(() => {
     getUserOrders(userId)
       .then(setOrders)
-      .catch(() => setOrders([]))
+      .catch((error) => setDeliveryError(error.message))
       .finally(() => setLoading(false));
   }, [userId]);
+
+  const handleConfirmDelivery = async (orderId) => {
+    if (!window.confirm("Confirm that you have received this order?")) return;
+
+    setConfirmingOrderId(orderId);
+    setDeliveryError(null);
+    try {
+      const updatedOrder = await confirmOrderDelivery(orderId);
+      setOrders((current) =>
+        current.map((order) =>
+          order.id === orderId ? { ...order, ...updatedOrder } : order
+        )
+      );
+    } catch (error) {
+      setDeliveryError(error.message);
+    } finally {
+      setConfirmingOrderId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -213,11 +234,16 @@ function OrdersTab({ userId }) {
   if (orders.length === 0) {
     return (
       <div className="text-center py-16">
+        {deliveryError && (
+          <p role="alert" className="px-4 py-3 mb-4 border border-red-200 bg-red-50 text-[12px] text-red-700 rounded-sm">
+            {deliveryError}
+          </p>
+        )}
         <p className="font-display text-[22px] font-light text-(--color-ink) mb-2">
-          No orders yet
+          {deliveryError ? "Could not load orders" : "No orders yet"}
         </p>
         <p className="text-[13px] text-(--color-muted) font-light">
-          Your orders will appear here once you make a purchase.
+          {deliveryError ? "Please refresh the page and try again." : "Your orders will appear here once you make a purchase."}
         </p>
       </div>
     );
@@ -225,11 +251,16 @@ function OrdersTab({ userId }) {
 
   return (
     <div className="flex flex-col gap-4">
+      {deliveryError && (
+        <p role="alert" className="px-4 py-3 border border-red-200 bg-red-50 text-[12px] text-red-700 rounded-sm">
+          {deliveryError}
+        </p>
+      )}
       {orders.map((order) => {
         const itemCount = order.order_items?.reduce((s, i) => s + i.quantity, 0) ?? 0;
         return (
           <div key={order.id} className="border border-(--color-border) rounded-sm p-5">
-            <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
               <div>
                 <p className="text-[11px] tracking-[0.08em] uppercase text-(--color-faint) mb-1 font-normal">
                   Order · {fmtDate(order.created_at)}
@@ -238,9 +269,14 @@ function OrdersTab({ userId }) {
                   {order.id.slice(0, 8).toUpperCase()}
                 </p>
               </div>
-              <span className={`text-[10px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-sm font-normal ${STATUS_STYLES[order.status] ?? "bg-gray-50 text-gray-600"}`}>
-                {order.status}
-              </span>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`text-[10px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-sm font-normal ${STATUS_STYLES[order.status] ?? "bg-gray-50 text-gray-600"}`}>
+                  {order.status}
+                </span>
+                <span className={`text-[10px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-sm font-normal ${order.payment_status === "paid" ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"}`}>
+                  Payment {order.payment_status}
+                </span>
+              </div>
             </div>
 
             {/* Product thumbnails */}
@@ -278,6 +314,21 @@ function OrdersTab({ userId }) {
                 {fmt(order.total)}
               </p>
             </div>
+            {order.status === "shipped" && order.payment_status === "paid" && (
+              <div className="mt-4 pt-4 border-t border-(--color-border)">
+                <p className="text-[12px] text-(--color-muted) font-light mb-3">
+                  Have your items arrived? Confirm receipt to complete this order.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => handleConfirmDelivery(order.id)}
+                  disabled={confirmingOrderId !== null}
+                  className="h-10 px-4 bg-(--color-ink) text-(--color-cream) text-[10px] tracking-widest uppercase rounded-sm hover:bg-(--color-ink-soft) transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {confirmingOrderId === order.id ? "Confirming…" : "I've received this order"}
+                </button>
+              </div>
+            )}
           </div>
         );
       })}
@@ -695,7 +746,5 @@ export default function Profile() {
     </div>
   );
 }
-
-
 
 

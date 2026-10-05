@@ -51,6 +51,8 @@ Payments use KoraPay Checkout Standard. The frontend uses the public key to open
 
 The migration `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` updates the order payment method and `finalize_order` function. Apply it to the Supabase project before deploying the new checkout code.
 
+Payment and delivery are tracked separately: KoraPay verification/webhooks update payment, while fulfillment moves through confirmed, shipped, and delivered. After an order is marked shipped, its signed-in customer can confirm receipt from their profile; the database checks order ownership and paid/shipped status and records the delivery confirmation time. Apply `supabase/migrations/202610050001_order_delivery_confirmation.sql` to enable this feature.
+
 Configure this webhook URL in the KoraPay dashboard:
 
 ```text

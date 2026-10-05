@@ -7,14 +7,14 @@ import { supabase } from "../utils/supabase.js";
 
 // Select used for order lists — joins the customer profile.
 const ORDER_LIST_SELECT = `
-  id, status, total, delivery_fee, created_at,
+  id, status, payment_status, total, delivery_fee, created_at,
   shipping_name, shipping_city, shipping_state,
   profiles ( id, full_name, email )
 `;
 
 // Select used for the order detail page — includes line items + product names.
 const ORDER_DETAIL_SELECT = `
-  id, status, total, delivery_fee, payment_method, created_at,
+  id, status, payment_status, delivered_at, total, delivery_fee, payment_method, created_at,
   shipping_name, shipping_email, shipping_phone,
   shipping_address, shipping_city, shipping_state,
   whatsapp_number, order_note,
@@ -481,7 +481,7 @@ export async function getUserOrders(userId) {
   const { data, error } = await supabase
     .from("orders")
     .select(`
-      id, status, total, delivery_fee, created_at,
+      id, status, payment_status, delivered_at, total, delivery_fee, created_at,
       order_items (
         id, quantity, unit_price,
         products ( id, name, image_url )
@@ -492,6 +492,19 @@ export async function getUserOrders(userId) {
 
   if (error) throw error;
   return data ?? [];
+}
+
+/**
+ * Let an authenticated customer confirm receipt of their own shipped order.
+ * The database function enforces ownership and the shipped/paid preconditions.
+ */
+export async function confirmOrderDelivery(orderId) {
+  const { data, error } = await supabase.rpc("confirm_order_delivery", {
+    p_order_id: orderId,
+  });
+
+  if (error) throw error;
+  return data;
 }
 
 /* ---------------- Categories ---------------- */
