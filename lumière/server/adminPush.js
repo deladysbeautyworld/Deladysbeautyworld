@@ -31,6 +31,7 @@ export async function requireAdmin(req, supabase) {
 
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data.user) throw new HttpError(401, "Your session is invalid or expired.");
+
   if (!ADMIN_ROLES.has(data.user.app_metadata?.role)) {
     throw new HttpError(403, "Admin access is required.");
   }

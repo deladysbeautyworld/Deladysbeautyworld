@@ -152,9 +152,14 @@ export async function updateOrderStatus(id, status) {
     .update({ status })
     .eq("id", id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
+  if (!data) {
+    throw new Error(
+      "The order was not updated. Check that your account has an admin app_metadata role and that the orders_admin_update policy is enabled."
+    );
+  }
   return data;
 }
 

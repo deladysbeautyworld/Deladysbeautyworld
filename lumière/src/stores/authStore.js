@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import { supabase } from "../utils/supabase";
 import { useCartStore } from "./cartStore";
 
@@ -12,114 +11,57 @@ export const ADMIN_ROLES = ["admin", "developer", "staff"];
 /** Convenience selector — true when the current user can access /admin. */
 export const selectIsAdmin = (s) => ADMIN_ROLES.includes(s.role);
 
-// In-flight role fetches, keyed by user id. Prevents the duplicate
-// network round-trip that happens when init() + onAuthStateChange both
-// fire for the same user on a hard refresh.
-const _inflight = new Map();
-
 /**
- * Look up the role for a user id and write it to the store.
+ * Resolve the trusted role claim for a user and write it to the store.
  *
  * Roles live on auth.users.app_metadata.role (set via the Supabase dashboard
  * or admin API — never on user_metadata, which the end user can edit).
- *
- * If we've already started resolving this user's role, the second caller
- * just awaits the existing promise instead of recomputing.
  */
-function fetchRole(userId) {
-  if (_inflight.has(userId)) {
-    return _inflight.get(userId);
-  }
-
-  const promise = (async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .single();
-
-    const role = error || !data ? null : (data.role ?? null);
-
-    useAuthStore.setState({ role });
-
-    return role;
-  })().finally(() => {
-    _inflight.delete(userId);
-  });
-
-  _inflight.set(userId, promise);
-
-  return promise;
+function setRoleFromUser(user) {
+  const role =
+    typeof user.app_metadata?.role === "string" ? user.app_metadata.role : "";
+  useAuthStore.setState({ role });
 }
 
 export const useAuthStore = create(
-  persist(
-    (set) => ({
-      user: null,
-      session: null,
-      loading: true,
-      role: null,
+  (set) => ({
+    user: null,
+    session: null,
+    loading: true,
+    role: null,
 
-      // Call once at app root — listens for auth state changes
-      init: async () => {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const user = session?.user ?? null;
-          set({ session, user, loading: false });
+    // Call once at app root — listens for auth state changes
+    init: async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const user = session?.user ?? null;
+        set({ session, user, loading: false });
 
-          if (user) {
-            // If the persisted state already has the role for THIS user,
-            // use it immediately and revalidate in the background.
-            const cached = useAuthStore.getState().role;
-            if (cached && useAuthStore.getState()._roleUserId === user.id) {
-              // role already in store from a previous session for the same user
-            } else {
-              // No cache (or different user) — fetch now.
-              fetchRole(user.id)
-                .then(() => {
-                  useAuthStore.setState({ _roleUserId: user.id });
-                })
-                .catch(() => {
-                  useAuthStore.setState({ role: null, _roleUserId: null });
-                });
-            }
-          }
-
-          supabase.auth.onAuthStateChange((_event, session) => {
-            const newUser = session?.user ?? null;
-            set({ session, user: newUser });
-
-            if (newUser) {
-              const cached = useAuthStore.getState().role;
-              if (cached && useAuthStore.getState()._roleUserId === newUser.id) {
-                // Same user — cached role still valid; refresh in background.
-                fetchRole(newUser.id).catch(() => {});
-              } else {
-                fetchRole(newUser.id)
-                  .then(() => {
-                    useAuthStore.setState({ _roleUserId: newUser.id });
-                  })
-                  .catch((error) => {
-                    console.error("Failed to load user role:", error);
-                    useAuthStore.setState({ role: null, _roleUserId: null });
-                  });
-              }
-            } else {
-              set({ role: null, _roleUserId: null });
-            }
-          });
-        } catch {
-          set({
-            session: null,
-            user: null,
-            loading: false,
-            role: null,
-            _roleUserId: null,
-          });
+        if (user) {
+          setRoleFromUser(user);
         }
-      },
 
-      signUp: async ({ email, password, fullName }) => {
+        supabase.auth.onAuthStateChange((_event, session) => {
+          const newUser = session?.user ?? null;
+          set({ session, user: newUser });
+
+          if (newUser) {
+            setRoleFromUser(newUser);
+          } else {
+            set({ role: null });
+          }
+        });
+      } catch {
+        set({
+          session: null,
+          user: null,
+          loading: false,
+          role: null,
+        });
+      }
+    },
+
+    signUp: async ({ email, password, fullName }) => {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -131,7 +73,7 @@ export const useAuthStore = create(
         return data;
       },
 
-      signIn: async ({ email, password }) => {
+    signIn: async ({ email, password }) => {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -140,7 +82,7 @@ export const useAuthStore = create(
         return data;
       },
 
-      signInWithGoogle: async (redirectTo) => {
+    signInWithGoogle: async (redirectTo) => {
         const { error } = await supabase.auth.signInWithOAuth({
           provider: "google",
           options: {
@@ -150,15 +92,15 @@ export const useAuthStore = create(
         if (error) throw error;
       },
 
-      signOut: async () => {
+    signOut: async () => {
         await supabase.auth.signOut();
         useCartStore.getState().clearCart();
-        set({ user: null, session: null, role: null, _roleUserId: null });
+        set({ user: null, session: null, role: null });
       },
 
       // Update the current user's profile row (full_name, phone).
       // Returns the updated profile row.
-      updateProfile: async ({ fullName, phone }) => {
+    updateProfile: async ({ fullName, phone }) => {
         const user = useAuthStore.getState().user;
         if (!user) throw new Error("Not signed in.");
 
@@ -229,16 +171,5 @@ export const useAuthStore = create(
         });
         if (error) throw error;
       },
-    }),
-    {
-      name: "deladys-auth",
-      storage: createJSONStorage(() => localStorage),
-      // Persist role + the user id it belongs to. Don't persist the full
-      // session (JWT) — that needs server validation and changes every refresh.
-      partialize: (state) => ({
-        role: state.role,
-        _roleUserId: state._roleUserId,
-      }),
-    }
-  )
+    })
 );
