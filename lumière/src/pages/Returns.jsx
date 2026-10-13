@@ -25,9 +25,9 @@ export default function Returns() {
           <section className="p-4 border border-(--color-border) rounded-sm">
             <h2 className="font-medium mb-2">How to start a return</h2>
             <ol className="list-decimal pl-5 text-[13px] text-(--color-muted)">
-              <li>Visit your orders page and select the order.</li>
-              <li>Choose the item and reason for return.</li>
-              <li>Drop the parcel at the specified courier or schedule a pickup.</li>
+              <li>Open your delivered order and choose <strong>Request help with a return</strong>, or contact support.</li>
+              <li>Include your order number, the item, and why you would like to return it.</li>
+              <li>Wait for our team to review your request and provide return instructions before sending anything.</li>
             </ol>
           </section>
 

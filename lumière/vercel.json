@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/process-email-outbox",
+      "schedule": "0 0 * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/sitemap.xml", "destination": "/api/sitemap.xml" },
     { "source": "/(.*)", "destination": "/index.html" }

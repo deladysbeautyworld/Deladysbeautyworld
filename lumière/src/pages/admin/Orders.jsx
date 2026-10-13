@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   listOrders,
   getOrderDetail,
+  updateOrderTracking,
   updateOrderStatus,
 } from "../../lib/admin.js";
 import AdminPushSetup from "../../components/admin/AdminPushSetup.jsx";
@@ -243,6 +244,11 @@ export function OrderDetail() {
   const [statusDraft, setStatusDraft]   = useState(null);
   const [savingStatus, setSavingStatus] = useState(false);
   const [saveError, setSaveError]       = useState(null);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
+  const [savingTracking, setSavingTracking] = useState(false);
+  const [trackingError, setTrackingError] = useState(null);
+  const [trackingSaved, setTrackingSaved] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -254,6 +260,8 @@ export function OrderDetail() {
         if (cancelled) return;
         setOrder(data);
         setStatusDraft(data.status);
+        setTrackingNumber(data.tracking_number ?? "");
+        setTrackingUrl(data.tracking_url ?? "");
       } catch (err) {
         if (!cancelled) setError(err.message);
       } finally {
@@ -263,6 +271,24 @@ export function OrderDetail() {
     load();
     return () => { cancelled = true; };
   }, [id]);
+
+  const handleSaveTracking = async () => {
+    if (!order) return;
+    setSavingTracking(true);
+    setTrackingError(null);
+    setTrackingSaved(false);
+    try {
+      const updated = await updateOrderTracking(order.id, trackingNumber, trackingUrl);
+      setOrder((prev) => ({ ...prev, ...updated }));
+      setTrackingNumber(updated.tracking_number ?? "");
+      setTrackingUrl(updated.tracking_url ?? "");
+      setTrackingSaved(true);
+    } catch (err) {
+      setTrackingError(err.message);
+    } finally {
+      setSavingTracking(false);
+    }
+  };
 
   const handleSaveStatus = async () => {
     if (!order || statusDraft === order.status) return;
@@ -483,6 +509,43 @@ export function OrderDetail() {
                 Receipt confirmed {formatDateTime(order.delivered_at)}
               </p>
             )}
+
+            <section className="border-t border-(--color-border) pt-4 mb-5">
+              <h3 className="text-[10px] tracking-[0.1em] uppercase text-(--color-muted) mb-3">
+                Shipment tracking
+              </h3>
+              <label className="block text-[11px] text-(--color-faint) mb-1" htmlFor="tracking-number">
+                Tracking number
+              </label>
+              <input
+                id="tracking-number"
+                value={trackingNumber}
+                onChange={(event) => setTrackingNumber(event.target.value)}
+                maxLength={120}
+                className="w-full h-10 mb-3 border border-(--color-border) rounded-sm px-3 text-[12px]"
+              />
+              <label className="block text-[11px] text-(--color-faint) mb-1" htmlFor="tracking-url">
+                Tracking link (HTTPS)
+              </label>
+              <input
+                id="tracking-url"
+                type="url"
+                value={trackingUrl}
+                onChange={(event) => setTrackingUrl(event.target.value)}
+                maxLength={2000}
+                className="w-full h-10 mb-3 border border-(--color-border) rounded-sm px-3 text-[12px]"
+              />
+              {trackingError && <p role="alert" className="mb-3 text-[11px] text-red-600">{trackingError}</p>}
+              {trackingSaved && <p role="status" className="mb-3 text-[11px] text-green-700">Tracking details saved.</p>}
+              <button
+                type="button"
+                onClick={handleSaveTracking}
+                disabled={savingTracking || (trackingNumber === (order.tracking_number ?? "") && trackingUrl === (order.tracking_url ?? ""))}
+                className="w-full h-10 border border-(--color-border) text-[10px] tracking-widest uppercase rounded-sm disabled:opacity-40"
+              >
+                {savingTracking ? "Saving…" : "Save tracking"}
+              </button>
+            </section>
 
             {NEXT_STATUS[order.status] && order.payment_status === "paid" && (
               <button

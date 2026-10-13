@@ -22,7 +22,7 @@ Create a `.env` file in the root directory:
 ```bash
 cp .env.example .env
 ```
-Then, fill in your Supabase and KoraPay keys. Use the KoraPay public key in `VITE_KORAPAY_PUBLIC_KEY`; keep `KORAPAY_SECRET_KEY` server-side only.
+Then, fill in your Supabase, KoraPay, and Resend settings. Use the KoraPay public key in `VITE_KORAPAY_PUBLIC_KEY`; keep `KORAPAY_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and all Resend/cron secrets server-side only.
 
 ### 3. Run Development Server
 ```bash
@@ -31,6 +31,10 @@ npm run dev
 The app will be available at `http://localhost:5173`.
 
 ## 🐘 Supabase Configuration
+
+### Optional Supabase MCP for maintainers
+
+The workspace `.mcp.json` connects to the hosted Supabase MCP server, scoped to this project and configured read-only. In VS Code, open **MCP: List Servers**, start `supabase`, and complete the Supabase OAuth sign-in in your browser. Reload the Copilot session after authorization. Do not paste API keys or database passwords into chat.
 
 ### Database Schema
 The project uses several key tables. Ensure these are created in your Supabase project:
@@ -91,12 +95,49 @@ On Android, open the admin link in Chrome and use **Install app** or **Add to Ho
 5. Open `/admin/orders` on each device and tap **Enable alerts**. Push permission is per device/browser; enabling it on one device does not enable it on the others.
 The push endpoint uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` already required by the KoraPay webhook. Store `VAPID_PRIVATE_KEY` and `ADMIN_PUSH_WEBHOOK_SECRET` only as server-side secrets in Vercel and Supabase Vault.
 
+## ✉️ Customer email and stock alerts
+
+Contact enquiries are delivered to `CONTACT_INBOX_EMAIL`. Newsletter signups require an explicit consent checkbox and are added to the Resend audience configured by `RESEND_AUDIENCE_ID`. Set `RESEND_API_KEY` and a verified sender address in `RESEND_FROM_EMAIL`.
+
+Order confirmation and paid fulfillment-status messages are written to a private Supabase outbox. Supabase Vault triggers the Vercel worker immediately; a daily Vercel cron acts as a recovery sweep on every plan. Set a long random `CRON_SECRET` in Vercel and add it to Vault as `email_outbox_webhook_secret`; also save `https://<your-deployed-domain>/api/process-email-outbox` as `email_outbox_webhook_url`. The worker retries failed deliveries with backoff and uses Resend idempotency keys. On Vercel plans supporting minutely cron schedules, change the cron expression in `vercel.json` to `* * * * *` for faster retry recovery. Set `ADMIN_NOTIFICATION_EMAIL` for low-stock messages (five units or fewer per sellable product or variant). An alert is sent once when stock crosses the threshold and is re-armed after restocking above five.
+
+In the admin order detail page, save the courier's tracking number and HTTPS tracking link before marking the order shipped. That link is shown on the customer's order page and included in the shipped email. Return requests are routed to support for manual review; customers should wait for approval before mailing items back.
+
+Ensure `supabase/migrations/202610030001_admin_order_push_notifications.sql` has been applied first (it installs the `pg_net` and Vault extensions used by the email worker), then apply `supabase/migrations/20261013100534_email_tracking_low_stock_automation.sql` before enabling the updated application. Apply and verify the new migration in staging first, then production. Add the new server-side variables from `.env.example` to Vercel; never add real credentials to the repository.
+
+After deployment, store the worker URL and the same `CRON_SECRET` value in Supabase Vault:
+
+```sql
+select vault.create_secret(
+  'https://<your-deployed-domain>/api/process-email-outbox',
+  'email_outbox_webhook_url'
+);
+select vault.create_secret(
+  '<same random secret as CRON_SECRET>',
+  'email_outbox_webhook_secret'
+);
+```
+
 ## 📦 Deployment
 
 ### Vercel Deployment
 1. Connect your GitHub repository to Vercel.
-2. Add the required variables from `.env.example` to the Vercel project settings. Set `VITE_KORAPAY_PUBLIC_KEY` and `VITE_ADMIN_PUSH_PUBLIC_KEY` for the frontend build. Set `KORAPAY_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, and `ADMIN_PUSH_WEBHOOK_SECRET` as server environment variables.
-3. Deploy, then configure `https://<your-deployed-domain>/api/korapay-webhook` in the KoraPay dashboard's API Configuration settings.
+2. Add the required variables from `.env.example` to the Vercel project settings. Set `VITE_KORAPAY_PUBLIC_KEY` and `VITE_ADMIN_PUSH_PUBLIC_KEY` for the frontend build. Set `KORAPAY_SECRET_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, VAPID settings, `ADMIN_PUSH_WEBHOOK_SECRET`, and the Resend/cron settings above as server environment variables.
+3. Apply and verify the Supabase migration in staging, then production. Configure the KoraPay webhook URL in the KoraPay dashboard's API Configuration settings.
+4. Require the `Validate application / build-and-test` GitHub Actions check before merging to the production branch. Keep Vercel production deployment on that protected branch; use preview deployments for pull requests. This repository workflow cannot enable GitHub branch protection or Vercel dashboard settings automatically.
+
+### Continuous integration
+
+Pull requests and pushes run `npm ci`, `npm test`, `npm run lint`, `npm audit`, `npm run build`, and Playwright customer-form checks from the `lumière` app directory. The Node test suite applies the new migration to an isolated PostgreSQL-compatible database and checks order email events, tracking security, RLS, and low-stock alert re-arming. The browser suite verifies customer contact/newsletter success and failure states against mocked API responses. Dependabot proposes weekly dependency and GitHub Actions updates for review; it does not auto-merge them. Run the same checks locally before opening a pull request:
+
+```bash
+npm ci
+npm test
+npm run lint
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
 
 ## 📈 Load Testing
 

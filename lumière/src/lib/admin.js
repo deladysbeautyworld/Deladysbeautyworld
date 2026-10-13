@@ -15,6 +15,7 @@ const ORDER_LIST_SELECT = `
 // Select used for the order detail page — includes line items + product names.
 const ORDER_DETAIL_SELECT = `
   id, status, payment_status, delivered_at, total, delivery_fee, payment_method, created_at,
+  tracking_number, tracking_url,
   shipping_name, shipping_email, shipping_phone,
   shipping_address, shipping_city, shipping_state,
   whatsapp_number, order_note,
@@ -160,6 +161,38 @@ export async function updateOrderStatus(id, status) {
       "The order was not updated. Check that your account has an admin app_metadata role and that the orders_admin_update policy is enabled."
     );
   }
+  return data;
+}
+
+export async function updateOrderTracking(id, trackingNumber, trackingUrl) {
+  const normalizedNumber = trackingNumber.trim();
+  const normalizedUrl = trackingUrl.trim();
+  if (normalizedNumber.length > 120 || normalizedUrl.length > 2000) {
+    throw new Error("Tracking details are too long.");
+  }
+  if (normalizedUrl) {
+    let parsedUrl;
+    try {
+      parsedUrl = new URL(normalizedUrl);
+    } catch {
+      throw new Error("Enter a valid tracking link.");
+    }
+    if (parsedUrl.protocol !== "https:") {
+      throw new Error("Tracking links must use HTTPS.");
+    }
+  }
+
+  const { data, error } = await supabase
+    .from("orders")
+    .update({
+      tracking_number: normalizedNumber || null,
+      tracking_url: normalizedUrl || null,
+    })
+    .eq("id", id)
+    .select("id, tracking_number, tracking_url")
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("Tracking details were not saved.");
   return data;
 }
 
@@ -487,6 +520,7 @@ export async function getUserOrders(userId) {
     .from("orders")
     .select(`
       id, status, payment_status, delivered_at, total, delivery_fee, created_at,
+      tracking_number, tracking_url,
       order_items (
         id, quantity, unit_price,
         products ( id, name, image_url )

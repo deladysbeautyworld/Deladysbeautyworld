@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuthStore } from "./../../stores/authStore";
 import { supabase } from "./../../utils/supabase";
 import { confirmOrderDelivery, getUserOrders } from "./../../lib/admin";
@@ -314,6 +314,24 @@ function OrdersTab({ userId }) {
                 {fmt(order.total)}
               </p>
             </div>
+            {order.tracking_url && order.status === "shipped" && (
+              <a
+                href={order.tracking_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-4 inline-block text-[11px] tracking-widest uppercase text-(--color-pink) underline"
+              >
+                Track your delivery{order.tracking_number ? ` · ${order.tracking_number}` : ""}
+              </a>
+            )}
+            {order.status === "delivered" && (
+              <Link
+                to={`/contact?topic=return&order=${encodeURIComponent(order.id)}`}
+                className="mt-4 inline-block text-[11px] tracking-widest uppercase text-(--color-muted) underline"
+              >
+                Request help with a return
+              </Link>
+            )}
             {order.status === "shipped" && order.payment_status === "paid" && (
               <div className="mt-4 pt-4 border-t border-(--color-border)">
                 <p className="text-[12px] text-(--color-muted) font-light mb-3">
@@ -746,5 +764,4 @@ export default function Profile() {
     </div>
   );
 }
-
 

@@ -2,13 +2,30 @@ import { useState } from "react";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
-    setSubmitted(true);
-    setEmail("");
+    setError("");
+    setLoading(true);
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, consent }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Could not subscribe right now.");
+      setSubmitted(true);
+      setEmail("");
+    } catch (err) {
+      setError(err.message || "Could not subscribe right now. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -25,26 +42,41 @@ export default function Newsletter() {
           You're on the list. Welcome to De Lady's Beauty World.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row w-full max-w-md">
+        <form onSubmit={handleSubmit} className="w-full max-w-md">
+          <label htmlFor="newsletter-email" className="sr-only">Your email address</label>
           <input
+            id="newsletter-email"
             type="email"
+            name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Your email address"
             required
-            className="h-11 flex-1 rounded-t-sm border border-white bg-white px-4 p-3 text-[13px] font-light text-(--color-ink) outline-none placeholder:text-(--color-muted) transition-colors focus:border-(--color-navy) sm:rounded-l-sm sm:rounded-tr-none sm:border-r-0"
+            className="h-11 w-full rounded-sm border border-white bg-white px-4 p-3 text-[13px] font-light text-(--color-ink) outline-none placeholder:text-(--color-muted) transition-colors focus:border-(--color-navy)"
           />
+          <label className="mt-3 flex items-start gap-2 text-left text-[11px] leading-[1.6] text-white/85">
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(event) => setConsent(event.target.checked)}
+              required
+              className="mt-0.5 accent-(--color-navy)"
+            />
+            <span>I agree to receive beauty news and offers. I can unsubscribe anytime.</span>
+          </label>
           <button
             type="submit"
-            className="h-11 shrink-0 rounded-b-sm bg-(--color-navy) px-6 text-[11px] font-normal uppercase tracking-widest text-white transition-colors duration-200 hover:bg-(--color-ink-soft) sm:rounded-bl-none sm:rounded-r-sm"
+            disabled={loading}
+            className="mt-3 h-11 w-full rounded-sm bg-(--color-navy) px-6 text-[11px] font-normal uppercase tracking-widest text-white transition-colors duration-200 hover:bg-(--color-ink-soft) disabled:opacity-60"
           >
-            Subscribe
+            {loading ? "Subscribing…" : "Subscribe"}
           </button>
+          {error && <p role="alert" className="mt-3 text-left text-[12px] text-white">{error}</p>}
         </form>
       )}
 
       <p className="mt-4 text-[11px] font-light text-white/75">
-        No spam. Unsubscribe anytime.
+        Your email is used only for updates. See our <a className="underline" href="/privacy">privacy notice</a>.
       </p>
     </div>
   );

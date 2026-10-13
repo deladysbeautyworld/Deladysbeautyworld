@@ -4,8 +4,8 @@ import SEOMeta from "../utils/seo";
 const FAQ_ITEMS = [
   { q: "How long does shipping take?", a: "Standard shipping within Nigeria typically takes 3–7 business days." },
   { q: "Do you ship internationally?", a: "Currently we ship within Nigeria only. Subscribe to our newsletter for updates." },
-  { q: "How do I return an item?", a: "Open a returns request through your order page or contact support via the Contact page." },
-  { q: "How can I track my order?", a: "After purchase you'll receive a tracking link by email once your parcel ships." },
+  { q: "How do I return an item?", a: "Contact support within 14 days of delivery from your order page or the Contact page. Returns are reviewed by our team before you send anything back." },
+  { q: "How can I track my order?", a: "Once your order ships, we'll email you any tracking details provided by our team. You can also open the tracking link from your order page." },
 ];
 
 export default function FAQ() {
