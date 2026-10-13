@@ -22,7 +22,7 @@
     "resend": "^6.32.1",
     "tailwindcss": "^4.3.0",
     "web-push": "^3.6.7",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.9",
