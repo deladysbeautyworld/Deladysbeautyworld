@@ -1,11 +1,24 @@
 alter table public.orders
   add column if not exists tracking_number text,
   add column if not exists tracking_url text;
-alter table public.orders
-  add constraint orders_tracking_url_https
-  check (tracking_url is null or tracking_url ~* '^https://[^[:space:]]+$');
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conrelid = 'public.orders'::regclass
+      and conname = 'orders_tracking_url_https'
+  ) then
+    alter table public.orders
+      add constraint orders_tracking_url_https
+      check (tracking_url is null or tracking_url ~* '^https://[^[:space:]]+$');
+  end if;
+end;
+$$;
 
-create table public.email_outbox (
+drop policy if exists "admin read all orders" on public.orders;
+
+create table if not exists public.email_outbox (
   id uuid primary key default gen_random_uuid(),
   order_id uuid references public.orders(id) on delete cascade,
   event_key text not null,
@@ -20,14 +33,14 @@ create table public.email_outbox (
   updated_at timestamptz not null default now()
 );
 
-create unique index email_outbox_order_event_unique
+create unique index if not exists email_outbox_order_event_unique
   on public.email_outbox (order_id, event_key)
   where order_id is not null;
-create index email_outbox_pending_idx
+create index if not exists email_outbox_pending_idx
   on public.email_outbox (next_attempt_at, created_at)
   where status = 'pending';
 
-create table public.low_stock_alert_state (
+create table if not exists public.low_stock_alert_state (
   inventory_source text not null check (inventory_source in ('product', 'variant')),
   inventory_id uuid not null,
   primary key (inventory_source, inventory_id)
@@ -91,6 +104,7 @@ end;
 $$;
 
 revoke all on function public.enqueue_order_email() from public, anon, authenticated;
+drop trigger if exists orders_enqueue_transactional_email on public.orders;
 create trigger orders_enqueue_transactional_email
   after insert or update of payment_status, status on public.orders
   for each row execute function public.enqueue_order_email();
@@ -149,6 +163,7 @@ $$;
 
 revoke all on function public.enqueue_product_low_stock_email()
   from public, anon, authenticated;
+drop trigger if exists products_enqueue_low_stock_email on public.products;
 create trigger products_enqueue_low_stock_email
   after insert or update of stock on public.products
   for each row execute function public.enqueue_product_low_stock_email();
@@ -183,6 +198,7 @@ $$;
 
 revoke all on function public.enqueue_variant_low_stock_email()
   from public, anon, authenticated;
+drop trigger if exists product_variants_enqueue_low_stock_email on public.product_variants;
 create trigger product_variants_enqueue_low_stock_email
   after insert or update of stock or delete on public.product_variants
   for each row execute function public.enqueue_variant_low_stock_email();
@@ -228,6 +244,7 @@ end;
 $$;
 
 revoke all on function public.dispatch_email_outbox() from public, anon, authenticated;
+drop trigger if exists email_outbox_dispatch_after_insert on public.email_outbox;
 create trigger email_outbox_dispatch_after_insert
   after insert on public.email_outbox
   for each row execute function public.dispatch_email_outbox();

@@ -47,13 +47,15 @@ The project uses several key tables. Ensure these are created in your Supabase p
 - `posts`: Journal/blog entries.
 
 ### Database Functions
-The app uses a custom PostgreSQL function `finalize_order` for atomic order creation. See `supabase/sql/202608200001_predeploy_security_checkout.sql` for the implementation.
+The PostgreSQL function `finalize_order` creates orders and decrements inventory atomically. It is callable only by the server-side service role; the browser must not call it directly. The server verifies the signed-in customer and KoraPay transaction, and the function derives item prices, promotions, and delivery fees from database records.
 
 
 ## 💳 KoraPay Integration
-Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout, and `api/verify-korapay.js` verifies the transaction with the server-only secret key before an order is finalized. The `api/korapay-webhook.js` endpoint independently validates KoraPay's `x-korapay-signature`, verifies successful charges with KoraPay, and marks the matching order as paid in Supabase. Duplicate notifications are safe to process, and notifications received before their order exists receive a retryable response.
+Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout; `api/finalize-korapay-order.js` validates the customer's Supabase access token, verifies the charge with the server-only secret key, and then calls `finalize_order` with the service role. The database function rechecks authoritative catalog prices, delivery fee, and promotion eligibility before creating the paid order and decrementing stock in one transaction. Do not grant browser roles execute permission on this function.
 
-The migration `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` updates the order payment method and `finalize_order` function. Apply it to the Supabase project before deploying the new checkout code.
+The `api/korapay-webhook.js` endpoint independently validates KoraPay's `x-korapay-signature`, verifies successful charges with KoraPay, and updates the matching order in Supabase. Duplicate notifications are safe to process, and notifications received before their order exists receive a retryable response.
+
+Apply `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` before deploying the new checkout code.
 
 Payment and delivery are tracked separately: KoraPay verification/webhooks update payment, while fulfillment moves through confirmed, shipped, and delivered. After an order is marked shipped, its signed-in customer can confirm receipt from their profile; the database checks order ownership and paid/shipped status and records the delivery confirmation time. Apply `supabase/migrations/202610050001_order_delivery_confirmation.sql` to enable this feature.
 
@@ -103,7 +105,9 @@ Order confirmation and paid fulfillment-status messages are written to a private
 
 In the admin order detail page, save the courier's tracking number and HTTPS tracking link before marking the order shipped. That link is shown on the customer's order page and included in the shipped email. Return requests are routed to support for manual review; customers should wait for approval before mailing items back.
 
-Ensure `supabase/migrations/202610030001_admin_order_push_notifications.sql` has been applied first (it installs the `pg_net` and Vault extensions used by the email worker), then apply `supabase/migrations/20261013100534_email_tracking_low_stock_automation.sql` before enabling the updated application. Apply and verify the new migration in staging first, then production. Add the new server-side variables from `.env.example` to Vercel; never add real credentials to the repository.
+Ensure `supabase/migrations/202610030001_admin_order_push_notifications.sql` has been applied first (it installs the `pg_net` and Vault extensions used by the email worker), then apply `supabase/migrations/20261013100534_email_tracking_low_stock_automation.sql` before enabling the updated application. Apply and verify migrations in staging first, then production. Add the new server-side variables from `.env.example` to Vercel; never add real credentials to the repository.
+
+The connected production project had migration-history drift: multiple schema changes existed without matching `schema_migrations` entries, and the pre-deploy baseline was only partially present. The KoraPay and email/tracking migrations have now been applied and recorded, but do not run `supabase db push` against that project until the remaining historical migrations and baseline have been fully reconciled.
 
 After deployment, store the worker URL and the same `CRON_SECRET` value in Supabase Vault:
 

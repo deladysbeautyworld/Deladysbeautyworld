@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import contactHandler from "../api/contact.js";
+import finalizeKorapayOrderHandler from "../api/finalize-korapay-order.js";
 import newsletterHandler from "../api/newsletter.js";
 
 function mockResponse() {
@@ -41,4 +42,15 @@ test("newsletter endpoint requires explicit marketing consent", async () => {
   }, response);
   assert.equal(response.statusCode, 400);
   assert.match(response.body.error, /confirm you want to receive updates/);
+});
+
+test("KoraPay order finalization requires an authenticated session", async () => {
+  const response = mockResponse();
+  await finalizeKorapayOrderHandler({
+    method: "POST",
+    headers: {},
+    body: {},
+  }, response);
+  assert.equal(response.statusCode, 401);
+  assert.match(response.body.error, /Sign in/);
 });

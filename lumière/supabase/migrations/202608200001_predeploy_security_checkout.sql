@@ -26,7 +26,7 @@ alter table if exists public.orders
   add column if not exists payment_status text not null default 'pending';
 
 alter table if exists public.orders
-  add column if not exists promo_code_id uuid references public.promo_codes(id);
+  add column if not exists promo_code_id integer references public.promo_codes(id);
 
 create index if not exists idx_products_category_id on public.products(category_id);
 create index if not exists idx_products_created_at on public.products(created_at desc);
@@ -152,7 +152,7 @@ declare
   v_item jsonb;
   v_items jsonb := payload -> 'items';
   v_shipping jsonb := payload -> 'shipping';
-  v_promo_id uuid := nullif(payload ->> 'promo_code_id', '')::uuid;
+  v_promo_id integer := nullif(payload ->> 'promo_code_id', '')::integer;
   v_reference text := nullif(payload ->> 'payment_reference', '');
   v_total numeric := coalesce((payload ->> 'total')::numeric, 0);
   v_delivery_fee numeric := coalesce((payload ->> 'delivery_fee')::numeric, 0);
