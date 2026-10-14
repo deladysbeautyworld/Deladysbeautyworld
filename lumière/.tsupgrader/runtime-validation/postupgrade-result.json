@@ -1,0 +1,114 @@
+{
+  "planHash": "d17c5cd516a781d81d28cc9954d2d5434291574d0786aac6608dd9887dbeb6ed",
+  "phase": "postupgrade",
+  "recordedAtUtc": "2026-10-14T01:21:16.7814938Z",
+  "retryCount": 2,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": true,
+    "setupDurationMs": 11266,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "production-build",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E lumiere@0.0.0 build\r\n\u003E vite build\r\n\r\n\u001B[36mvite v8.3.4 \u001B[32mbuilding client environment for production...\u001B[36m\u001B[39m\r\ntransforming...\r\n\u2713 150 modules transformed.\r\nrendering chunks...\r\ncomputing gzip size...\r\ndist/index.html                              2.12 kB \u2502 gzip:  0.89 kB\r\ndist/assets/logo-CHua_3fy.jpg               31.19 kB\r\ndist/assets/logo_1-DjEfWQm2.png            186.88 kB\r\ndist/assets/background-BTQKLSUC.jpg        412.89 kB\r\ndist/assets/cos_bundle-DI2cGQmm.jpg        957.89 kB\r\ndist/assets/index-B4bOhHXw.css              65.56 kB \u2502 gzip: 12.76 kB\r\ndist/assets/logo-C-ifDMDJ.js                 0.04 kB \u2502 gzip:  0.06 kB\r\ndist/assets/logo_1-DSNqmZQB.js               0.05 kB \u2502 gzip:  0.07 kB\r\ndist/assets/ProtectedRoute-s7DuFVs4.js       0.51 kB \u2502 gzip:  0.34 kB\r\ndist/assets/AdminStatusPill-CKy8rZjl.js      0.52 kB \u2502 gzip:  0.33 kB\r\ndist/assets/AdminNotFound-CqSn-vSl.js        0.54 kB \u2502 gzip:  0.37 kB\r\ndist/assets/AdminPageHeader-hgsl8SiX.js      0.54 kB \u2502 gzip:  0.33 kB\r\ndist/assets/rolldown-runtime-CbXtAM7H.js     0.58 kB \u2502 gzip:  0.36 kB\r\ndist/assets/AdminRoute-nIGDsmYJ.js           0.60 kB \u2502 gzip:  0.38 kB\r\ndist/assets/ComingSoon-C408hdQI.js           0.86 kB \u2502 gzip:  0.47 kB\r\ndist/assets/ProductImage-DfwQQNjq.js         1.42 kB \u2502 gzip:  0.76 kB\r\ndist/assets/FavoritesContext-u_abWOHB.js     1.50 kB \u2502 gzip:  0.74 kB\r\ndist/assets/Careers-Dr75Y2oY.js              1.66 kB \u2502 gzip:  0.75 kB\r\ndist/assets/Terms-DAyklVmm.js                1.70 kB \u2502 gzip:  0.69 kB\r\ndist/assets/Privacy-sJTYxCmf.js              1.79 kB \u2502 gzip:  0.73 kB\r\ndist/assets/Shipping-DS7fxl7d.js             2.08 kB \u2502 gzip:  0.78 kB\r\ndist/assets/FAQ-C4xidSBH.js                  2.20 kB \u2502 gzip:  0.99 kB\r\ndist/assets/seo-CkNBFEMR.js                  2.46 kB \u2502 gzip:  0.94 kB\r\ndist/assets/Returns-Bf06djjv.js              2.50 kB \u2502 gzip:  0.96 kB\r\ndist/assets/Cookies-Xp9FSY6X.js              2.68 kB \u2502 gzip:  0.89 kB\r\ndist/assets/AdminLayout-YirR8852.js          3.81 kB \u2502 gzip:  1.39 kB\r\ndist/assets/ForgotPassword-CiehqHLd.js       3.86 kB \u2502 gzip:  1.39 kB\r\ndist/assets/ProductCard-DEDZRx_7.js          4.02 kB \u2502 gzip:  1.66 kB\r\ndist/assets/Contact-Dk7NgWCU.js              4.33 kB \u2502 gzip:  1.58 kB\r\ndist/assets/JournalPost-C-7yaXT4.js          5.35 kB \u2502 gzip:  1.80 kB\r\ndist/assets/Journal-CCVZ4QsE.js              5.57 kB \u2502 gzip:  1.94 kB\r\ndist/assets/ProductsReadOnly-B_Uj00Ca.js     5.60 kB \u2502 gzip:  1.97 kB\r\ndist/assets/products-2VtCeCnY.js             5.74 kB \u2502 gzip:  2.47 kB\r\ndist/assets/Journal-NTcWFXUm.js              5.75 kB \u2502 gzip:  2.04 kB\r\ndist/assets/ResetPassword-Cclth1WK.js        6.05 kB \u2502 gzip:  1.93 kB\r\ndist/assets/OrderConfirmation-C0_P2kv_.js    6.35 kB \u2502 gzip:  2.03 kB\r\ndist/assets/ProfileSettings-CB5SNSDM.js      6.70 kB \u2502 gzip:  2.09 kB\r\ndist/assets/Cart-C48kZcB3.js                 6.97 kB \u2502 gzip:  1.97 kB\r\ndist/assets/Overview-D0MI0XCA.js             7.50 kB \u2502 gzip:  2.48 kB\r\ndist/assets/About-yLdkUPJg.js                7.69 kB \u2502 gzip:  2.40 kB\r\ndist/assets/JournalEditor-CdxK_r0V.js        7.99 kB \u2502 gzip:  2.54 kB\r\ndist/assets/Announcements-W-teCPNv.js        8.54 kB \u2502 gzip:  2.54 kB\r\ndist/assets/Categories-C6R_EFwC.js           8.54 kB \u2502 gzip:  2.49 kB\r\ndist/assets/admin-CsDsWbpl.js                8.75 kB \u2502 gzip:  2.54 kB\r\ndist/assets/Customers-Bj6m-c5D.js           10.01 kB \u2502 gzip:  2.47 kB\r\ndist/assets/AuthPage-VtHZC8GP.js            11.00 kB \u2502 gzip:  3.72 kB\r\ndist/assets/DeliveryZones-Cq01A0tL.js       11.09 kB \u2502 gzip:  3.23 kB\r\ndist/assets/PromoCodes-DV7CRjt_.js          11.19 kB \u2502 gzip:  3.19 kB\r\ndist/assets/Shop-nZZ8vKPV.js                11.91 kB \u2502 gzip:  3.64 kB\r\ndist/assets/index-BdayWmvH.js               12.15 kB \u2502 gzip:  3.75 kB\r\ndist/assets/ProductDetail-DQvDguq9.js       12.48 kB \u2502 gzip:  3.95 kB\r\ndist/assets/Routines-ByX266hk.js            15.58 kB \u2502 gzip:  4.39 kB\r\ndist/assets/Checkout-CFX4KhGI.js            17.46 kB \u2502 gzip:  5.31 kB\r\ndist/assets/profile-Cf0Z2qsk.js             17.71 kB \u2502 gzip:  4.83 kB\r\ndist/assets/Home-pOYBrr2w.js                18.19 kB \u2502 gzip:  5.50 kB\r\ndist/assets/vendor-CJZbwY5z.js              18.95\n\u2026[truncated]",
+        "durationMs": 2191
+      },
+      {
+        "name": "storefront-home-200",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n\u003C!doctype html\u003E\n\u003Chtml lang=\u0022en\u0022\u003E\n  \u003Chead\u003E\n    \u003Cscript type=\u0022module\u0022\u003Eimport { injectIntoGlobalHook } from \u0022/@react-refresh\u0022;\ninjectIntoGlobalHook(window);\nwindow.$RefreshReg$ = () =\u003E {};\nwindow.$RefreshSig$ = () =\u003E (type) =\u003E type;\u003C/script\u003E\n\n    \u003Cscript type=\u0022module\u0022 src=\u0022/@vite/client\u0022\u003E\u003C/script\u003E\n\n    \u003Cmeta charset=\u0022UTF-8\u0022 /\u003E\n\n    \u003Clink rel=\u0022icon\u0022 type=\u0022image/png\u0022 href=\u0022/logo.png\u0022 /\u003E\n\n    \u003Cmeta name=\u0022viewport\u0022 content=\u0022width=device-width, initial-scale=1.0\u0022 /\u003E\n    \u003Cmeta name=\u0022theme-color\u0022 content=\u0022#000000\u0022 /\u003E\n    \u003Cmeta name=\u0022mobile-web-app-capable\u0022 content=\u0022yes\u0022 /\u003E\n    \u003Cmeta name=\u0022apple-mobile-web-app-capable\u0022 content=\u0022yes\u0022 /\u003E\n    \u003Cmeta name=\u0022apple-mobile-web-app-status-bar-style\u0022 content=\u0022default\u0022 /\u003E\n    \u003Cmeta name=\u0022apple-mobile-web-app-title\u0022 content=\u0022DLBW Admin\u0022 /\u003E\n    \u003Cmeta name=\u0022google-site-verification\u0022 content=\u0022tXEJpum34-c_oteplbGOtBmqWCQLGdz-5ow23K_FZvw\u0022 /\u003E\n    \u003Clink rel=\u0022manifest\u0022 href=\u0022/admin.webmanifest\u0022 /\u003E\n    \u003Clink rel=\u0022apple-touch-icon\u0022 href=\u0022/admin-icon-192.png\u0022 /\u003E\n\n    \u003C!-- Preconnect to external resources --\u003E\n    \u003Clink rel=\u0022preconnect\u0022 href=\u0022https://fonts.googleapis.com\u0022 /\u003E\n    \u003Clink rel=\u0022preconnect\u0022 href=\u0022https://fonts.gstatic.com\u0022 crossorigin /\u003E\n\n    \u003Cmeta name=\u0022google-site-verification\u0022 content=\u0022ZefL6xVQ0BCD5KDFfwMS39ofXLl_XJYLG_HoZEkqSVU\u0022 /\u003E\n\n    \u003C!-- Google Analytics --\u003E\n    \u003Cscript async src=\u0022https://www.googletagmanager.com/gtag/js?id=G-23E0G56B3Z\u0022\u003E\u003C/script\u003E\n    \u003Cscript\u003E\n      window.dataLayer = window.dataLayer || [];\n      function gtag(){dataLayer.push(arguments);}\n      gtag(\u0027js\u0027, new Date());\n      gtag(\u0027config\u0027, \u0027G-23E0G56B3Z\u0027);\n    \u003C/script\u003E\n\n    \u003Cscript src=\u0022https://elfsightcdn.com/platform.js\u0022 async\u003E\u003C/script\u003E\n\n    \u003Ctitle\u003EDe Lady\u0027s Beauty World | Premium Beauty \u0026 Skincare Products\u003C/title\u003E\n  \u003C/head\u003E\n\n  \u003Cbody\u003E\n    \u003Cdiv id=\u0022root\u0022\u003E\u003C/div\u003E\n\n    \u003Cscript type=\u0022module\u0022 src=\u0022/src/main.jsx\u0022\u003E\u003C/script\u003E\n  \u003C/body\u003E\n\u003C/html\u003E\n--- server output ---\n\r\n\u003E lumiere@0.0.0 dev\r\n\u003E vite --host 127.0.0.1 --port 5173 --strictPort\r\n\r\n\r\n  \u001B[32m\u001B[1mVITE\u001B[22m v8.3.4\u001B[39m  \u001B[2mready in \u001B[0m\u001B[1m474\u001B[22m\u001B[2m\u001B[0m ms\u001B[22m\r\n\r\n  \u001B[32m\u279C\u001B[39m  \u001B[1mLocal\u001B[22m:   \u001B[36mhttp://127.0.0.1:\u001B[1m5173\u001B[22m/\u001B[39m\r\n",
+        "durationMs": 1577
+      },
+      {
+        "name": "tests-pass",
+        "kind": "process",
+        "verificationMethod": "test-results",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "\r\n\u003E lumiere@0.0.0 test\r\n\u003E node --test tests/*.test.js\r\n\r\n\u2714 contact endpoint rejects invalid submissions before attempting delivery (1.9908ms)\r\n\u2714 contact endpoint trims the reply address and delivers through the configured sender (22.3211ms)\r\n\u2714 newsletter endpoint requires explicit marketing consent (0.2803ms)\r\n\u2714 newsletter endpoint adds a normalized consented address to the configured Resend audience (1.9513ms)\r\n\u2714 KoraPay order finalization requires an authenticated session (0.3766ms)\r\n\u2714 escapes untrusted HTML values (0.8622ms)\r\n\u2714 accepts valid email addresses and rejects malformed or oversized input (0.2538ms)\r\n\u2714 sends every transactional email using the configured branded sender (23.3783ms)\r\n\u2714 order email includes escaped customer data and tracking links (0.3845ms)\r\n\u2714 low-stock email escapes product names and formats its quantity (0.2074ms)\r\n\u2714 email and fulfillment migration queues idempotent emails and thresholded stock alerts (1844.1404ms)\r\n\u2139 tests 11\r\n\u2139 suites 0\r\n\u2139 pass 11\r\n\u2139 fail 0\r\n\u2139 cancelled 0\r\n\u2139 skipped 0\r\n\u2139 todo 0\r\n\u2139 duration_ms 2062.8882\r\n",
+        "durationMs": 2824,
+        "testResults": {
+          "testFramework": "unknown",
+          "runnerDetectedFrom": "none",
+          "testsTotal": 0,
+          "testsPassed": 0,
+          "testsFailed": 0,
+          "testsSkipped": 0,
+          "parseFailed": true
+        }
+      }
+    ],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "ci"
+        ],
+        "cwd": "C:\\Users\\USER\\Documents\\Lumi\u00E8re\\lumi\u00E8re",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "production-build",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "build"
+        ],
+        "cwd": "C:\\Users\\USER\\Documents\\Lumi\u00E8re\\lumi\u00E8re",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "storefront-home-200",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "run",
+          "dev",
+          "--",
+          "--host",
+          "127.0.0.1",
+          "--port",
+          "5173",
+          "--strictPort"
+        ],
+        "cwd": "C:\\Users\\USER\\Documents\\Lumi\u00E8re\\lumi\u00E8re",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      },
+      {
+        "source": "tests-pass",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.CMD",
+        "args": [
+          "test"
+        ],
+        "cwd": "C:\\Users\\USER\\Documents\\Lumi\u00E8re\\lumi\u00E8re",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32"
+      }
+    ]
+  }
+}
