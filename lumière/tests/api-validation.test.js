@@ -4,6 +4,7 @@ import test from "node:test";
 import contactHandler from "../api/contact.js";
 import finalizeKorapayOrderHandler from "../api/finalize-korapay-order.js";
 import newsletterHandler from "../api/newsletter.js";
+import sitemapHandler from "../api/sitemap.xml.js";
 
 function mockResponse() {
   return {
@@ -21,8 +22,56 @@ function mockResponse() {
       this.body = body;
       return this;
     },
+    send(body) {
+      this.body = body;
+      return this;
+    },
   };
 }
+
+test("sitemap includes canonical public pages and dynamically discovered content", async () => {
+  const previousSupabaseUrl = process.env.SUPABASE_URL;
+  const previousServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const previousFetch = globalThis.fetch;
+  process.env.SUPABASE_URL = "https://supabase.test";
+  process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
+  globalThis.fetch = async (request) => {
+    const requestUrl = typeof request === "string" ? request : request.url;
+    if (requestUrl.includes("/rest/v1/posts")) {
+      return new Response(JSON.stringify([{ id: "post-1", slug: "skin & body" }]), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (requestUrl === "https://delady-api-production.up.railway.app/api/products") {
+      return new Response(JSON.stringify({ products: [{ id: "product-1" }] }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    throw new Error(`Unexpected sitemap request: ${requestUrl}`);
+  };
+
+  const response = mockResponse();
+  try {
+    await sitemapHandler({}, response);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = previousSupabaseUrl;
+    if (previousServiceRoleKey === undefined) delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    else process.env.SUPABASE_SERVICE_ROLE_KEY = previousServiceRoleKey;
+  }
+
+  assert.equal(response.statusCode, 200);
+  assert.match(response.headers["Content-Type"], /application\/xml/);
+  assert.match(response.body, /<loc>https:\/\/deladysbeautyworld\.com\/shop<\/loc>\s*<changefreq>daily<\/changefreq>\s*<priority>0\.9<\/priority>/);
+  assert.match(response.body, /https:\/\/deladysbeautyworld\.com\/contact/);
+  assert.match(response.body, /https:\/\/deladysbeautyworld\.com\/privacy/);
+  assert.match(response.body, /https:\/\/deladysbeautyworld\.com\/journal\/skin%20%26%20body/);
+  assert.match(response.body, /https:\/\/deladysbeautyworld\.com\/product\/product-1/);
+  assert.doesNotMatch(response.body, /[?](category|sort|sale)=|\/(cart|checkout|profile|admin)(\/|<)/);
+});
 
 test("contact endpoint rejects invalid submissions before attempting delivery", async () => {
   const response = mockResponse();
