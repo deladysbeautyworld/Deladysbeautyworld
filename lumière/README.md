@@ -24,6 +24,8 @@ cp .env.example .env
 ```
 Then, fill in your Supabase, KoraPay, and Resend settings. Use the KoraPay public key in `VITE_KORAPAY_PUBLIC_KEY`; keep `KORAPAY_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and all Resend/cron secrets server-side only.
 
+`npm run dev` serves the Vite frontend only; it does not run the `/api/*` serverless functions. Use `vercel dev` from the app directory when testing newsletter signup or contact delivery locally.
+
 ### 3. Run Development Server
 ```bash
 npm run dev
@@ -99,7 +101,9 @@ The push endpoint uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` already re
 
 ## ✉️ Customer email and stock alerts
 
-Contact enquiries are delivered to `CONTACT_INBOX_EMAIL`. Newsletter signups require an explicit consent checkbox and are added to the Resend audience configured by `RESEND_AUDIENCE_ID`. Set `RESEND_API_KEY` and a verified sender address in `RESEND_FROM_EMAIL`.
+Contact enquiries are delivered to `CONTACT_INBOX_EMAIL`. Newsletter signups require explicit consent and add the normalized address to the Resend audience in `RESEND_AUDIENCE_ID`; this signup endpoint does not itself send a welcome email or apply a discount. Create and send newsletter campaigns separately in Resend, using its unsubscribe controls. Resend currently recommends migrating Audiences to Segments; the integration uses the existing Audience API, which remains supported for now.
+
+Before sending customer email, add `deladysbeautyworld.com` to the Resend Domains dashboard and publish the exact DNS records Resend provides. Use `orders@deladysbeautyworld.com` for `RESEND_FROM_EMAIL` after the domain is verified; this shared sender is used by contact, order, and low-stock emails. Add the records without replacing existing mail-provider MX or SPF records. Keep `RESEND_API_KEY` server-side. Set `CONTACT_INBOX_EMAIL` to an inbox that is monitored and `ADMIN_NOTIFICATION_EMAIL` to the low-stock alert recipient. Configure these values in both local `.env` and Vercel project settings.
 
 Order confirmation and paid fulfillment-status messages are written to a private Supabase outbox. Supabase Vault triggers the Vercel worker immediately; a daily Vercel cron acts as a recovery sweep on every plan. Set a long random `CRON_SECRET` in Vercel and add it to Vault as `email_outbox_webhook_secret`; also save `https://<your-deployed-domain>/api/process-email-outbox` as `email_outbox_webhook_url`. The worker retries failed deliveries with backoff and uses Resend idempotency keys. On Vercel plans supporting minutely cron schedules, change the cron expression in `vercel.json` to `* * * * *` for faster retry recovery. Set `ADMIN_NOTIFICATION_EMAIL` for low-stock messages (five units or fewer per sellable product or variant). An alert is sent once when stock crosses the threshold and is re-armed after restocking above five.
 

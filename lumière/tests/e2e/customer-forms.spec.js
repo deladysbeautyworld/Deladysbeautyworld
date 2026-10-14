@@ -55,7 +55,7 @@ test("newsletter signup requires consent and submits to the mailing-list API", a
 
   await page.goto("/");
   await page.getByLabel("Your email address").fill("customer@example.com");
-  await page.getByLabel("I agree to receive beauty news and offers. I can unsubscribe anytime.").check();
+  await page.getByLabel("I agree to receive beauty news and offers by email.").check();
   await page.getByRole("button", { name: "Subscribe" }).click();
 
   await expect(page.getByText("You're on the list. Welcome to De Lady's Beauty World.")).toBeVisible();
@@ -71,7 +71,7 @@ test("newsletter signup leaves the form available when subscription fails", asyn
 
   await page.goto("/");
   await page.getByLabel("Your email address").fill("customer@example.com");
-  await page.getByLabel("I agree to receive beauty news and offers. I can unsubscribe anytime.").check();
+  await page.getByLabel("I agree to receive beauty news and offers by email.").check();
   await page.getByRole("button", { name: "Subscribe" }).click();
 
   await expect(page.getByRole("alert")).toHaveText("Could not subscribe right now. Please try again.");

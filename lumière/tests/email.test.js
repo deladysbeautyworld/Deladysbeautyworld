@@ -5,6 +5,7 @@ import {
   createLowStockEmail,
   createOrderEmail,
   escapeHtml,
+  sendEmail,
   validEmail,
 } from "../server/email.js";
 
@@ -19,6 +20,39 @@ test("accepts valid email addresses and rejects malformed or oversized input", (
   assert.equal(validEmail("customer@example.com"), true);
   assert.equal(validEmail("not-an-email"), false);
   assert.equal(validEmail(`x${"a".repeat(250)}@example.com`), false);
+});
+
+test("sends every transactional email using the configured branded sender", async () => {
+  const previousApiKey = process.env.RESEND_API_KEY;
+  const previousFrom = process.env.RESEND_FROM_EMAIL;
+  const previousFetch = globalThis.fetch;
+  process.env.RESEND_API_KEY = "re_test";
+  process.env.RESEND_FROM_EMAIL = "orders@deladysbeautyworld.com";
+  let request;
+  globalThis.fetch = async (url, options) => {
+    request = { url, options };
+    return new Response(JSON.stringify({ id: "email-test" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+
+  try {
+    await sendEmail({
+      to: "customer@example.com",
+      subject: "Order update",
+      text: "Your order has shipped.",
+    });
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (previousApiKey === undefined) delete process.env.RESEND_API_KEY;
+    else process.env.RESEND_API_KEY = previousApiKey;
+    if (previousFrom === undefined) delete process.env.RESEND_FROM_EMAIL;
+    else process.env.RESEND_FROM_EMAIL = previousFrom;
+  }
+
+  assert.equal(request.url, "https://api.resend.com/emails");
+  assert.equal(JSON.parse(request.options.body).from, "orders@deladysbeautyworld.com");
 });
 
 test("order email includes escaped customer data and tracking links", () => {

@@ -9,10 +9,11 @@ export default async function handler(req, res) {
   }
 
   const { name, email, message, website } = req.body ?? {};
+  const normalizedEmail = typeof email === "string" ? email.trim() : email;
   if (website) return json(res, 400, { error: "Invalid submission." });
   if (
     typeof name !== "string" || !name.trim() || name.length > 120 ||
-    !validEmail(email) ||
+    !validEmail(normalizedEmail) ||
     typeof message !== "string" || !message.trim() || message.length > 5000
   ) {
     return json(res, 400, { error: "Enter your name, a valid email, and a message under 5,000 characters." });
@@ -27,10 +28,10 @@ export default async function handler(req, res) {
   try {
     await sendEmail({
       to: inbox,
-      replyTo: email.trim(),
+      replyTo: normalizedEmail,
       subject: `Website enquiry from ${name.trim().replace(/[\r\n]+/g, " ").slice(0, 100)}`,
-      html: `<p><strong>Name:</strong> ${escapeHtml(name.trim())}</p><p><strong>Email:</strong> ${escapeHtml(email.trim())}</p><p>${escapeHtml(message.trim()).replace(/\r?\n/g, "<br>")}</p>`,
-      text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\n${message.trim()}`,
+      html: `<p><strong>Name:</strong> ${escapeHtml(name.trim())}</p><p><strong>Email:</strong> ${escapeHtml(normalizedEmail)}</p><p>${escapeHtml(message.trim()).replace(/\r?\n/g, "<br>")}</p>`,
+      text: `Name: ${name.trim()}\nEmail: ${normalizedEmail}\n\n${message.trim()}`,
     });
     return json(res, 200, { sent: true });
   } catch (error) {
