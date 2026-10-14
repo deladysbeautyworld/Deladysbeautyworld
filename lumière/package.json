@@ -13,7 +13,7 @@
     "loadtest:k6": "k6 run tests/k6/storefront.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.107.0",
+    "@supabase/supabase-js": "^2.117.3",
     "@tailwindcss/vite": "^4.3.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
