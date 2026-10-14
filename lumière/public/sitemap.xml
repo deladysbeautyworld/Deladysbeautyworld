@@ -1,16 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://deladysbeautyworld.com/</loc></url>
-  <url><loc>https://deladysbeautyworld.com/about</loc></url>
-  <url><loc>https://deladysbeautyworld.com/shop</loc></url>
-  <url><loc>https://deladysbeautyworld.com/routines</loc></url>
-  <url><loc>https://deladysbeautyworld.com/journal</loc></url>
-  <url><loc>https://deladysbeautyworld.com/contact</loc></url>
-  <url><loc>https://deladysbeautyworld.com/faq</loc></url>
-  <url><loc>https://deladysbeautyworld.com/shipping</loc></url>
-  <url><loc>https://deladysbeautyworld.com/returns</loc></url>
-  <url><loc>https://deladysbeautyworld.com/privacy</loc></url>
-  <url><loc>https://deladysbeautyworld.com/terms</loc></url>
-  <url><loc>https://deladysbeautyworld.com/cookies</loc></url>
-  <url><loc>https://deladysbeautyworld.com/careers</loc></url>
+  <!-- Core public pages -->
+  <url>
+    <loc>https://deladysbeautyworld.com/</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/shop</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/routines</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/journal</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/about</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Help and informational pages -->
+  <url>
+    <loc>https://deladysbeautyworld.com/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/faq</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/returns</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/shipping</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/careers</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Legal pages -->
+  <url>
+    <loc>https://deladysbeautyworld.com/privacy</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/terms</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://deladysbeautyworld.com/cookies</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Product and journal detail URLs are added dynamically by /api/sitemap.xml. -->
+  <!-- Query-filtered shop URLs, account pages, checkout, cart, and admin pages are excluded. -->
 </urlset>
