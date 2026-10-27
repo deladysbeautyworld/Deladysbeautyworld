@@ -69,13 +69,19 @@ export default function ProductDetail() {
         }
 
         // Fetch related products in parallel — empty array if no category
-        const relatedProducts = p.category_id
-          ? await getRelatedProducts(p.category_id, p.id, 4)
-          : [];
+        let relatedProducts = [];
+        if (p.category_id) {
+          try {
+            relatedProducts = await getRelatedProducts(p.category_id, p.id, 4);
+          } catch (err) {
+            console.warn(`Could not fetch related products for category ${p.category_id}:`, err);
+            relatedProducts = [];
+          }
+        }
         if (cancelled) return;
         setRelated(relatedProducts ?? []);
       } catch (err) {
-        console.error("ProductDetail load error:", err);
+        console.error("ProductDetail main load error:", err);
         if (!cancelled) navigate("/shop");
       } finally {
         if (!cancelled) setLoading(false);
