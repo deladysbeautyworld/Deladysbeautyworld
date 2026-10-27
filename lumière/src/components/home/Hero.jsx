@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImage from "../../assets/background.jpg";
 import bundleImage from "../../assets/cos_bundle.jpg";
+import serumProductImage from "../../assets/serum-product.jpg";
 
 const SLIDES = [
   {
@@ -127,30 +128,12 @@ export default function Hero() {
           </div>
 
           {currentSlide === 1 && (
-            <div className="relative mt-4 flex h-[285px] items-center justify-center sm:h-[330px] lg:mt-0 lg:h-[390px] xl:h-[470px]" role="img" aria-label="Two skincare serum bottles">
-              <div className="absolute h-[310px] w-[310px] rounded-full bg-white/45 blur-3xl xl:h-[390px] xl:w-[390px]" />
-              <div className="relative flex h-[330px] w-[360px] items-end justify-center animate-[hero-bounce_3.2s_ease-in-out_infinite] xl:h-[410px] xl:w-[440px]">
-                <div className="absolute bottom-8 left-8 h-64 w-28 rotate-[-8deg] rounded-[2rem_2rem_1.6rem_1.6rem] border border-white/80 bg-gradient-to-r from-[#d8f4f0] via-[#f6fffc] to-[#a9dad4] shadow-[18px_24px_35px_rgba(64,88,81,0.18)] xl:left-12 xl:h-80 xl:w-32">
-                  <div className="absolute -top-9 left-1/2 h-12 w-12 -translate-x-1/2 rounded-t-xl border border-white/70 bg-gradient-to-r from-[#c8e8e4] via-white to-[#a8d5d0] shadow-md" />
-                  <div className="absolute -top-10 left-[58%] h-2 w-16 rotate-[8deg] rounded-full bg-[#c4e4df]" />
-                  <div className="absolute inset-x-2 top-1/3 rounded-sm bg-white/65 px-2 py-3 text-center text-[#37615d] shadow-sm">
-                    <span className="block text-[8px] tracking-[0.18em]">DAILY CARE</span>
-                    <span className="mt-1 block font-display text-sm italic xl:text-base">Hydration</span>
-                    <span className="mt-1 block text-[6px] tracking-[0.12em]">CALM · NOURISH · GLOW</span>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-7 right-8 h-[290px] w-[116px] rounded-[1.8rem_1.8rem_1.2rem_1.2rem] border border-white/80 bg-gradient-to-r from-[#d9c5a2] via-[#fff9ec] to-[#c9a66d] shadow-[20px_25px_40px_rgba(92,66,37,0.24)] xl:right-12 xl:h-[360px] xl:w-[136px]">
-                  <div className="absolute -top-[72px] left-1/2 h-[76px] w-[50px] -translate-x-1/2 rounded-t-xl border border-white/80 bg-gradient-to-r from-[#eee4d2] via-white to-[#d5c09e] shadow-md xl:-top-[84px] xl:h-[88px] xl:w-[58px]" />
-                  <div className="absolute inset-x-2 top-[38%] rounded-sm bg-white/75 px-2 py-4 text-center text-[#6a5030] shadow-sm">
-                    <span className="block text-[8px] tracking-[0.2em]">LUMIÈRE</span>
-                    <span className="mt-2 block font-display text-lg italic xl:text-xl">Radiance</span>
-                    <span className="mt-1 block text-[7px] tracking-[0.12em]">SERUM · 30 ML</span>
-                  </div>
-                </div>
-
-                <div className="absolute bottom-4 h-5 w-64 rounded-full bg-[#7b6859]/20 blur-lg xl:w-80" />
-              </div>
+            <div className="relative mt-4 flex h-[300px] items-center justify-center sm:h-[360px] lg:mt-0 lg:h-[440px] xl:h-[500px]">
+              <img
+                src={serumProductImage}
+                alt="Amber glass skincare serum bottle on a stone pedestal"
+                className="h-full w-full animate-[hero-bounce_3.2s_ease-in-out_infinite] object-contain drop-shadow-[0_24px_28px_rgba(65,45,25,0.18)]"
+              />
             </div>
           )}
         </div>
