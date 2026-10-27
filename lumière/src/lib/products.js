@@ -220,7 +220,7 @@ export async function getProducts(options = {}) {
     pageSize = 9,
   } = options;
   const params = new URLSearchParams();
-  if (category) params.append('category', category);
+  if (category) params.append('category', encodeURIComponent(category));
   if (tag) params.append('q', tag);
   const normalizedPage = normalizeInteger(page, 0, 0);
   const apiPage = normalizedPage + 1;

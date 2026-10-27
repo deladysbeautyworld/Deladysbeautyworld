@@ -69,12 +69,13 @@ export default function ProductDetail() {
         }
 
         // Fetch related products in parallel — empty array if no category
-        const related = p.category_id
+        const relatedProducts = p.category_id
           ? await getRelatedProducts(p.category_id, p.id, 4)
           : [];
         if (cancelled) return;
-        setRelated(related ?? []);
-      } catch {
+        setRelated(relatedProducts ?? []);
+      } catch (err) {
+        console.error("ProductDetail load error:", err);
         if (!cancelled) navigate("/shop");
       } finally {
         if (!cancelled) setLoading(false);
