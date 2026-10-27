@@ -229,6 +229,8 @@ export async function getProducts(options = {}) {
   const {
     category = null,
     tag = null,
+    minPrice = null,
+    maxPrice = null,
     page = 0,
     pageSize = 9,
   } = options;
@@ -242,6 +244,9 @@ export async function getProducts(options = {}) {
   }
 
   if (tag) params.append('q', tag);
+  if (minPrice !== null) params.append('minPrice', String(minPrice));
+  if (maxPrice !== null) params.append('maxPrice', String(maxPrice));
+
   const normalizedPage = normalizeInteger(page, 0, 0);
   const apiPage = normalizedPage + 1;
   const apiPageSize = normalizeInteger(pageSize, 9, 1, 100);
