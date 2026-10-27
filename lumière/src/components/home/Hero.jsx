@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImage from "../../assets/background.jpg";
-import skincareImage from "../../assets/cos_bundle.jpg";
 import bundleImage from "../../assets/cos_bundle.jpg";
 
 const SLIDES = [
@@ -29,10 +28,8 @@ const SLIDES = [
     buttonLink: "/shop?category=Skincare",
     secondaryText: "Explore best sellers",
     secondaryLink: "/shop?sort=popular",
-    image: skincareImage,
-    imageAlt: "Skincare products in a clean studio setting",
-    imageClass: "bg-[position:65%_center] lg:bg-[position:90%_center]",
-    overlay: "from-[#fffaf2]/95 via-[#fffaf2]/80 to-[#fffaf2]/15",
+    overlay: "from-[#f5eee5] via-[#f5eee5] to-[#f5eee5]",
+    backgroundColor: "#f5eee5",
     theme: "light",
   },
   {
@@ -91,8 +88,8 @@ export default function Hero() {
         )
       ))}
 
-      <div className={`absolute inset-0 -z-10 bg-gradient-to-r ${slide.overlay} transition-colors duration-700`} />
-      <div className={`absolute inset-0 -z-10 ${isLight ? "bg-[radial-gradient(ellipse_at_75%_50%,rgba(255,255,255,0.12),transparent_42%)]" : "bg-[radial-gradient(ellipse_at_72%_45%,rgba(229,0,125,0.12),transparent_38%)]"}`} />
+      <div className={`absolute inset-0 -z-10 transition-colors duration-700 ${slide.backgroundColor ? "" : `bg-gradient-to-r ${slide.overlay}`}`} style={slide.backgroundColor ? { backgroundColor: slide.backgroundColor } : undefined} />
+      <div className={`absolute inset-0 -z-10 ${currentSlide === 1 ? "bg-[radial-gradient(ellipse_at_76%_48%,rgba(255,255,255,0.78),transparent_38%)]" : isLight ? "bg-[radial-gradient(ellipse_at_75%_50%,rgba(255,255,255,0.12),transparent_42%)]" : "bg-[radial-gradient(ellipse_at_72%_45%,rgba(229,0,125,0.12),transparent_38%)]"}`} />
 
       <div className="mx-auto flex min-h-[min(760px,calc(100svh-5rem))] max-w-[1440px] items-center px-6 py-20 sm:min-h-[min(800px,calc(100svh-6rem))] sm:px-12 lg:px-20 xl:px-24">
         <div key={slide.id} className={`relative w-full ${currentSlide === 1 ? "grid items-center gap-8 lg:grid-cols-[1fr_0.8fr] lg:gap-4" : "max-w-[700px]"}`}>
