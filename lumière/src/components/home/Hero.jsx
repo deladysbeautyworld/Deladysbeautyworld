@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImage from "../../assets/background.jpg";
+import skincareImage from "../../assets/cos_bundle.jpg";
 import bundleImage from "../../assets/cos_bundle.jpg";
 
 const SLIDES = [
@@ -28,6 +29,9 @@ const SLIDES = [
     buttonLink: "/shop?category=Skincare",
     secondaryText: "Explore best sellers",
     secondaryLink: "/shop?sort=popular",
+    image: skincareImage,
+    imageAlt: "Skincare products in a clean studio setting",
+    imageClass: "bg-[position:65%_center] lg:bg-[position:90%_center]",
     overlay: "from-[#fffaf2]/95 via-[#fffaf2]/80 to-[#fffaf2]/15",
     theme: "light",
   },
@@ -126,7 +130,7 @@ export default function Hero() {
           </div>
 
           {currentSlide === 1 && (
-            <div className="relative hidden h-[390px] items-center justify-center lg:flex xl:h-[470px]" role="img" aria-label="Two skincare serum bottles">
+            <div className="relative mt-4 flex h-[285px] items-center justify-center sm:h-[330px] lg:mt-0 lg:h-[390px] xl:h-[470px]" role="img" aria-label="Two skincare serum bottles">
               <div className="absolute h-[310px] w-[310px] rounded-full bg-white/45 blur-3xl xl:h-[390px] xl:w-[390px]" />
               <div className="relative flex h-[330px] w-[360px] items-end justify-center animate-[hero-bounce_3.2s_ease-in-out_infinite] xl:h-[410px] xl:w-[440px]">
                 <div className="absolute bottom-8 left-8 h-64 w-28 rotate-[-8deg] rounded-[2rem_2rem_1.6rem_1.6rem] border border-white/80 bg-gradient-to-r from-[#d8f4f0] via-[#f6fffc] to-[#a9dad4] shadow-[18px_24px_35px_rgba(64,88,81,0.18)] xl:left-12 xl:h-80 xl:w-32">
