@@ -180,7 +180,7 @@ export default function ProductDetail() {
             </Link>
 
             {/* Name */}
-            <h1 className="font-display text-[42px] md:text-[48px] font-light text-(--color-ink) leading-[1.1] mb-4">
+            <h1 className="font-display text-[48px] md:text-[56px] font-light text-(--color-ink) leading-[1.1] mb-4">
               {product.name}
             </h1>
 

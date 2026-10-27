@@ -92,7 +92,7 @@ export default function ProductCard({ product }) {
         <p className="text-[10px] tracking-[0.12em] uppercase text-(--color-faint)">
           {product.categories?.name || "Skincare"}
         </p>
-        <h3 className="text-[15px] font-medium text-(--color-ink) leading-snug">{product.name}</h3>
+        <h3 className="text-[17px] font-medium text-(--color-ink) leading-snug">{product.name}</h3>
         {product.pack_size && (
           <p className="text-[10px] text-(--color-faint)">Pack size: {product.pack_size}</p>
         )}
@@ -108,7 +108,7 @@ export default function ProductCard({ product }) {
           <span className="text-[10px] text-(--color-faint)">({product.review_count})</span>
         </div>
 
-        <p className="text-[16px] font-medium text-(--color-ink) mt-auto pt-2">₦{Number(product.price).toLocaleString("en-NG")}</p>
+        <p className="text-[18px] font-medium text-(--color-ink) mt-auto pt-2">₦{Number(product.price).toLocaleString("en-NG")}</p>
       </div>
     </Link>
   );
