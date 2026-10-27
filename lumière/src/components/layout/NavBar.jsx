@@ -3,18 +3,14 @@ import { Link, NavLink } from "react-router-dom";
 import { useFavorites } from "../../context/FavoritesContext";
 import { useCartStore } from "../../stores/cartStore";
 import { useAuthStore, ADMIN_ROLES } from "../../stores/authStore";
-import { searchProducts } from "../../lib/products";
+import { searchProducts, getCategories } from "../../lib/products";
 import logo from "../../assets/logo.jpg";
 
 const NAV_LINKS = [
   {
     label: "Shop",
     to: "/shop",
-    dropdown: [
-      { label: "All Products", to: "/shop" },
-      { label: "New Arrivals", to: "/shop?sort=newest" },
-      { label: "Best Sellers", to: "/shop?sort=popular" },
-    ]
+    dropdown: [], // Populated dynamically
   },
   { label: "Routines",    to: "/routines" },
   { label: "Journal",     to: "/journal" },
@@ -28,12 +24,17 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [categories, setCategories] = useState([]);
   const accountRef = useRef(null);
   const { openFavorites, count: wishlistCount } = useFavorites();
   const totalItems = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
   const user = useAuthStore((s) => s.user);
   const role = useAuthStore((s) => s.role);
   const signOut = useAuthStore((s) => s.signOut);
+
+  useEffect(() => {
+    getCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -86,6 +87,17 @@ export default function Navbar() {
         : "text-(--color-muted) hover:text-(--color-ink)"
     }`;
 
+  // Build the Shop dropdown dynamically
+  const shopDropdown = [
+    { label: "All Products", to: "/shop" },
+    { label: "New Arrivals", to: "/shop?sort=newest" },
+    { label: "Best Sellers", to: "/shop?sort=popular" },
+    ...categories.map(cat => ({
+      label: cat.name,
+      to: `/shop?category=${encodeURIComponent(cat.name)}`
+    }))
+  ];
+
   return (
     <>
       <nav className="relative z-50 border-b border-(--color-border) bg-(--color-cream)">
@@ -103,34 +115,37 @@ export default function Navbar() {
 
           {/* Desktop nav links */}
           <ul className="hidden items-center gap-8 xl:flex">
-            {NAV_LINKS.map(({ label, to, dropdown }) => (
-              <li key={label} className="group relative py-4">
-                <NavLink to={to} className={linkClass}>
-                  {label}
-                  {dropdown && (
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1 inline-block transition-transform duration-200 group-hover:rotate-180">
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  )}
-                </NavLink>
+            {NAV_LINKS.map(({ label, to, dropdown }) => {
+              const currentDropdown = label === "Shop" ? shopDropdown : dropdown;
+              return (
+                <li key={label} className="group relative py-4">
+                  <NavLink to={to} className={linkClass}>
+                    {label}
+                    {currentDropdown && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1 inline-block transition-transform duration-200 group-hover:rotate-180">
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
+                    )}
+                  </NavLink>
 
-                {dropdown && (
-                  <div className="absolute left-0 top-full w-48 opacity-0 pointer-events-none translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 z-50">
-                    <div className="bg-white border border-(--color-border) shadow-xl rounded-sm overflow-hidden">
-                      {dropdown.map((item) => (
-                        <Link
-                          key={item.to}
-                          to={item.to}
-                          className="block px-4 py-3 text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors"
-                        >
-                          {item.label}
-                        </Link>
-                      ))}
+                  {currentDropdown && (
+                    <div className="absolute left-0 top-full w-56 opacity-0 pointer-events-none translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 z-50">
+                      <div className="bg-white border border-(--color-border) shadow-xl rounded-sm overflow-hidden max-h-[70vh] overflow-y-auto">
+                        {currentDropdown.map((item) => (
+                          <Link
+                            key={item.to}
+                            to={item.to}
+                            className="block px-4 py-3 text-[11px] tracking-widest uppercase text-(--color-muted) hover:text-(--color-ink) hover:bg-(--color-cream-dark) transition-colors"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </li>
-            ))}
+                  )}
+                </li>
+              );
+            })}
           </ul>
 
           {/* Actions */}
@@ -271,6 +286,8 @@ export default function Navbar() {
               </button>
             </div>
           </div>
+        </div>
+
         {searchOpen && (
           <div className="absolute right-10 top-full z-50 w-[min(28rem,calc(100vw-2rem))] border border-(--color-border) bg-white p-4 shadow-lg">
             <form onSubmit={(event) => event.preventDefault()}>
@@ -315,11 +332,10 @@ export default function Navbar() {
                 )}
               </div>
             )}
-          </div>
         )}
 
         {/* Mobile Sidebar Drawer */}
-        <div className={`fixed inset-0 z-60 transition-visibility duration-200 ${menuOpen ? "visible" : "invisible"}`}>
+        <div className={`fixed inset-0 z-[60] transition-visibility duration-200 ${menuOpen ? "visible" : "invisible"}`}>
           {/* Backdrop */}
           <div
             className={`absolute inset-0 bg-black/40 transition-opacity duration-300 ${menuOpen ? "opacity-100" : "opacity-0"}`}
@@ -339,39 +355,42 @@ export default function Navbar() {
               </div>
 
               <ul className="flex-1 overflow-y-auto p-5 flex flex-col gap-1">
-                {NAV_LINKS.map(({ label, to, dropdown }) => (
-                  <li key={label} className="mb-2">
-                    <NavLink
-                      to={to}
-                      className={`flex items-center justify-between p-3 rounded-sm text-[13px] tracking-widest uppercase transition-colors ${
-                        "text-(--color-muted) hover:bg-(--color-cream-dark) hover:text-(--color-ink)"
-                      }`}
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {label}
-                      {dropdown && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="6 9 12 15 18 9"/>
-                        </svg>
+                {NAV_LINKS.map(({ label, to, dropdown }) => {
+                  const currentDropdown = label === "Shop" ? shopDropdown : dropdown;
+                  return (
+                    <li key={label} className="mb-2">
+                      <NavLink
+                        to={to}
+                        className={`flex items-center justify-between p-3 rounded-sm text-[13px] tracking-widest uppercase transition-colors ${
+                          "text-(--color-muted) hover:bg-(--color-cream-dark) hover:text-(--color-ink)"
+                        }`}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {label}
+                        {currentDropdown && (
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+                        )}
+                      </NavLink>
+                      {currentDropdown && (
+                        <ul className="mt-1 ml-4 flex flex-col gap-1 border-l border-(--color-border-light) pl-3">
+                          {currentDropdown.map(item => (
+                            <li key={item.to}>
+                              <Link
+                                to={item.to}
+                                onClick={() => setMenuOpen(false)}
+                                className="block p-2 text-[12px] text-(--color-faint) hover:text-(--color-ink) transition-colors"
+                              >
+                                {item.label}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
                       )}
-                    </NavLink>
-                    {dropdown && (
-                      <ul className="mt-1 ml-4 flex flex-col gap-1 border-l border-(--color-border-light) pl-3">
-                        {dropdown.map(item => (
-                          <li key={item.to}>
-                            <Link
-                              to={item.to}
-                              onClick={() => setMenuOpen(false)}
-                              className="block p-2 text-[12px] text-(--color-faint) hover:text-(--color-ink) transition-colors"
-                            >
-                              {item.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                ))}
+                    </li>
+                  );
+                })}
 
                 {user ? (
                   <>
@@ -391,7 +410,7 @@ export default function Navbar() {
                           onClick={() => setMenuOpen(false)}
                           className="block p-3 text-[13px] tracking-widest uppercase text-(--color-pink) hover:bg-(--color-cream-dark) rounded-sm"
                         >
-                        Admin dashboard
+                          Admin dashboard
                         </Link>
                       </li>
                     )}
@@ -422,6 +441,5 @@ export default function Navbar() {
         </div>
       </nav>
     </>
-
   );
 }
