@@ -12,7 +12,7 @@ const NAV_LINKS = [
     to: "/shop",
     dropdown: [], // Populated dynamically
   },
-  { label: "New",       to: "/categories/new-arrivals/products" },
+  { label: "New",       to: "/shop?category=new-arrivals" },
   { label: "Routines",    to: "/routines" },
   { label: "Journal",     to: "/journal" },
   { label: "About",       to: "/about" },
