@@ -53,10 +53,13 @@ async function apiFetch(endpoint, options = {}) {
  * Mappers to ensure the frontend receives the expected data shapes
  */
 
+const SLUG_MAP = {}; // To be populated as we find mismatches
+
 function createSlug(text) {
   return text
     .toLowerCase()
     .trim()
+    .replace(/&/g, 'and')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '') || 'general';
 }
@@ -234,7 +237,7 @@ export async function getProducts(options = {}) {
   const params = new URLSearchParams();
 
   if (category) {
-    const slug = createSlug(category);
+    const slug = SLUG_MAP[category] || createSlug(category);
     endpoint = `/categories/${encodeURIComponent(slug)}/products`;
   }
 
@@ -311,7 +314,7 @@ export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
   const params = new URLSearchParams();
 
   if (categoryId) {
-    const slug = createSlug(categoryId);
+    const slug = SLUG_MAP[categoryId] || createSlug(categoryId);
     endpoint = `/categories/${encodeURIComponent(slug)}/products`;
   }
 
