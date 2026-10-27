@@ -219,8 +219,16 @@ export async function getProducts(options = {}) {
     page = 0,
     pageSize = 9,
   } = options;
+
+  let endpoint = '/products';
   const params = new URLSearchParams();
-  if (category) params.append('category', category);
+
+  if (category) {
+    // Change from query param ?category=... to path param /categories/{category}/products
+    // We use the category name as the slug/id
+    endpoint = `/categories/${encodeURIComponent(category)}/products`;
+  }
+
   if (tag) params.append('q', tag);
   const normalizedPage = normalizeInteger(page, 0, 0);
   const apiPage = normalizedPage + 1;
@@ -228,7 +236,10 @@ export async function getProducts(options = {}) {
   params.append('page', apiPage);
   params.append('pageSize', apiPageSize);
 
-  const data = await apiFetch(`/products?${params.toString()}`);
+  const queryStr = params.toString();
+  const finalEndpoint = queryStr ? `${endpoint}?${queryStr}` : endpoint;
+
+  const data = await apiFetch(finalEndpoint);
   const productsRaw = Array.isArray(data) ? data : (data.products || []);
   const total = data.total ?? productsRaw.length;
   const products = await attachReviewSummaries(productsRaw.map(mapProduct));
@@ -287,12 +298,20 @@ export async function getFeaturedProducts(limit = 4) {
  * Related products — same category, excludes current product
  */
 export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
-  const params = new URLSearchParams({
-    category: categoryId,
-    page: '1',
-    pageSize: String(Math.min(100, limit + 1)),
-  });
-  const data = await apiFetch(`/products?${params.toString()}`);
+  let endpoint = '/products';
+  const params = new URLSearchParams();
+
+  if (categoryId) {
+    endpoint = `/categories/${encodeURIComponent(categoryId)}/products`;
+  }
+
+  params.append('page', '1');
+  params.append('pageSize', String(Math.min(100, limit + 1)));
+
+  const queryStr = params.toString();
+  const finalEndpoint = queryStr ? `${endpoint}?${queryStr}` : endpoint;
+
+  const data = await apiFetch(finalEndpoint);
   const productsRaw = Array.isArray(data) ? data : (data.products || []);
 
   const relatedProducts = productsRaw

@@ -7,7 +7,15 @@ import { searchProducts } from "../../lib/products";
 import logo from "../../assets/logo.jpg";
 
 const NAV_LINKS = [
-  { label: "Shop",        to: "/shop" },
+  {
+    label: "Shop",
+    to: "/shop",
+    dropdown: [
+      { label: "All Products", to: "/shop" },
+      { label: "New Arrivals", to: "/shop?sort=newest" },
+      { label: "Best Sellers", to: "/shop?sort=popular" },
+    ]
+  },
   { label: "Routines",    to: "/routines" },
   { label: "Journal",     to: "/journal" },
   { label: "About",       to: "/about" },
