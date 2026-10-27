@@ -53,8 +53,18 @@ async function apiFetch(endpoint, options = {}) {
  * Mappers to ensure the frontend receives the expected data shapes
  */
 
+function createSlug(text) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'general';
+}
+
 function mapProduct(prod, { includeWholesale = false } = {}) {
   if (!prod) return null;
+// ... (rest of the function)
+
 
   const imageSource = prod.image_url || prod.imageUrl;
   let imageUrl = '/assets/placeholder.jpg';
@@ -224,9 +234,8 @@ export async function getProducts(options = {}) {
   const params = new URLSearchParams();
 
   if (category) {
-    // Change from query param ?category=... to path param /categories/{category}/products
-    // We use the category name as the slug/id
-    endpoint = `/categories/${encodeURIComponent(category)}/products`;
+    const slug = createSlug(category);
+    endpoint = `/categories/${encodeURIComponent(slug)}/products`;
   }
 
   if (tag) params.append('q', tag);
@@ -302,7 +311,8 @@ export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
   const params = new URLSearchParams();
 
   if (categoryId) {
-    endpoint = `/categories/${encodeURIComponent(categoryId)}/products`;
+    const slug = createSlug(categoryId);
+    endpoint = `/categories/${encodeURIComponent(slug)}/products`;
   }
 
   params.append('page', '1');
