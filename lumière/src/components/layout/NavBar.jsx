@@ -12,6 +12,7 @@ const NAV_LINKS = [
     to: "/shop",
     dropdown: [], // Populated dynamically
   },
+  { label: "New",       to: "/categories/new-arrivals/products" },
   { label: "Routines",    to: "/routines" },
   { label: "Journal",     to: "/journal" },
   { label: "About",       to: "/about" },
@@ -89,7 +90,6 @@ export default function Navbar() {
 
   const shopDropdown = [
     { label: "All Products", to: "/shop" },
-    { label: "New Arrivals", to: "/shop?sort=newest" },
     { label: "Best Sellers", to: "/shop?sort=popular" },
     ...categories.map(cat => ({
       label: cat.name,
@@ -128,7 +128,7 @@ export default function Navbar() {
                   </NavLink>
 
                   {currentDropdown && (
-                    <div className="absolute left-0 top-full w-56 opacity-0 pointer-events-none translate-y-2 transition-all duration-200 group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 z-50">
+                    <div className="absolute left-0 top-full w-56 opacity-0 pointer-events-none transition-all duration-200 group-hover:opacity-100 group-hover:pointer-events-auto z-50">
                       <div className="bg-white border border-(--color-border) shadow-xl rounded-sm overflow-hidden max-h-[70vh] overflow-y-auto">
                         {currentDropdown.map((item) => (
                           <Link
