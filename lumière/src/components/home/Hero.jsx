@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import heroImage from "../../assets/background.jpg";
-import skincareImage from "../../assets/hero.png";
 import bundleImage from "../../assets/cos_bundle.jpg";
 
 const SLIDES = [
@@ -29,9 +28,6 @@ const SLIDES = [
     buttonLink: "/shop?category=Skincare",
     secondaryText: "Explore best sellers",
     secondaryLink: "/shop?sort=popular",
-    image: skincareImage,
-    imageAlt: "Skincare essentials selected for your daily routine",
-    imageClass: "bg-[position:68%_center] sm:bg-[position:72%_center]",
     overlay: "from-[#fffaf2]/95 via-[#fffaf2]/80 to-[#fffaf2]/15",
     theme: "light",
   },
@@ -80,20 +76,23 @@ export default function Hero() {
       className="relative isolate min-h-[min(760px,calc(100svh-5rem))] overflow-hidden bg-[#171332] text-white sm:min-h-[min(800px,calc(100svh-6rem))]"
     >
       {SLIDES.map((item, index) => (
-        <div
-          key={item.id}
-          role="img"
-          aria-label={item.imageAlt}
-          className={`absolute inset-0 -z-20 bg-cover transition-opacity duration-1000 ${item.imageClass} ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
-          style={{ backgroundImage: `url(${item.image})` }}
-        />
+        item.image && (
+          <div
+            key={item.id}
+            role="img"
+            aria-label={item.imageAlt}
+            className={`absolute inset-0 -z-20 bg-cover transition-opacity duration-1000 ${item.imageClass} ${index === currentSlide ? "opacity-100" : "opacity-0"}`}
+            style={{ backgroundImage: `url(${item.image})` }}
+          />
+        )
       ))}
 
       <div className={`absolute inset-0 -z-10 bg-gradient-to-r ${slide.overlay} transition-colors duration-700`} />
       <div className={`absolute inset-0 -z-10 ${isLight ? "bg-[radial-gradient(ellipse_at_75%_50%,rgba(255,255,255,0.12),transparent_42%)]" : "bg-[radial-gradient(ellipse_at_72%_45%,rgba(229,0,125,0.12),transparent_38%)]"}`} />
 
       <div className="mx-auto flex min-h-[min(760px,calc(100svh-5rem))] max-w-[1440px] items-center px-6 py-20 sm:min-h-[min(800px,calc(100svh-6rem))] sm:px-12 lg:px-20 xl:px-24">
-        <div key={slide.id} className="max-w-[700px]">
+        <div key={slide.id} className={`relative w-full ${currentSlide === 1 ? "grid items-center gap-8 lg:grid-cols-[1fr_0.8fr] lg:gap-4" : "max-w-[700px]"}`}>
+          <div className={currentSlide === 1 ? "relative z-10 max-w-[640px]" : undefined}>
           <p className={`mb-7 flex items-center gap-3 text-[10px] font-medium uppercase tracking-[0.28em] transition-all duration-700 sm:text-[11px] ${isLight ? "text-[#805d72]" : "text-white/80"} ${visible ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0"}`}>
             <span className={`h-px w-10 ${isLight ? "bg-[#805d72]/60" : "bg-white/70"}`} aria-hidden="true" />
             {slide.label}
@@ -124,6 +123,35 @@ export default function Hero() {
               {slide.secondaryText}
             </Link>
           </div>
+          </div>
+
+          {currentSlide === 1 && (
+            <div className="relative hidden h-[390px] items-center justify-center lg:flex xl:h-[470px]" role="img" aria-label="Two skincare serum bottles">
+              <div className="absolute h-[310px] w-[310px] rounded-full bg-white/45 blur-3xl xl:h-[390px] xl:w-[390px]" />
+              <div className="relative flex h-[330px] w-[360px] items-end justify-center animate-[hero-bounce_3.2s_ease-in-out_infinite] xl:h-[410px] xl:w-[440px]">
+                <div className="absolute bottom-8 left-8 h-64 w-28 rotate-[-8deg] rounded-[2rem_2rem_1.6rem_1.6rem] border border-white/80 bg-gradient-to-r from-[#d8f4f0] via-[#f6fffc] to-[#a9dad4] shadow-[18px_24px_35px_rgba(64,88,81,0.18)] xl:left-12 xl:h-80 xl:w-32">
+                  <div className="absolute -top-9 left-1/2 h-12 w-12 -translate-x-1/2 rounded-t-xl border border-white/70 bg-gradient-to-r from-[#c8e8e4] via-white to-[#a8d5d0] shadow-md" />
+                  <div className="absolute -top-10 left-[58%] h-2 w-16 rotate-[8deg] rounded-full bg-[#c4e4df]" />
+                  <div className="absolute inset-x-2 top-1/3 rounded-sm bg-white/65 px-2 py-3 text-center text-[#37615d] shadow-sm">
+                    <span className="block text-[8px] tracking-[0.18em]">DAILY CARE</span>
+                    <span className="mt-1 block font-display text-sm italic xl:text-base">Hydration</span>
+                    <span className="mt-1 block text-[6px] tracking-[0.12em]">CALM · NOURISH · GLOW</span>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-7 right-8 h-[290px] w-[116px] rounded-[1.8rem_1.8rem_1.2rem_1.2rem] border border-white/80 bg-gradient-to-r from-[#d9c5a2] via-[#fff9ec] to-[#c9a66d] shadow-[20px_25px_40px_rgba(92,66,37,0.24)] xl:right-12 xl:h-[360px] xl:w-[136px]">
+                  <div className="absolute -top-[72px] left-1/2 h-[76px] w-[50px] -translate-x-1/2 rounded-t-xl border border-white/80 bg-gradient-to-r from-[#eee4d2] via-white to-[#d5c09e] shadow-md xl:-top-[84px] xl:h-[88px] xl:w-[58px]" />
+                  <div className="absolute inset-x-2 top-[38%] rounded-sm bg-white/75 px-2 py-4 text-center text-[#6a5030] shadow-sm">
+                    <span className="block text-[8px] tracking-[0.2em]">LUMIÈRE</span>
+                    <span className="mt-2 block font-display text-lg italic xl:text-xl">Radiance</span>
+                    <span className="mt-1 block text-[7px] tracking-[0.12em]">SERUM · 30 ML</span>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-4 h-5 w-64 rounded-full bg-[#7b6859]/20 blur-lg xl:w-80" />
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
