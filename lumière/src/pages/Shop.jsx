@@ -151,7 +151,7 @@ export default function Shop() {
           <p className="mb-2 text-[10px] uppercase tracking-[0.14em] text-(--color-pink-light)">
             De Lady's Beauty World
           </p>
-          <h1 className="font-display text-[36px] font-normal leading-none sm:text-[52px]">Shop all</h1>
+          <h1 className="font-display text-[40px] font-normal leading-none sm:text-[60px]">Shop all</h1>
         </div>
       </div>
 

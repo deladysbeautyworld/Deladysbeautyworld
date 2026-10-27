@@ -24,6 +24,3 @@ export default function AdminStatusPill({ status }) {
     </span>
   );
 }
-
-// Re-export the map so other admin pages can reuse it (e.g. for filter chips).
-export { STATUS_STYLES };
