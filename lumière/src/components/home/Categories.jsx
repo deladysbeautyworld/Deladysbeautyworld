@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 const CATEGORIES = [
   {
     name: "Brightening",
-    slug: "brightening",
+    tag: "brightening",
     count: "12 products",
     bg: "var(--color-pink-pale)",
     image: "https://images.unsplash.com/photo-1729701494051-7013553fafa5?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -11,7 +11,7 @@ const CATEGORIES = [
   },
   {
     name: "Hydration",
-    slug: "hydration",
+    tag: "hydration",
     count: "18 products",
     bg: "var(--color-cream-dark)",
     image: "https://images.unsplash.com/photo-1740097041788-171fa58b74ea?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -19,7 +19,7 @@ const CATEGORIES = [
   },
   {
     name: "Anti-aging",
-    slug: "anti-aging",
+    tag: "antiaging",
     count: "9 products",
     bg: "var(--color-surface)",
     image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=900&auto=format&fit=crop",
@@ -27,7 +27,7 @@ const CATEGORIES = [
   },
   {
     name: "Sensitive skin",
-    slug: "sensitive-skin",
+    tag: "sensitive",
     count: "14 products",
     bg: "var(--color-cream-mid)",
     image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=900&auto=format&fit=crop",
@@ -35,7 +35,7 @@ const CATEGORIES = [
   },
   {
     name: "Acne control",
-    slug: "acne-control",
+    tag: "acne",
     count: "11 products",
     bg: "var(--color-border)",
     image: "https://images.unsplash.com/photo-1687700997210-1501e2682f02?q=80&w=900&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
@@ -43,7 +43,7 @@ const CATEGORIES = [
   },
   {
     name: "Routines",
-    slug: "routines",
+    to: "/routines",
     count: "6 bundles",
     bg: "var(--color-pink-light)",
     image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=900&auto=format&fit=crop",
@@ -73,7 +73,7 @@ export default function Categories() {
         {CATEGORIES.map((cat) => (
           <Link
             key={cat.name}
-            to={`/shop?category=${cat.slug}`}
+            to={cat.to ?? `/shop?tag=${encodeURIComponent(cat.tag)}`}
             style={{ backgroundColor: cat.bg }}
             className="group relative flex h-56 flex-col justify-end overflow-hidden rounded-[1.25rem] px-5 py-5 text-left sm:h-72 sm:px-7 sm:py-7"
           >
