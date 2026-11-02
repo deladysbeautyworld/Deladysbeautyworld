@@ -270,6 +270,22 @@ export async function getProducts(options = {}) {
   };
 }
 
+export async function getProductPreview(tag) {
+  const params = new URLSearchParams({
+    q: tag,
+    page: '1',
+    pageSize: '1',
+  });
+  const data = await apiFetch(`/products?${params.toString()}`);
+  const productsRaw = Array.isArray(data) ? data : (data.products || []);
+  const total = Number(data.total ?? productsRaw.length);
+
+  return {
+    product: productsRaw.length ? mapProduct(productsRaw[0]) : null,
+    total: Number.isFinite(total) ? total : productsRaw.length,
+  };
+}
+
 /**
  * Paginated product list for the admin dashboard.
  */
