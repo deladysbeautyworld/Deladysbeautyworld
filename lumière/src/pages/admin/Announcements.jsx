@@ -157,7 +157,55 @@ export default function Announcements() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: one card per announcement with publish switch + actions */}
+            <ul className="md:hidden divide-y divide-(--color-border)">
+              {announcements.map((announcement) => (
+                <li key={announcement.id} className="px-4 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[14px] font-medium text-(--color-ink)">{announcement.title}</p>
+                      <p className="mt-1 text-[12.5px] text-(--color-muted) line-clamp-2">{announcement.message}</p>
+                      <p className="mt-1 text-[11.5px] text-(--color-faint)">
+                        Updated{" "}
+                        {new Date(announcement.updated_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={announcement.active}
+                      aria-label={`${announcement.active ? "Unpublish" : "Publish"} ${announcement.title}`}
+                      onClick={() => handleToggle(announcement)}
+                      className={[
+                        "relative h-5 w-10 rounded-full transition-colors shrink-0 mt-0.5",
+                        announcement.active ? "bg-(--color-pink)" : "bg-(--color-border)",
+                      ].join(" ")}
+                    >
+                      <span
+                        className={[
+                          "absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform",
+                          announcement.active ? "left-5" : "left-0.5",
+                        ].join(" ")}
+                      />
+                    </button>
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button type="button" onClick={() => openEdit(announcement)} className="admin-btn admin-btn--ghost h-9 flex-1">
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDelete(announcement)}
+                      className="admin-btn admin-btn--ghost h-9 flex-1 hover:text-red-500! hover:border-red-300!"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="border-b border-(--color-border) bg-(--color-cream-dark)/40 text-left text-[10px] uppercase tracking-[0.12em] text-(--color-faint)">
@@ -232,6 +280,7 @@ export default function Announcements() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       </div>

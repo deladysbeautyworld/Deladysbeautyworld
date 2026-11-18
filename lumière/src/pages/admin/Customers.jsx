@@ -96,7 +96,32 @@ export default function Customers() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: one tappable card per customer */}
+            <ul className="md:hidden divide-y divide-(--color-border)">
+              {data.customers.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/admin/customers/${c.id}`)}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-(--color-pink-pale)/40"
+                  >
+                    <div className="w-10 h-10 rounded-full bg-(--color-pink) text-white flex items-center justify-center text-[13px] font-medium shrink-0">
+                      {c.full_name?.[0]?.toUpperCase() ?? c.email?.[0]?.toUpperCase() ?? "?"}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13.5px] text-(--color-ink) truncate">{c.full_name ?? "—"}</p>
+                      <p className="text-[11.5px] text-(--color-faint) truncate">{c.email}</p>
+                      <p className="text-[11.5px] text-(--color-muted) mt-0.5">
+                        Joined {formatDate(c.created_at)} · {c.orderCount} {c.orderCount === 1 ? "order" : "orders"}
+                      </p>
+                    </div>
+                    <span className="text-[13.5px] font-medium text-(--color-ink) tabular-nums shrink-0">{fmt(c.totalSpent)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="text-left text-[10px] tracking-[0.12em] uppercase text-(--color-faint) border-b border-(--color-border) bg-(--color-cream-dark)/40">
@@ -142,6 +167,7 @@ export default function Customers() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
 
