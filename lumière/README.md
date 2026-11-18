@@ -24,6 +24,8 @@ cp .env.example .env
 ```
 Then, fill in your Supabase, KoraPay, and Resend settings. Use the KoraPay public key in `VITE_KORAPAY_PUBLIC_KEY`; keep `KORAPAY_SECRET_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and all Resend/cron secrets server-side only.
 
+`npm run dev` serves the Vite frontend only; it does not run the `/api/*` serverless functions. Use `vercel dev` from the app directory when testing newsletter signup or contact delivery locally.
+
 ### 3. Run Development Server
 ```bash
 npm run dev
@@ -47,13 +49,15 @@ The project uses several key tables. Ensure these are created in your Supabase p
 - `posts`: Journal/blog entries.
 
 ### Database Functions
-The app uses a custom PostgreSQL function `finalize_order` for atomic order creation. See `supabase/sql/202608200001_predeploy_security_checkout.sql` for the implementation.
+The PostgreSQL function `finalize_order` creates orders and decrements inventory atomically. It is callable only by the server-side service role; the browser must not call it directly. The server verifies the signed-in customer and KoraPay transaction, and the function derives item prices, promotions, and delivery fees from database records.
 
 
 ## 💳 KoraPay Integration
-Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout, and `api/verify-korapay.js` verifies the transaction with the server-only secret key before an order is finalized. The `api/korapay-webhook.js` endpoint independently validates KoraPay's `x-korapay-signature`, verifies successful charges with KoraPay, and marks the matching order as paid in Supabase. Duplicate notifications are safe to process, and notifications received before their order exists receive a retryable response.
+Payments use KoraPay Checkout Standard. The frontend uses the public key to open checkout; `api/finalize-korapay-order.js` validates the customer's Supabase access token, verifies the charge with the server-only secret key, and then calls `finalize_order` with the service role. The database function rechecks authoritative catalog prices, delivery fee, and promotion eligibility before creating the paid order and decrementing stock in one transaction. Do not grant browser roles execute permission on this function.
 
-The migration `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` updates the order payment method and `finalize_order` function. Apply it to the Supabase project before deploying the new checkout code.
+The `api/korapay-webhook.js` endpoint independently validates KoraPay's `x-korapay-signature`, verifies successful charges with KoraPay, and updates the matching order in Supabase. Duplicate notifications are safe to process, and notifications received before their order exists receive a retryable response.
+
+Apply `supabase/migrations/20260929064943_switch_payment_provider_to_korapay.sql` before deploying the new checkout code.
 
 Payment and delivery are tracked separately: KoraPay verification/webhooks update payment, while fulfillment moves through confirmed, shipped, and delivered. After an order is marked shipped, its signed-in customer can confirm receipt from their profile; the database checks order ownership and paid/shipped status and records the delivery confirmation time. Apply `supabase/migrations/202610050001_order_delivery_confirmation.sql` to enable this feature.
 
@@ -97,13 +101,17 @@ The push endpoint uses `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` already re
 
 ## ✉️ Customer email and stock alerts
 
-Contact enquiries are delivered to `CONTACT_INBOX_EMAIL`. Newsletter signups require an explicit consent checkbox and are added to the Resend audience configured by `RESEND_AUDIENCE_ID`. Set `RESEND_API_KEY` and a verified sender address in `RESEND_FROM_EMAIL`.
+Contact enquiries are delivered to `CONTACT_INBOX_EMAIL`. Newsletter signups require explicit consent and add the normalized address to the Resend audience in `RESEND_AUDIENCE_ID`; this signup endpoint does not itself send a welcome email or apply a discount. Create and send newsletter campaigns separately in Resend, using its unsubscribe controls. Resend currently recommends migrating Audiences to Segments; the integration uses the existing Audience API, which remains supported for now.
+
+Before sending customer email, add `deladysbeautyworld.com` to the Resend Domains dashboard and publish the exact DNS records Resend provides. Use `orders@deladysbeautyworld.com` for `RESEND_FROM_EMAIL` after the domain is verified; this shared sender is used by contact, order, and low-stock emails. Add the records without replacing existing mail-provider MX or SPF records. Keep `RESEND_API_KEY` server-side. Set `CONTACT_INBOX_EMAIL` to an inbox that is monitored and `ADMIN_NOTIFICATION_EMAIL` to the low-stock alert recipient. Configure these values in both local `.env` and Vercel project settings.
 
 Order confirmation and paid fulfillment-status messages are written to a private Supabase outbox. Supabase Vault triggers the Vercel worker immediately; a daily Vercel cron acts as a recovery sweep on every plan. Set a long random `CRON_SECRET` in Vercel and add it to Vault as `email_outbox_webhook_secret`; also save `https://<your-deployed-domain>/api/process-email-outbox` as `email_outbox_webhook_url`. The worker retries failed deliveries with backoff and uses Resend idempotency keys. On Vercel plans supporting minutely cron schedules, change the cron expression in `vercel.json` to `* * * * *` for faster retry recovery. Set `ADMIN_NOTIFICATION_EMAIL` for low-stock messages (five units or fewer per sellable product or variant). An alert is sent once when stock crosses the threshold and is re-armed after restocking above five.
 
 In the admin order detail page, save the courier's tracking number and HTTPS tracking link before marking the order shipped. That link is shown on the customer's order page and included in the shipped email. Return requests are routed to support for manual review; customers should wait for approval before mailing items back.
 
-Ensure `supabase/migrations/202610030001_admin_order_push_notifications.sql` has been applied first (it installs the `pg_net` and Vault extensions used by the email worker), then apply `supabase/migrations/20261013100534_email_tracking_low_stock_automation.sql` before enabling the updated application. Apply and verify the new migration in staging first, then production. Add the new server-side variables from `.env.example` to Vercel; never add real credentials to the repository.
+Ensure `supabase/migrations/202610030001_admin_order_push_notifications.sql` has been applied first (it installs the `pg_net` and Vault extensions used by the email worker), then apply `supabase/migrations/20261013100534_email_tracking_low_stock_automation.sql` before enabling the updated application. Apply and verify migrations in staging first, then production. Add the new server-side variables from `.env.example` to Vercel; never add real credentials to the repository.
+
+The connected production project had migration-history drift: multiple schema changes existed without matching `schema_migrations` entries, and the pre-deploy baseline was only partially present. The KoraPay and email/tracking migrations have now been applied and recorded, but do not run `supabase db push` against that project until the remaining historical migrations and baseline have been fully reconciled.
 
 After deployment, store the worker URL and the same `CRON_SECRET` value in Supabase Vault:
 

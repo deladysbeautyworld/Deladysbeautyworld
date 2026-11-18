@@ -95,17 +95,26 @@ export default function Checkout() {
       document.body.appendChild(script);
     });
 
-  const verifyPayment = async (reference, paymentReference, expectedAmount) => {
-    const response = await fetch("/api/verify-korapay", {
+  const finalizePayment = async (reference, paymentReference, expectedAmount, order) => {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    if (!session?.access_token) {
+      throw new Error("Your session expired. Sign in again before completing checkout.");
+    }
+
+    const response = await fetch("/api/finalize-korapay-order", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reference, paymentReference, expectedAmount }),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({ reference, paymentReference, expectedAmount, order }),
     });
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error || "Payment verification failed.");
     }
-    return data;
+    return data.order;
   };
 
   // Recalculate delivery fee when state changes
@@ -238,10 +247,11 @@ export default function Checkout() {
           if (paymentHandled) return;
           paymentHandled = true;
           try {
-            await verifyPayment(response.reference, paymentReference, Math.round(total));
-            const { data: order, error: finalizeError } = await supabase.rpc("finalize_order", {
-              payload: {
-                payment_reference: paymentReference,
+            const order = await finalizePayment(
+              response.reference,
+              paymentReference,
+              Math.round(total),
+              {
                 promo_code_id: promoData?.id ?? null,
                 shipping: {
                   name: form.fullName,
@@ -253,18 +263,13 @@ export default function Checkout() {
                   whatsapp_number: whatsappNumber,
                   note: form.note || null,
                 },
-                delivery_fee: deliveryFee,
-                total,
                 items: items.map((item) => ({
                   product_id: item.id,
                   variant_id: item.variantId ?? null,
                   quantity: item.quantity,
-                  unit_price: item.price,
                 })),
-              },
-            });
-
-            if (finalizeError) throw finalizeError;
+              }
+            );
             clearCart();
             navigate("/order-confirmation", { state: { order } });
           } catch (err) {

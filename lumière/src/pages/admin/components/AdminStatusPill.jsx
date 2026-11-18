@@ -1,29 +1,17 @@
 /**
- * Status pill — same shape and treatment as the public site's order tag
- * (see OrderConfirmation.jsx). Uses the brand's soft tints so the dashboard
- * table doesn't feel like a different product.
+ * Order status pill — soft tint + coloured dot so status is readable by
+ * colour and by label. Colours come from STATUS_META in format.js so charts match.
  */
-const STATUS_STYLES = {
-  pending:    "bg-amber-50    text-amber-700",
-  paid:       "bg-blue-50     text-blue-700",
-  processing: "bg-indigo-50   text-indigo-700",
-  shipped:    "bg-purple-50   text-purple-700",
-  delivered:  "bg-green-50    text-green-700",
-  cancelled:  "bg-red-50      text-red-700",
-};
+import { STATUS_META } from "./format.js";
 
 export default function AdminStatusPill({ status }) {
+  const meta = STATUS_META[status] ?? { label: status ?? "Unknown", color: "#a79aa9", cls: "bg-gray-50 text-gray-700" };
   return (
     <span
-      className={[
-        "inline-block px-2.5 py-1 rounded-sm text-[10px] tracking-[0.08em] uppercase font-normal",
-        STATUS_STYLES[status] ?? "bg-gray-50 text-gray-700",
-      ].join(" ")}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11.5px] font-medium capitalize ${meta.cls}`}
     >
-      {status}
+      <span className="w-1.5 h-1.5 rounded-full" style={{ background: meta.color }} />
+      {meta.label}
     </span>
   );
 }
-
-// Re-export the map so other admin pages can reuse it (e.g. for filter chips).
-export { STATUS_STYLES };

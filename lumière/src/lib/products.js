@@ -53,8 +53,21 @@ async function apiFetch(endpoint, options = {}) {
  * Mappers to ensure the frontend receives the expected data shapes
  */
 
+const SLUG_MAP = {}; // To be populated as we find mismatches
+
+function createSlug(text) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'general';
+}
+
 function mapProduct(prod, { includeWholesale = false } = {}) {
   if (!prod) return null;
+// ... (rest of the function)
+
 
   const imageSource = prod.image_url || prod.imageUrl;
   let imageUrl = '/assets/placeholder.jpg';
@@ -216,19 +229,34 @@ export async function getProducts(options = {}) {
   const {
     category = null,
     tag = null,
+    minPrice = null,
+    maxPrice = null,
     page = 0,
     pageSize = 9,
   } = options;
+
+  let endpoint = '/products';
   const params = new URLSearchParams();
-  if (category) params.append('category', category);
+
+  if (category) {
+    const slug = SLUG_MAP[category] || createSlug(category);
+    endpoint = `/categories/${encodeURIComponent(slug)}/products`;
+  }
+
   if (tag) params.append('q', tag);
+  if (minPrice !== null) params.append('minPrice', String(minPrice));
+  if (maxPrice !== null) params.append('maxPrice', String(maxPrice));
+
   const normalizedPage = normalizeInteger(page, 0, 0);
   const apiPage = normalizedPage + 1;
   const apiPageSize = normalizeInteger(pageSize, 9, 1, 100);
   params.append('page', apiPage);
   params.append('pageSize', apiPageSize);
 
-  const data = await apiFetch(`/products?${params.toString()}`);
+  const queryStr = params.toString();
+  const finalEndpoint = queryStr ? `${endpoint}?${queryStr}` : endpoint;
+
+  const data = await apiFetch(finalEndpoint);
   const productsRaw = Array.isArray(data) ? data : (data.products || []);
   const total = data.total ?? productsRaw.length;
   const products = await attachReviewSummaries(productsRaw.map(mapProduct));
@@ -239,6 +267,22 @@ export async function getProducts(options = {}) {
     page: normalizedPage,
     pageSize: apiPageSize,
     totalPages: data.totalPages ?? Math.ceil(total / apiPageSize),
+  };
+}
+
+export async function getProductPreview(tag) {
+  const params = new URLSearchParams({
+    q: tag,
+    page: '1',
+    pageSize: '1',
+  });
+  const data = await apiFetch(`/products?${params.toString()}`);
+  const productsRaw = Array.isArray(data) ? data : (data.products || []);
+  const total = Number(data.total ?? productsRaw.length);
+
+  return {
+    product: productsRaw.length ? mapProduct(productsRaw[0]) : null,
+    total: Number.isFinite(total) ? total : productsRaw.length,
   };
 }
 
@@ -287,12 +331,21 @@ export async function getFeaturedProducts(limit = 4) {
  * Related products — same category, excludes current product
  */
 export async function getRelatedProducts(categoryId, excludeId, limit = 4) {
-  const params = new URLSearchParams({
-    category: categoryId,
-    page: '1',
-    pageSize: String(Math.min(100, limit + 1)),
-  });
-  const data = await apiFetch(`/products?${params.toString()}`);
+  let endpoint = '/products';
+  const params = new URLSearchParams();
+
+  if (categoryId) {
+    const slug = SLUG_MAP[categoryId] || createSlug(categoryId);
+    endpoint = `/categories/${encodeURIComponent(slug)}/products`;
+  }
+
+  params.append('page', '1');
+  params.append('pageSize', String(Math.min(100, limit + 1)));
+
+  const queryStr = params.toString();
+  const finalEndpoint = queryStr ? `${endpoint}?${queryStr}` : endpoint;
+
+  const data = await apiFetch(finalEndpoint);
   const productsRaw = Array.isArray(data) ? data : (data.products || []);
 
   const relatedProducts = productsRaw
@@ -335,4 +388,60 @@ export async function getDeliveryZones() {
 
   if (error) throw error;
   return data || [];
+}
+
+/**
+ * Inventory snapshot for the admin overview, built from the POS API.
+ * The API has no stats endpoint, so this walks the product list in pages of
+ * 100 (capped at `maxPages`) and aggregates client-side.
+ */
+export async function getInventorySnapshot({ maxPages = 10 } = {}) {
+  const pageSize = 100;
+  const first = await apiFetch(`/products?page=1&pageSize=${pageSize}`);
+  const totalPages = Math.min(Number(first.totalPages ?? 1) || 1, maxPages);
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(0, totalPages - 1) }, (_, index) =>
+      apiFetch(`/products?page=${index + 2}&pageSize=${pageSize}`)
+    )
+  );
+
+  const products = [first, ...rest]
+    .flatMap((page) => (Array.isArray(page) ? page : page.products || []))
+    .map((product) => mapProduct(product, { includeWholesale: true }));
+
+  const total = Number(first.total ?? products.length);
+  let inStock = 0;
+  let outOfStock = 0;
+  let stockValue = 0;
+  const lowStock = [];
+
+  for (const product of products) {
+    const quantity = Number(product.stock) || 0;
+    stockValue += quantity * (Number(product.price) || 0);
+    if (quantity <= 0) {
+      outOfStock += 1;
+      continue;
+    }
+    inStock += 1;
+    if (quantity <= (product.reorder_level ?? 5)) lowStock.push(product);
+  }
+
+  lowStock.sort((a, b) => a.stock - b.stock);
+
+  return {
+    total,
+    scanned: products.length,
+    inStock,
+    outOfStock,
+    lowStockCount: lowStock.length,
+    lowStock: lowStock.slice(0, 6),
+    stockValue,
+  };
+}
+
+/** Lightweight reachability check for the POS API. */
+export async function pingPosApi() {
+  const started = performance.now();
+  await apiFetch('/products?page=1&pageSize=1');
+  return Math.round(performance.now() - started);
 }

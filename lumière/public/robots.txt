@@ -3,3 +3,17 @@ Allow: /
 
 Host: https://deladysbeautyworld.com
 Sitemap: https://deladysbeautyworld.com/sitemap.xml
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /cart
+Disallow: /checkout
+Disallow: /profile
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /order-confirmation
+
+Sitemap: https://deladysbeautyworld.com/sitemap.xml

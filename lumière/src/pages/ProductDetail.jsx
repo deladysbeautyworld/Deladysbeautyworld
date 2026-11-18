@@ -69,12 +69,19 @@ export default function ProductDetail() {
         }
 
         // Fetch related products in parallel — empty array if no category
-        const related = p.category_id
-          ? await getRelatedProducts(p.category_id, p.id, 4)
-          : [];
+        let relatedProducts = [];
+        if (p.category_id) {
+          try {
+            relatedProducts = await getRelatedProducts(p.category_id, p.id, 4);
+          } catch (err) {
+            console.warn(`Could not fetch related products for category ${p.category_id}:`, err);
+            relatedProducts = [];
+          }
+        }
         if (cancelled) return;
-        setRelated(related ?? []);
-      } catch {
+        setRelated(relatedProducts ?? []);
+      } catch (err) {
+        console.error("ProductDetail main load error:", err);
         if (!cancelled) navigate("/shop");
       } finally {
         if (!cancelled) setLoading(false);
@@ -173,7 +180,7 @@ export default function ProductDetail() {
             </Link>
 
             {/* Name */}
-            <h1 className="font-display text-[38px] md:text-[44px] font-light text-(--color-ink) leading-[1.1] mb-4">
+            <h1 className="font-display text-[48px] md:text-[56px] font-light text-(--color-ink) leading-[1.1] mb-4">
               {product.name}
             </h1>
 
@@ -210,7 +217,7 @@ export default function ProductDetail() {
             {hasVariants && Object.entries(variantGroups).map(([type, variants]) => (
               <div key={type} className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
-                  <p className="text-[11px] tracking-[0.1em] uppercase font-medium text-(--color-ink)">
+                  <p className="text-[11px] tracking-widest uppercase font-medium text-(--color-ink)">
                     {VARIANT_TYPE_LABELS[type] ?? type}
                   </p>
                   {selectedVariant && variantGroups[type]?.find(v => v.id === selectedVariant.id) && (
@@ -262,7 +269,7 @@ export default function ProductDetail() {
                 {product.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[10px] tracking-[0.08em] uppercase px-3 py-1.5 border border-(--color-border) text-(--color-muted) rounded-sm capitalize"
+                    className="text-[10px] tracking-[0.08em] capitalize px-3 py-1.5 border border-(--color-border) text-(--color-muted) rounded-sm"
                   >
                     {tag}
                   </span>
@@ -351,7 +358,7 @@ export default function ProductDetail() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
             {related.map((p) => (
               <Link key={p.id} to={`/product/${p.id}`} className="group cursor-pointer">
-                <div className="aspect-[3/4] bg-(--color-cream-mid) rounded-sm mb-3 overflow-hidden flex items-center justify-center group-hover:bg-(--color-cream-dark) transition-colors duration-300">
+                <div className="aspect-3/4 bg-(--color-cream-mid) rounded-sm mb-3 overflow-hidden flex items-center justify-center group-hover:bg-(--color-cream-dark) transition-colors duration-300">
                   <ProductImage
                     src={p.image_url}
                     alt={p.name}

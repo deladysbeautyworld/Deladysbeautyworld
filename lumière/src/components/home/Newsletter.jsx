@@ -34,7 +34,7 @@ export default function Newsletter() {
         Join the glow list
       </h2>
       <p className="mb-8 max-w-sm text-[13px] font-light leading-[1.7] text-white/85">
-        Get early access to new launches, skincare tips, and 10% off your first order.
+        Get early access to new launches and skincare tips.
       </p>
 
       {submitted ? (
@@ -62,7 +62,7 @@ export default function Newsletter() {
               required
               className="mt-0.5 accent-(--color-navy)"
             />
-            <span>I agree to receive beauty news and offers. I can unsubscribe anytime.</span>
+            <span>I agree to receive beauty news and offers by email.</span>
           </label>
           <button
             type="submit"

@@ -10,8 +10,9 @@ export default async function handler(req, res) {
   }
 
   const { email, consent, website } = req.body ?? {};
+  const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : email;
   if (website) return json(res, 400, { error: "Invalid submission." });
-  if (!validEmail(email) || consent !== true) {
+  if (!validEmail(normalizedEmail) || consent !== true) {
     return json(res, 400, { error: "Enter a valid email and confirm you want to receive updates." });
   }
 
@@ -24,7 +25,6 @@ export default async function handler(req, res) {
 
   try {
     const resend = new Resend(apiKey);
-    const normalizedEmail = email.trim().toLowerCase();
     const { error } = await resend.contacts.create({
       audienceId,
       email: normalizedEmail,
