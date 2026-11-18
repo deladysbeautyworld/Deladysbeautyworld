@@ -171,7 +171,64 @@ export default function PromoCodes() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: one card per code; on/off switch and delete always visible */}
+            <ul className="md:hidden divide-y divide-(--color-border)">
+              {codes.map((c) => (
+                <li key={c.id} className="px-4 py-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-mono text-[13px] text-(--color-ink) font-medium truncate">{c.code}</p>
+                      <p className="text-[13px] text-(--color-ink) mt-0.5">
+                        {c.type === "percent"
+                          ? `${Number(c.value)}% off`
+                          : `₦${Number(c.value).toLocaleString("en-NG")} off`}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleToggle(c)}
+                      aria-label={c.active ? "Deactivate" : "Activate"}
+                      className={[
+                        "relative w-10 h-5 rounded-full transition-colors shrink-0",
+                        c.active ? "bg-(--color-pink)" : "bg-(--color-border)",
+                      ].join(" ")}
+                    >
+                      <span
+                        className={[
+                          "absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform",
+                          c.active ? "left-5" : "left-0.5",
+                        ].join(" ")}
+                      />
+                    </button>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-3 gap-2 text-[11.5px]">
+                    <div>
+                      <dt className="text-(--color-faint)">Min order</dt>
+                      <dd className="text-(--color-ink) tabular-nums">₦{Number(c.min_order ?? 0).toLocaleString("en-NG")}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-(--color-faint)">Uses</dt>
+                      <dd className="text-(--color-ink) tabular-nums">{c.uses ?? 0}{c.max_uses ? ` / ${c.max_uses}` : " / ∞"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-(--color-faint)">Expires</dt>
+                      <dd className="text-(--color-ink)">
+                        {c.expires_at
+                          ? new Date(c.expires_at).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })
+                          : "—"}
+                      </dd>
+                    </div>
+                  </dl>
+                  <button
+                    onClick={() => setConfirmDelete(c)}
+                    className="admin-btn admin-btn--ghost h-9 w-full mt-3 hover:text-red-500! hover:border-red-300!"
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="text-left text-[10px] tracking-[0.12em] uppercase text-(--color-faint) border-b border-(--color-border) bg-(--color-cream-dark)/40">
@@ -244,6 +301,7 @@ export default function PromoCodes() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       </div>

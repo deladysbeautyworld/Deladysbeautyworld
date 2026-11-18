@@ -123,7 +123,60 @@ export default function AdminJournal() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: one card per post with status + actions in reach */}
+            <ul className="md:hidden divide-y divide-(--color-border)">
+              {filtered.map((post) => (
+                <li key={post.id} className="px-4 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[14px] text-(--color-ink) leading-snug line-clamp-2">{post.title}</p>
+                      <p className="text-[11.5px] text-(--color-faint) mt-1">
+                        {[post.category, formatDate(post.created_at)].filter(Boolean).join(" · ")}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => togglePublished(post)}
+                      className={`shrink-0 text-[10px] tracking-[0.08em] uppercase px-2.5 py-1 rounded-sm font-normal transition-colors ${
+                        post.published
+                          ? "bg-green-50 text-green-700 hover:bg-green-100"
+                          : "bg-gray-50 text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      {post.published ? "Published" : "Draft"}
+                    </button>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      onClick={() => navigate(`/admin/journal/${post.id}/edit`)}
+                      className="admin-btn admin-btn--ghost h-9 flex-1"
+                    >
+                      Edit
+                    </button>
+                    <a
+                      href={`/journal/${post.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="admin-btn admin-btn--ghost h-9 flex-1"
+                    >
+                      View
+                    </a>
+                    <button
+                      onClick={() => {
+                        if (window.confirm("Delete this post? This cannot be undone.")) {
+                          deletePost(post.id);
+                        }
+                      }}
+                      disabled={deleting === post.id}
+                      className="admin-btn admin-btn--ghost h-9 flex-1 hover:text-red-500! disabled:opacity-50"
+                    >
+                      {deleting === post.id ? "Deleting…" : "Delete"}
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="text-left text-[10px] tracking-[0.12em] uppercase text-(--color-faint) border-b border-(--color-border) bg-(--color-cream-dark)/40">
@@ -192,6 +245,7 @@ export default function AdminJournal() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
       </div>

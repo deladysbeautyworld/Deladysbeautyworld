@@ -97,7 +97,39 @@ export default function Products() {
               {search ? `Nothing in the POS matches “${search}”.` : "Products added in the POS will appear here."}
             </EmptyState>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* Phones: one card per product, price + stock always visible */}
+            <ul className="md:hidden divide-y divide-(--color-border)">
+              {data.products.map((product) => {
+                const stock = stockLabel(product);
+                return (
+                  <li key={product.id} className="flex gap-3 px-4 py-3.5">
+                    <div className="w-14 h-14 bg-(--color-cream-dark) rounded-lg overflow-hidden flex items-center justify-center shrink-0">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt="" loading="lazy" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-3 h-6 bg-(--color-stone) rounded-[6px_6px_1px_1px] opacity-40" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[13.5px] text-(--color-ink) leading-snug capitalize line-clamp-2">
+                        {product.name.toLowerCase()}
+                      </p>
+                      <p className="text-[11.5px] text-(--color-faint) truncate mt-0.5">
+                        {[product.categories?.name, product.pack_size && `Pack ${product.pack_size}`].filter(Boolean).join(" · ")}
+                      </p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <span className="text-[14px] font-medium text-(--color-ink) tabular-nums">{fmt(product.price)}</span>
+                        <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11.5px] font-medium ${stock.cls}`}>
+                          {stock.label}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
                   <tr className="text-left text-[10px] tracking-[0.12em] uppercase text-(--color-faint) border-b border-(--color-border) bg-(--color-cream-dark)/40">
@@ -162,6 +194,7 @@ export default function Products() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </div>
 
