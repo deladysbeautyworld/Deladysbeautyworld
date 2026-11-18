@@ -63,7 +63,6 @@ export default function Customers() {
       <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
 
         <AdminPageHeader
-          eyebrow="Sell"
           title="Customers"
           subtitle={`${data.total} ${data.total === 1 ? "customer" : "customers"}`}
         />

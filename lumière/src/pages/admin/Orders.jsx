@@ -104,7 +104,6 @@ export default function Orders() {
       <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
 
         <AdminPageHeader
-          eyebrow="Sell"
           title="Orders"
           subtitle={`${data.total} ${data.total === 1 ? "order" : "orders"} total`}
         />

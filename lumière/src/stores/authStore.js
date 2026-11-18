@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { supabase, markPasswordRecovery, RESET_PASSWORD_PATH } from "../utils/supabase";
+import { supabase } from "../utils/supabase";
 import { useCartStore } from "./cartStore";
 
 /**
@@ -41,18 +41,7 @@ export const useAuthStore = create(
           setRoleFromUser(user);
         }
 
-        supabase.auth.onAuthStateChange((event, session) => {
-          // Backup for the URL check in utils/supabase.js: a recovery
-          // session must always end on the reset form, never on the site
-          // with the user simply signed in.
-          if (event === "PASSWORD_RECOVERY") {
-            markPasswordRecovery();
-            if (window.location.pathname !== RESET_PASSWORD_PATH) {
-              window.location.replace(RESET_PASSWORD_PATH);
-              return;
-            }
-          }
-
+        supabase.auth.onAuthStateChange((_event, session) => {
           const newUser = session?.user ?? null;
           set({ session, user: newUser });
 
@@ -178,7 +167,7 @@ export const useAuthStore = create(
       // we let them choose a new password.
       resetPasswordForEmail: async ({ email }) => {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}${RESET_PASSWORD_PATH}`,
+          redirectTo: `${window.location.origin}/reset-password`,
         });
         if (error) throw error;
       },

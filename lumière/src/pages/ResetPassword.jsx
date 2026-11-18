@@ -1,26 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  supabase,
-  isPasswordRecovery,
-  markPasswordRecovery,
-  clearPasswordRecovery,
-} from "../utils/supabase";
-import { useAuthStore, ADMIN_ROLES } from "../stores/authStore";
+import { supabase } from "../utils/supabase";
 
 /**
  * /reset-password — the destination of the recovery email link.
  *
  * Flow:
- *  1. Supabase redirects here with `#access_token=...&type=recovery` in the URL
- *     (utils/supabase.js also reroutes recovery links that land elsewhere).
+ *  1. Supabase redirects here with `#access_token=...&type=recovery` in the URL.
  *  2. The client picks up the hash and signs the user in temporarily so we can
  *     verify the recovery session.
  *  3. The user types + confirms a new password, we call updateUser({ password }).
- *  4. Supabase signs them in for real; we redirect to their account.
- *
- * Someone who is simply signed in (no recovery link) is not shown the form:
- * changing a password without the old one is only allowed via the email.
+ *  4. Supabase signs them in for real; we redirect to /profile.
  *
  * If the link is invalid or expired, we render a "link expired" state with
  * a button back to /forgot-password.
@@ -31,7 +21,6 @@ export default function ResetPassword() {
   // 'verifying' while we figure out the auth state from the URL hash,
   // 'ready' when the user can set a new password,
   // 'invalid' when the link has expired or is missing,
-  // 'signedIn' when a normal (non-recovery) session visits this page,
   // 'success' after the password has been updated.
   const [phase, setPhase] = useState("verifying");
   const [error, setError] = useState(null);
@@ -45,17 +34,7 @@ export default function ResetPassword() {
   useEffect(() => {
     let cancelled = false;
 
-    // Expired / already-used links come back with an error in the hash.
-    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-    const linkError = hashParams.get("error_description");
-
     async function resolve() {
-      if (linkError) {
-        setError(linkError.replace(/\+/g, " "));
-        setPhase("invalid");
-        return;
-      }
-
       // getSession() triggers Supabase to parse the hash and persist the
       // recovery session. Then we can check the result.
       const { data, error: sessionErr } = await supabase.auth.getSession();
@@ -76,7 +55,7 @@ export default function ResetPassword() {
         return;
       }
 
-      setPhase(isPasswordRecovery() ? "ready" : "signedIn");
+      setPhase("ready");
     }
 
     resolve();
@@ -86,7 +65,6 @@ export default function ResetPassword() {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (cancelled) return;
       if (event === "PASSWORD_RECOVERY") {
-        markPasswordRecovery();
         setPhase("ready");
       }
     });
@@ -118,10 +96,8 @@ export default function ResetPassword() {
       if (updateErr) throw updateErr;
 
       // After updateUser, the user is signed in for real. Move on.
-      clearPasswordRecovery();
       setPhase("success");
-      const isAdmin = ADMIN_ROLES.includes(useAuthStore.getState().role);
-      setTimeout(() => navigate(isAdmin ? "/admin" : "/profile", { replace: true }), 1500);
+      setTimeout(() => navigate("/profile"), 1500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -150,38 +126,13 @@ export default function ResetPassword() {
           Link expired
         </h1>
         <p className="text-[13px] text-(--color-muted) font-light leading-[1.7] max-w-sm mb-8">
-          This password-reset link is invalid or has expired. Reset links are valid for 1 hour
-          and can only be used once.
+          This password-reset link is invalid or has expired. Reset links are valid for 1 hour.
         </p>
-        {error && (
-          <p className="text-[12px] text-(--color-faint) font-light mb-6 -mt-4">{error}</p>
-        )}
         <Link
           to="/forgot-password"
           className="h-11 px-6 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors flex items-center justify-center"
         >
           Request a new link
-        </Link>
-      </Center>
-    );
-  }
-
-  if (phase === "signedIn") {
-    return (
-      <Center>
-        <IconBadge>i</IconBadge>
-        <h1 className="font-display text-[26px] font-light text-(--color-ink) mb-2">
-          You're already signed in
-        </h1>
-        <p className="text-[13px] text-(--color-muted) font-light leading-[1.7] max-w-sm mb-8">
-          To change your password, use your account settings. You'll need your current password.
-          Forgotten it? Sign out and use "Forgot password" on the sign-in page.
-        </p>
-        <Link
-          to="/profile"
-          className="h-11 px-6 bg-(--color-ink) text-(--color-cream) text-[11px] tracking-widest uppercase font-normal rounded-sm hover:bg-(--color-ink-soft) transition-colors flex items-center justify-center"
-        >
-          Go to my account
         </Link>
       </Center>
     );

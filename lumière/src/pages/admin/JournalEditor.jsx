@@ -132,7 +132,6 @@ export default function JournalEditor() {
         </Link>
 
         <AdminPageHeader
-          eyebrow="Marketing"
           title={isEdit ? "Edit post" : "New post"}
           subtitle={isEdit ? `Editing: ${form.title || "Untitled"}` : "Write a new journal post"}
         />

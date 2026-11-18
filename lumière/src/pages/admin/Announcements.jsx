@@ -115,7 +115,6 @@ export default function Announcements() {
       />
       <div className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 md:px-10">
         <AdminPageHeader
-          eyebrow="Marketing"
           title="Store announcements"
           subtitle="Publish important updates for visitors to your storefront."
           action={

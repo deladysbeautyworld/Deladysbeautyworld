@@ -1,14 +1,17 @@
-import { Skeleton, Sparkline, SourceTag } from "./ui.jsx";
-
 /**
- * KPI card for the admin dashboard.
+ * Branded metric card for the admin dashboard.
  *
- *  - `trend={{ deltaPct, prior }}` renders a ▲/▼ chip vs the prior period.
- *    Suppressed when there's no prior data (a % change over zero is noise).
- *  - `spark` is an array of numbers drawn as a small trend line.
- *  - `accent` highlights the card the admin should act on first.
- *  - `source` ("db" | "pos") tags where the number comes from.
- *  - `footnote` is a short line of context under the value.
+ * Variants:
+ *  - default: cream background, subtle border, navy ink value
+ *  - accent:  pink border + pale pink tint, reserved for the headline
+ *             metric the admin should look at first (pending orders, etc.)
+ *
+ * Pass `trend={{ deltaPct, prior }}` to render a small "▲ 12% vs prior 30d"
+ * badge below the value. If `deltaPct === 0` the badge is suppressed (don't
+ * show a misleading flat line for empty data).
+ *
+ * While `loading` is true the value slot renders a small pulse skeleton so
+ * the layout doesn't jump when data arrives.
  */
 export default function AdminMetricCard({
   label,
@@ -17,63 +20,61 @@ export default function AdminMetricCard({
   accent = false,
   icon = null,
   trend = null,
-  trendLabel = "vs prior 30 days",
-  spark = null,
-  source = null,
-  footnote = null,
 }) {
+  // Suppress trend badges for empty data — a 0% delta over zero prior isn't
+  // informative and looks like a layout bug.
   const showTrend =
-    trend && !loading && Number(trend.prior ?? 0) > 0 && Number.isFinite(Number(trend.deltaPct));
-  const delta = Number(trend?.deltaPct ?? 0);
-  const positive = showTrend && delta > 0;
-  const negative = showTrend && delta < 0;
+    trend &&
+    !loading &&
+    Number(trend.prior ?? 0) > 0 &&
+    Number.isFinite(Number(trend.deltaPct));
+
+  const positive = showTrend && Number(trend.deltaPct) > 0;
+  const negative = showTrend && Number(trend.deltaPct) < 0;
 
   return (
     <div
       className={[
-        "admin-card relative p-4 sm:p-5 overflow-hidden flex flex-col",
-        accent ? "ring-1 ring-(--color-pink)/30 bg-linear-to-br from-(--color-pink-pale) to-white" : "",
+        "relative border rounded-sm px-5 py-5 overflow-hidden transition-colors",
+        accent
+          ? "border-(--color-pink) bg-(--color-pink-pale)"
+          : "border-(--color-border) bg-white",
       ].join(" ")}
     >
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5 min-w-0">
-          {icon && (
-            <span className={`admin-icon-chip hidden sm:inline-flex ${accent ? "" : "admin-icon-chip--navy"}`}>{icon}</span>
-          )}
-          <p className="text-[12px] sm:text-[13px] text-(--color-muted) leading-snug line-clamp-2">{label}</p>
-        </div>
-        {source && <span className="hidden sm:inline"><SourceTag source={source} /></span>}
-      </div>
+      {/* Pink hairline on accent cards so they pop against the grid */}
+      {accent && (
+        <span className="absolute left-0 top-0 bottom-0 w-0.75 bg-(--color-pink)" />
+      )}
 
-      <div className="mt-3 sm:mt-4 flex flex-wrap items-end justify-between gap-2">
-        <p className="text-[22px] sm:text-[28px] leading-none font-medium text-(--color-ink) tabular-nums tracking-tight">
-          {loading ? <Skeleton className="w-24 h-7" /> : value}
+      <div className="flex items-start justify-between">
+        <p className="text-[10px] tracking-[0.14em] uppercase text-(--color-faint) font-normal">
+          {label}
         </p>
-        {showTrend && (
-          <span
-            className={[
-              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11.5px] font-medium tabular-nums",
-              positive ? "bg-(--color-success-soft) text-(--color-success)" : "",
-              negative ? "bg-[#fdecef] text-(--color-error)" : "",
-              !positive && !negative ? "bg-(--color-cream-dark) text-(--color-muted)" : "",
-            ].join(" ")}
-            title={trendLabel}
-          >
-            {positive ? "▲" : negative ? "▼" : "•"} {Math.abs(delta)}%
+        {icon && (
+          <span className={accent ? "text-(--color-pink)" : "text-(--color-muted)"}>
+            {icon}
           </span>
         )}
       </div>
 
-      <div className="mt-auto pt-3">
-        {!loading && spark && (
-          <div className={accent ? "text-(--color-pink)" : "text-(--color-navy-soft)"}>
-            <Sparkline values={spark} />
-          </div>
+      <p className="font-display text-[26px] md:text-[28px] font-light text-(--color-ink) mt-3 leading-none">
+        {loading ? (
+          <span className="inline-block w-20 h-7 bg-(--color-cream-dark) rounded-sm animate-pulse" />
+        ) : (
+          value
         )}
-        {!loading && (footnote || showTrend) && (
-          <p className="text-[12px] text-(--color-faint) mt-1">{footnote ?? trendLabel}</p>
-        )}
-      </div>
+      </p>
+
+      {showTrend && (
+        <p
+          className={[
+            "mt-2 text-[10px] tracking-[0.14em] uppercase font-normal",
+            positive ? "text-emerald-600" : negative ? "text-red-500" : "text-(--color-faint)",
+          ].join(" ")}
+        >
+          {positive ? "▲" : "▼"} {Math.abs(Number(trend.deltaPct))}% vs prior 30d
+        </p>
+      )}
     </div>
   );
 }

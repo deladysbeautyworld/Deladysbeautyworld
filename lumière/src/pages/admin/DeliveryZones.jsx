@@ -160,7 +160,6 @@ export default function DeliveryZones() {
       <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
 
         <AdminPageHeader
-          eyebrow="Settings"
           title="Delivery zones"
           subtitle={`${zones.length} ${zones.length === 1 ? "zone" : "zones"} configured`}
           action={
