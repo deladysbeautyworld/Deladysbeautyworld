@@ -864,3 +864,69 @@ export async function getOverviewTrendsSafe() {
     };
   }
 }
+/* ---------------- Overview activity ---------------- */
+
+const REVENUE_STATUSES = ["confirmed", "shipped", "delivered"];
+
+/**
+ * Daily revenue/order series and status mix for the last `days` days.
+ * One query, aggregated client-side so the chart and the status breakdown
+ * always agree with each other.
+ */
+export async function getOrderActivity(days = 30) {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+
+  const { data, error } = await supabase
+    .from("orders")
+    .select("status, payment_status, total, created_at")
+    .gte("created_at", since.toISOString())
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+
+  const keyOf = (date) =>
+    `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+
+  const series = Array.from({ length: days }, (_, index) => {
+    const date = new Date(since);
+    date.setDate(since.getDate() + index);
+    return { date, key: keyOf(date), revenue: 0, orders: 0 };
+  });
+  const byKey = new Map(series.map((point) => [point.key, point]));
+  const statusCounts = {};
+
+  for (const order of data ?? []) {
+    const point = byKey.get(keyOf(new Date(order.created_at)));
+    statusCounts[order.status] = (statusCounts[order.status] ?? 0) + 1;
+    if (!point) continue;
+    point.orders += 1;
+    if (REVENUE_STATUSES.includes(order.status)) {
+      point.revenue += Number(order.total ?? 0);
+    }
+  }
+
+  const totalOrders = (data ?? []).length;
+  const revenue = series.reduce((sum, point) => sum + point.revenue, 0);
+  const paidOrders = (data ?? []).filter((o) => REVENUE_STATUSES.includes(o.status)).length;
+
+  return {
+    series,
+    statusCounts,
+    totalOrders,
+    revenue,
+    averageOrderValue: paidOrders ? revenue / paidOrders : 0,
+  };
+}
+
+/** Lightweight reachability check for Supabase. */
+export async function pingSupabase() {
+  const started = performance.now();
+  const { error } = await supabase
+    .from("orders")
+    .select("id", { count: "exact", head: true })
+    .limit(1);
+  if (error) throw error;
+  return Math.round(performance.now() - started);
+}

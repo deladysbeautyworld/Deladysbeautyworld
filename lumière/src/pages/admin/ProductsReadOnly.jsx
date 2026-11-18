@@ -1,29 +1,35 @@
 import { useEffect, useState } from "react";
 import { getAdminProducts } from "../../lib/products.js";
 import AdminPageHeader from "./components/AdminPageHeader.jsx";
+import { EmptyState, ErrorBanner, Skeleton, SourceTag } from "./components/ui.jsx";
+import { IconBox, IconSearch } from "./components/icons.jsx";
 
 const fmt = (amount) => `₦${Number(amount).toLocaleString("en-NG")}`;
 const fmtDate = (value) => {
   const date = new Date(value);
-  return Number.isNaN(date.getTime())
+  // The POS sends 1 Jan 1970 when no expiry is set — treat that as empty.
+  return Number.isNaN(date.getTime()) || date.getFullYear() < 2000
     ? null
     : date.toLocaleDateString("en-NG", { dateStyle: "medium" });
 };
 
 const STATUS_STYLES = {
   in_stock: "bg-green-50 text-green-700",
-  low_stock: "bg-amber-50 text-amber-700",
-  out: "bg-red-50 text-red-700",
+  low_stock: "bg-amber-50 text-amber-800",
+  out: "bg-rose-50 text-rose-700",
 };
+const BAR_COLORS = { in_stock: "#16834a", low_stock: "#d48a1c", out: "#c7345a" };
 
 function stockLabel(product) {
   const quantity = Number(product.stock);
   const threshold = product.reorder_level ?? 5;
-  if (quantity <= 0) return { label: "Out of stock", cls: STATUS_STYLES.out };
+  // Meter fills relative to 4x the reorder point, so "low" sits at ≤25%.
+  const fill = Math.min(100, Math.round((Math.max(0, quantity) / Math.max(1, threshold * 4)) * 100));
+  if (quantity <= 0) return { label: "Out of stock", cls: STATUS_STYLES.out, color: BAR_COLORS.out, fill: 0 };
   if (quantity <= threshold) {
-    return { label: `Low · ${quantity}`, cls: STATUS_STYLES.low_stock };
+    return { label: `Low · ${quantity}`, cls: STATUS_STYLES.low_stock, color: BAR_COLORS.low_stock, fill };
   }
-  return { label: `${quantity} in stock`, cls: STATUS_STYLES.in_stock };
+  return { label: `${quantity} in stock`, cls: STATUS_STYLES.in_stock, color: BAR_COLORS.in_stock, fill };
 }
 
 export default function Products() {
@@ -59,44 +65,37 @@ export default function Products() {
   };
 
   return (
-    <div className="relative">
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-32 bg-linear-to-b from-(--color-pink-pale) to-transparent pointer-events-none"
-      />
-
-      <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
+    <div className="px-4 sm:px-6 lg:px-10 py-8 max-w-7xl mx-auto">
         <AdminPageHeader
+          eyebrow="Catalog"
           title="Products"
-          subtitle={`${data.total} ${data.total === 1 ? "product" : "products"} in your store`}
+          subtitle={loading && !data.total ? "Loading products from the POS…" : `${data.total.toLocaleString("en-NG")} ${data.total === 1 ? "product" : "products"} synced from the POS. Edit stock and prices in the POS system.`}
+          action={<SourceTag source="pos" />}
         />
 
-        <div className="mb-6">
+        <div className="mb-5 relative w-full sm:w-96">
+          <IconSearch size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-(--color-faint) pointer-events-none" />
           <input
+            type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search products by name..."
-            className="w-full sm:w-80 h-11 border border-(--color-border) rounded-sm px-4 text-[13px] text-(--color-ink) placeholder-(--color-faint) bg-white outline-none focus:border-(--color-pink) transition-colors font-light"
+            placeholder="Search products by name…"
+            aria-label="Search products"
+            className="w-full h-11 border border-(--color-border) pl-10 pr-4 text-[13.5px] text-(--color-ink) placeholder-(--color-faint) bg-white outline-none"
           />
         </div>
 
-        {error && (
-          <div className="mb-6 px-4 py-3 border border-red-200 bg-red-50 text-[12px] text-red-700 rounded-sm">
-            {error}
-          </div>
-        )}
+        <ErrorBanner>{error}</ErrorBanner>
 
         <div className="bg-white border border-(--color-border) rounded-sm overflow-hidden">
           {loading ? (
-            <div className="px-6 py-12 flex justify-center">
-              <div className="w-5 h-5 border-2 border-(--color-border) border-t-(--color-pink) rounded-full animate-spin" />
+            <div className="p-6 space-y-3">
+              {Array.from({ length: 8 }, (_, i) => <Skeleton key={i} className="h-12 w-full" />)}
             </div>
           ) : data.products.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="text-[13px] text-(--color-muted) font-light">
-                {search ? "No products match your search." : "No products yet."}
-              </p>
-            </div>
+            <EmptyState icon={<IconBox size={20} />} title={search ? "No matches" : "No products yet"}>
+              {search ? `Nothing in the POS matches “${search}”.` : "Products added in the POS will appear here."}
+            </EmptyState>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-[13px]">
@@ -119,7 +118,7 @@ export default function Products() {
                       >
                         <td className="px-6 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-(--color-cream-mid) rounded-sm overflow-hidden flex items-center justify-center shrink-0">
+                            <div className="w-11 h-11 bg-(--color-cream-dark) rounded-lg overflow-hidden flex items-center justify-center shrink-0">
                               {product.image_url ? (
                                 <img src={product.image_url} alt={product.name} className="w-full h-full object-cover" />
                               ) : (
@@ -127,8 +126,8 @@ export default function Products() {
                               )}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-(--color-ink) font-normal truncate max-w-50">
-                                {product.name}
+                              <p className="text-(--color-ink) truncate max-w-72 capitalize">
+                                {product.name.toLowerCase()}
                               </p>
                               {(product.pack_size || expiryDate) && (
                                 <p className="text-[10px] text-(--color-faint)">
@@ -145,8 +144,11 @@ export default function Products() {
                           {fmt(product.price)}
                         </td>
                         <td className="px-6 py-3">
-                          <span className={`inline-block px-2.5 py-1 rounded-sm text-[10px] tracking-[0.08em] uppercase font-normal ${stock.cls}`}>
+                          <span className={`inline-block px-2.5 py-1 rounded-full text-[11.5px] font-medium ${stock.cls}`}>
                             {stock.label}
+                          </span>
+                          <span className="mt-2 block h-1 w-24 rounded-full bg-(--color-cream-dark) overflow-hidden" aria-hidden="true">
+                            <span className="block h-full rounded-full" style={{ width: `${stock.fill}%`, background: stock.color }} />
                           </span>
                           {product.reorder_level != null && (
                             <p className="mt-1 text-[10px] text-(--color-faint)">
@@ -170,21 +172,20 @@ export default function Products() {
               <button
                 onClick={() => setPage(Math.max(0, page - 1))}
                 disabled={page === 0}
-                className="h-9 px-4 border border-(--color-border) rounded-sm text-[11px] tracking-widest uppercase hover:border-(--color-pink) hover:text-(--color-pink) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-9 px-4 border border-(--color-border) rounded-lg bg-white text-[12.5px] font-medium hover:border-(--color-pink) hover:text-(--color-pink) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
               <button
                 onClick={() => setPage(Math.min(data.totalPages - 1, page + 1))}
                 disabled={page >= data.totalPages - 1}
-                className="h-9 px-4 border border-(--color-border) rounded-sm text-[11px] tracking-widest uppercase hover:border-(--color-pink) hover:text-(--color-pink) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="h-9 px-4 border border-(--color-border) rounded-lg bg-white text-[12.5px] font-medium hover:border-(--color-pink) hover:text-(--color-pink) transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Next
               </button>
             </div>
           </div>
         )}
-      </div>
     </div>
   );
 }
