@@ -20,7 +20,17 @@
 
 .admin-shell .tabular-nums { font-variant-numeric: tabular-nums; }
 
-@layer components {
+/*
+ * Primitives live in Tailwind's `base` layer, not `components`:
+ *  - above Preflight (same layer; a class beats its element selectors such
+ *    as `button { background: transparent; border-radius: 0 }`), and
+ *  - below utilities, so `hidden`, `md:inline-flex` etc. still win.
+ * The production CSS minifier shortens Tailwind's
+ * `@layer theme, base, components, utilities;` to `@layer components;`,
+ * which moves `components` *below* `base` in the live build only, so the
+ * Preflight reset overrode these styles. `base` keeps its place either way.
+ */
+@layer base {
 /* ---------- Sidebar ---------- */
 .admin-sidebar {
   background:
