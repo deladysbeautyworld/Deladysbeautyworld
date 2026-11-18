@@ -14,6 +14,13 @@ concurrency:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    # The app refuses to start without Supabase settings, so the build used by
+    # the browser tests needs some. These are placeholders, not secrets: the
+    # e2e tests stub every API they rely on, and nothing here points at a real
+    # project.
+    env:
+      VITE_SUPABASE_URL: http://127.0.0.1:54321
+      VITE_SUPABASE_ANON_KEY: ci-placeholder-anon-key
     defaults:
       run:
         working-directory: lumière
