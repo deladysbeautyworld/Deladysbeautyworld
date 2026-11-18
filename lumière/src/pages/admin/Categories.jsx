@@ -110,6 +110,7 @@ export default function Categories() {
       <div className="relative px-4 sm:px-6 md:px-10 py-8 sm:py-10 max-w-6xl mx-auto">
 
         <AdminPageHeader
+          eyebrow="Catalog"
           title="Categories"
           subtitle={`${categories.length} ${categories.length === 1 ? "category" : "categories"} in your store`}
           action={
