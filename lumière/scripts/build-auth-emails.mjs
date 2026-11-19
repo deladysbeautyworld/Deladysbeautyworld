@@ -130,7 +130,8 @@ ${body}
                 &nbsp;&middot;&nbsp;
                 <a href="${SITE}/contact" target="_blank" style="color:${BRAND.pink};text-decoration:none;">Contact us</a>
               </p>
-              <p style="margin:16px 0 0;font-family:${SANS};font-size:11px;line-height:1.6;color:${BRAND.faint};">This is an account email about {{ .Email }}. You're receiving it because of an action on deladysbeautyworld.com.</p>
+              <p style="margin:14px 0 0;font-family:${SANS};font-size:12px;color:${BRAND.muted};">Need help? Email <a href="mailto:support@deladysbeautyworld.com" style="color:${BRAND.pink};text-decoration:none;">support@deladysbeautyworld.com</a> &mdash; please don't reply to this email.</p>
+              <p style="margin:12px 0 0;font-family:${SANS};font-size:11px;line-height:1.6;color:${BRAND.faint};">This is an account email about {{ .Email }}. You're receiving it because of an action on deladysbeautyworld.com.</p>
             </td>
           </tr>
 
