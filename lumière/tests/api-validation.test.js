@@ -117,7 +117,7 @@ test("contact endpoint trims the reply address and delivers through the configur
   }
 
   assert.equal(response.statusCode, 200);
-  assert.equal(JSON.parse(request.options.body).from, "orders@deladysbeautyworld.com");
+  assert.equal(JSON.parse(request.options.body).from, "De Lady's Beauty World Support <support@deladysbeautyworld.com>");
   assert.equal(JSON.parse(request.options.body).reply_to, "customer@example.com");
 });
 

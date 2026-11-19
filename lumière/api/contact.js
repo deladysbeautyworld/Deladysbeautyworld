@@ -27,6 +27,7 @@ export default async function handler(req, res) {
 
   try {
     await sendEmail({
+      sender: "support",
       to: inbox,
       replyTo: normalizedEmail,
       subject: `Website enquiry from ${name.trim().replace(/[\r\n]+/g, " ").slice(0, 100)}`,
