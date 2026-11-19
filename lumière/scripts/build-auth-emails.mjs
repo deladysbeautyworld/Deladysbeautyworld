@@ -213,7 +213,7 @@ const TEMPLATES = {
     }),
   },
   reauthentication: {
-    subject: "Your De Lady's Beauty World verification code",
+    subject: "{{ .Token }} is your De Lady's Beauty World verification code",
     html: layout({
       preheader: "Your one-time verification code.",
       eyebrow: "Verification",

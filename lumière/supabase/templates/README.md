@@ -13,6 +13,6 @@ template, set the subject below and paste the matching file as the body.
 | Magic link | `magic_link.html` | Your De Lady's Beauty World sign-in link |
 | Change email address | `email_change.html` | Confirm your new email address |
 | Reset password | `recovery.html` | Reset your De Lady's Beauty World password |
-| Reauthentication | `reauthentication.html` | Your De Lady's Beauty World verification code |
+| Reauthentication | `reauthentication.html` | {{ .Token }} is your De Lady's Beauty World verification code |
 
 The logo is loaded from https://www.deladysbeautyworld.com/logo.png, so keep that file in `public/`.
