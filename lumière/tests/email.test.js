@@ -6,6 +6,7 @@ import {
   createOrderEmail,
   escapeHtml,
   sendEmail,
+  senderFor,
   validEmail,
 } from "../server/email.js";
 
@@ -52,7 +53,7 @@ test("sends every transactional email using the configured branded sender", asyn
   }
 
   assert.equal(request.url, "https://api.resend.com/emails");
-  assert.equal(JSON.parse(request.options.body).from, "orders@deladysbeautyworld.com");
+  assert.equal(JSON.parse(request.options.body).from, "De Lady's Beauty World <orders@deladysbeautyworld.com>");
 });
 
 test("order email includes escaped customer data and tracking links", () => {
@@ -83,4 +84,28 @@ test("low-stock email escapes product names and formats its quantity", () => {
   assert.equal(email.to, "admin@example.com");
   assert.match(email.html, /&lt;Cream&gt;/);
   assert.match(email.text, /1 units remaining/);
+});
+
+test("each kind of email uses its own sender", () => {
+  const saved = { ...process.env };
+  delete process.env.RESEND_FROM_EMAIL;
+  delete process.env.EMAIL_FROM_NOREPLY;
+  delete process.env.EMAIL_FROM_SUPPORT;
+  try {
+    assert.equal(senderFor("orders"), "De Lady's Beauty World <orders@deladysbeautyworld.com>");
+    assert.equal(senderFor("noreply"), "De Lady's Beauty World <noreply@deladysbeautyworld.com>");
+    assert.equal(senderFor("support"), "De Lady's Beauty World Support <support@deladysbeautyworld.com>");
+
+    process.env.EMAIL_FROM_SUPPORT = "Help Desk <help@deladysbeautyworld.com>";
+    assert.equal(senderFor("support"), "Help Desk <help@deladysbeautyworld.com>");
+    assert.throws(() => senderFor("marketing"), /Unknown email sender/);
+
+    assert.equal(createOrderEmail({ id: "1", event_key: "order-paid", recipient: "a@b.co", payload: { order_id: "abc" } }).sender, "orders");
+    assert.equal(createLowStockEmail({ id: "2", payload: { product_name: "Cream", stock: 2 } }, "admin@b.co").sender, "noreply");
+  } finally {
+    for (const key of ["RESEND_FROM_EMAIL", "EMAIL_FROM_NOREPLY", "EMAIL_FROM_SUPPORT"]) {
+      if (saved[key] === undefined) delete process.env[key];
+      else process.env[key] = saved[key];
+    }
+  }
 });
